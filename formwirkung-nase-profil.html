@@ -169,6 +169,10 @@ svg text{font-family:var(--f-body)}
 .lesen dl.sml{grid-template-columns:5em 1fr}
 @media (max-width:520px){.lesen dl.sml{grid-template-columns:5em 1fr;gap:6px 10px}.lesen dl.sml dd{margin-bottom:0}}
 .faelle{display:flex;flex-wrap:wrap;gap:8px}
+dl.steck{margin:0;display:grid;grid-template-columns:minmax(9em,max-content) 1fr;gap:8px 16px}
+dl.steck dt{font-weight:700}
+dl.steck dd{margin:0}
+@media (max-width:520px){dl.steck{grid-template-columns:1fr;gap:2px}dl.steck dd{margin-bottom:8px}}
 .wrap.breit{max-width:1120px}
 .bk-grid{display:grid;gap:16px;align-items:start}
 @media (min-width:900px){.bk-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.bk-fig{position:sticky;top:76px}}
@@ -259,6 +263,7 @@ svg text{font-family:var(--f-body)}
     // Fehler: Volumen nur ganz oben
     hoch: [296,132, 300,64,250,22,184,22, 120,22,76,60,70,124, 68,170,70,214,76,254, 78,292,98,328,128,352, 138,360,146,366,150,372]
   };
+  FORM.oberkopf = [296,132, 297,76,252,40,190,40, 124,40,78,76,70,132, 66,176,68,220,74,256, 78,292,98,328,128,352, 138,360,146,366,150,372];
   FORM.M = FORM.A.map(function(v, i){ return (v + FORM.B[i]) / 2; });
   function pfadAus(p){
     var d = "M" + p[0].toFixed(1) + "," + p[1].toFixed(1);
@@ -353,7 +358,7 @@ svg text{font-family:var(--f-body)}
 
     // haar (veränderbar)
     s += '<g class="haar" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5" stroke-linecap="round">' +
-      '<path d="' + H.o + '"/>' + (o.spitze ? '<path d="' + SPITZE + '"/>' : '') + '</g>';
+      '<path d="' + H.o + '"/>' + (o.spitze ? '<path d="' + SPITZE + '"/>' : '') + (o.ponyWeich ? '<path d="' + P1_PONY + '" fill="var(--g-flaeche)"/>' : '') + '</g>';
 
     // nase (fix, immer obenauf)
     s += '<g class="nase"><path d="' + NASE + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>';
@@ -870,7 +875,7 @@ svg text{font-family:var(--f-body)}
 
   // ---------- Zustand ----------
   var BK_START = {ansicht:"vorne", form:"rund", augen:"mandel", brauen:"gebogen", mund:"voll", frisur:"seitlich", pony:"kein", bart:"kein", mess:true, oval:true, zeichnen:false, farbe:"ink", dicke:4, radieren:false, striche:[], vorher:null, vergleich:null};
-  var st = {hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", ans1:"profil", ans2:"vorne", bk:null, bkAnim:false, bkVon:null, view:"pilot", fall:"nase", kap:-1, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
+  var st = {richtung1:"hinterkopf", richtung2:"B", dk:"A", dkHilfe:true, fehlerDk:"breit", rund:"A", rundHilfe:true, richtung4:"lang", fehlerRund:"seitlich", hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", ans1:"profil", ans2:"vorne", bk:null, bkAnim:false, bkVon:null, view:"pilot", fall:"nase", kap:-1, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
 
   var SCREENS = [
     {step:-1, render:function(){
@@ -951,6 +956,7 @@ svg text{font-family:var(--f-body)}
         '<li><strong>Wirbel am Hinterkopf:</strong> Wohin fällt das Haar von selbst?</li>' +
         '<li><strong>Styling zu Hause:</strong> Kann die Kundin oder der Kunde die Form selbst nachstylen?</li>' +
         '<li><strong>Alle Ansichten:</strong> Die Form muss auch von vorne und von hinten stimmig sein.</li>' +
+        '<li><strong>Keine starre Regel:</strong> Nicht jede markante Nase braucht dieselbe Lösung. Aufbau am Hinterkopf ist eine mögliche Richtung.</li>' +
         '<li><strong>Wunsch der Kundin oder des Kunden:</strong> Nicht jede Person möchte ihre Nase ausgleichen. Frag nach, bevor du darauf eingehst, und sprich respektvoll über das Gesicht.</li>' +
         '</ul>');
     }},
@@ -961,7 +967,7 @@ svg text{font-family:var(--f-body)}
           '<figure>' + fig({hair:"B", label:"Nachher"}) + '<figcaption>Nachher</figcaption></figure>' +
         '</div>',
         '<h2>Merksatz</h2>' +
-        '<p class="merksatz">Die Nase bleibt gleich, das Verhältnis ändert sich.<br>Hinten Aufbau, vorne Ruhe.</p>');
+        '<p class="merksatz">' + STECKBRIEF.nase.m + '</p>');
     }}
   ];
 
@@ -1056,7 +1062,7 @@ svg text{font-family:var(--f-body)}
   function augeFig(o){
     o = o || {};
     var key = o.pony || "A", kante = PONY[key], id = ++uid;
-    var pony = glattZu(kante.concat(PONY_OBEN)), schraeg = key === "B" || key === "M";
+    var pony = glattZu(kante.concat(PONY_OBEN)), schraeg = key === "B" || key === "M" || key === "scheitel";
     var s = '<svg viewBox="92 44 400 436" role="img" aria-label="' + (o.label || "Frontalansicht") + '">';
     // Kopf (fix)
     s += '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
@@ -1070,7 +1076,8 @@ svg text{font-family:var(--f-body)}
     // Pony (veränderbar)
     s += '<g class="pony">';
     if (schraeg) s += '<path d="M306,132 L314,82" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="4 4"/>';
-    s += '<path d="' + pony + '" fill="' + (key === "dicht" ? 'var(--g-haar)' : 'var(--g-flaeche)') + '" fill-opacity="' + (key === "dicht" ? '.85' : '.9') + '" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="' + (key === "dicht" || key === "kurz" ? '0' : '8 5') + '" stroke-linejoin="round"/>';
+    s += '<path d="' + pony + '" fill="' + (key === "dicht" ? 'var(--g-haar)' : 'var(--g-flaeche)') + '" fill-opacity="' + (key === "dicht" ? '.85' : key === "leicht" ? '.45' : '.9') + '" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="' + (key === "dicht" || key === "kurz" ? '0' : '8 5') + '" stroke-linejoin="round"/>';
+    if (key === "leicht"){ var zk = ""; for (var zx = 176; zx <= 326; zx += 10) zk += "M" + zx + "," + kanteY(kante, zx).toFixed(1) + " l2,-9 "; s += '<path d="' + zk + '" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round"/>'; }
     s += '</g>';
     if (o.zonen){
       s += '<path d="' + glattOffen(kante) + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" opacity=".55"/>' +
@@ -1146,7 +1153,7 @@ svg text{font-family:var(--f-body)}
       return card(augeFig({pony:"A", hilfe:st.hilfe, label:"Ausgangsform: gerader, schwerer Pony"}) +
         controls(toggle("hilfe","Hilfslinien zeigen", st.hilfe)),
         '<h2>Ausgangsform</h2>' +
-        '<p>Ein Auge wirkt schwerer, kleiner oder etwas geschlossener als das andere.</p>' +
+        '<p>Ein Auge wirkt schwer, kleiner oder optisch abgesenkt.</p>' +
         '<p>Manchmal liegt der Eindruck am Lid, manchmal an der Linienführung rund um Stirn und Vorderbereich. Hier liegt ein gerader Pony schwer auf der Stirn, direkt über den Augen.</p>' +
         '<p class="note">Die Hilfslinien zeigen: Über dem schwerer wirkenden Auge bleibt kaum Luft bis zur Ponykante.</p>');
     }},
@@ -1754,6 +1761,324 @@ svg text{font-family:var(--f-body)}
     return bkVorne(k, o);
   }
 
+
+  // ==================== Steckbriefe aller Fälle ====================
+  var STECKBRIEF = {
+    nase: {b:"Die Nase wirkt in der Seitenansicht groß, lang oder markant.", z:"Die Seitenansicht soll ausgeglichener wirken.", f:"Nase und vorderes Profil.", v:"Hinterkopf, Oberkopf, Ponyführung, Bewegtheit der Haarform.", l:"Nicht die Nase verändert sich, sondern das Verhältnis in der Gesamtform.", a:"Keine starre Regel. Nicht jede markante Nase braucht dieselbe Lösung.", m:"Nicht die Nase ändert sich, sondern das Verhältnis."},
+    auge: {b:"Ein Auge wirkt schwer, kleiner oder optisch abgesenkt.", z:"Die Augenpartie soll offener und leichter wirken.", f:"Augenform und Gesichtsgrundform.", v:"Ponyführung, Scheitel, Gewicht im Vorderbereich.", l:"Die Augenwirkung entsteht auch durch Linienführung rundherum.", a:"Zu schwere oder zu kurze Vorderpartien können die Wirkung verschlechtern.", m:"Nicht das Auge allein entscheidet über die Wirkung, sondern auch die Linienführung rundherum."},
+    dk:   {b:"Die untere Gesichtspartie wirkt schwerer oder kürzer.", z:"Das Gesicht soll gestreckter und leichter wirken.", f:"Kinn- und Halsbereich.", v:"Höhe am Oberkopf, Längenführung, Volumenverteilung rund um Kiefer und Nacken.", l:"Auch die vertikale Formführung beeinflusst die Wirkung der unteren Gesichtspartie.", a:"Zu viel Breite oder Gewicht unten kann die Schwere verstärken.", m:"Höhe und Länge strecken, Gewicht unten beschwert."},
+    rund: {b:"Das Gesicht wirkt weich, breit oder kurz.", z:"Das Gesicht soll schmaler oder gestreckter wirken.", f:"Gesichtsgrundform.", v:"Länge, vertikale Linien, Seitenvolumen, Konturführung.", l:"Linien und Volumenverteilung verändern die wahrgenommene Gesichtsform.", a:"Zu viel Breite an den Seiten kann die Rundung verstärken.", m:"Längs streckt, Breite rundet."},
+    hd:   {b:"Derselbe Schnitt wirkt unterschiedlich, je nachdem wo helle und dunkle Flächen sitzen.", z:"Bereiche gezielt betonen oder zurücknehmen, hier: die Form nach oben strecken.", f:"Kopf und Schnittform.", v:"Helle und dunkle Flächen.", l:"Helle Bereiche treten optisch hervor, dunkle treten zurück.", a:"Zu harte Kontraste, Gesichtsfarbe, Wunsch der Kundin oder des Kunden.", m:"Helles tritt hervor, Dunkles tritt zurück."}
+  };
+  function steckbrief(key){
+    var S = STECKBRIEF[key];
+    return '<section class="card text"><h2>Steckbrief</h2><dl class="steck">' +
+      '<dt>Beobachtung</dt><dd>' + S.b + '</dd><dt>Zielwirkung</dt><dd>' + S.z + '</dd>' +
+      '<dt>Was bleibt fix</dt><dd>' + S.f + '</dd><dt>Was wird variiert</dt><dd>' + S.v + '</dd>' +
+      '<dt>Lernbotschaft</dt><dd><strong>' + S.l + '</strong></dd><dt>Worauf achten</dt><dd>' + S.a + '</dd>' +
+      '<dt>Merksatz</dt><dd>' + S.m + '</dd></dl></section>';
+  }
+
+  // ==================== Fall 1: mögliche Richtungen ====================
+  var P1_PONY = "M294,126 C307,142 311,166 306,192 C299,198 290,197 285,190 C288,170 290,150 292,132 Z";
+  (function(){
+    var pts = punkte(HAAR.B.o), n = pts.length, out = [];
+    for (var i = 0; i < n; i++){
+      var a = pts[Math.max(0, i-1)], b = pts[Math.min(n-1, i+1)], tx = b[0]-a[0], ty = b[1]-a[1], l = Math.sqrt(tx*tx + ty*ty) || 1;
+      var taper = Math.min(1, i / 25, (n - 1 - i) / 25), w = 6 * Math.sin(i * 0.32) * taper;
+      out.push([pts[i][0] - ty / l * w, pts[i][1] + tx / l * w]);
+    }
+    out[n-1] = [150, 372];
+    HAAR.bewegt = {o:glattOffen(out.filter(function(_, i){ return i % 3 === 0 || i === n - 1; }))};
+  })();
+  var RICHTUNG1 = {
+    hinterkopf: {t:"Aufbau am Hinterkopf", d:"Volumen auf der Verlängerung der Linie Nasenspitze – Ohrspitze. Hinten entsteht ein Gegengewicht.", fig:{hair:"B"}},
+    oberkopf:   {t:"Höhe am Oberkopf", d:"Etwas Volumen am Oberkopf, nach hinten geführt. Die Form bekommt Höhe, der Blick verteilt sich. Nicht zu hoch, sonst wirkt der Kopf lang (siehe Fehlerbilder).", fig:{hair:"oberkopf"}},
+    pony:       {t:"Weicher, seitlicher Pony", d:"Ein weicher Pony nimmt vorne etwas Aufmerksamkeit von der Nase. Er darf nicht spitz nach vorne zeigen.", fig:{hair:"A", ponyWeich:true}},
+    bewegt:     {t:"Bewegte Haarform", d:"Eine lockige oder wellige Kontur kann die Aufmerksamkeit von der Nase ablenken (Seite 6).", fig:{hair:"bewegt"}}
+  };
+
+  // ==================== Fall 2: mögliche Richtungen ====================
+  PONY.scheitel = [[168,198],[208,158],[248,140],[284,132],[306,132]];
+  PONY.leicht = [[168,206],[210,200],[250,196],[290,190],[332,186]];
+  var RICHTUNG2 = {
+    B:        {t:"Schräg geführter Pony", d:"Die schräge Linie führt den Blick und lässt über dem schwerer wirkenden Auge Luft.", fig:{pony:"B"}},
+    scheitel: {t:"Seitlicher Scheitel", d:"Kein Pony, das Haar wird vom Scheitel zur Seite geführt. Die Stirn bleibt offen, das Auge bekommt Luft.", fig:{pony:"scheitel"}},
+    leicht:   {t:"Leichter Vorderbereich", d:"Ein Pony mit weniger Gewicht und weich ausgearbeiteter Kante, z. B. mit Point- oder Slicetechnik (Seite 14). Er liegt höher und drückt nicht auf das Auge.", fig:{pony:"leicht"}}
+  };
+
+  // ==================== Fall 3: Doppelkinn (Profil) ====================
+  // Fix: Kinn- und Halsbereich. Variiert: Höhe am Oberkopf, Längenführung, Volumen um Kiefer und Nacken.
+  var DK_KINN = "M303,357 C308,367 306,379 296,385 C292,398 284,408 272,414 C258,420 246,420 238,428 L230,448";
+  var DK_GESICHT = P_GESICHT.slice(0, P_GESICHT.indexOf(" C308,367")) + " C308,367 306,379 296,385 C292,398 284,408 272,414 C258,420 246,420 238,428 L230,448";
+  var DK_VORNE = " C258,380 256,330 256,290 C256,250 256,220 262,200 C270,176 284,150 296,132 Z";
+  var DK_HAAR = {
+    A:      "M296,132 C294,90 256,62 204,62 C144,62 96,92 80,140 C68,190 68,250 74,300 C80,350 96,392 132,410 C172,424 222,422 256,412" + DK_VORNE,
+    M:      "M296,132 C296,82 256,50 200,50 C136,50 88,86 76,138 C66,190 68,244 78,286 C90,326 104,360 118,396 C126,418 128,434 128,446 L200,446 C200,420 204,396 212,370 C224,330 238,286 248,250 C254,226 256,210 262,200 C270,176 284,150 296,132 Z",
+    B:      "M296,132 C298,76 256,38 196,38 C130,38 84,78 72,136 C62,186 66,236 76,272 C88,312 104,346 112,390 C118,430 118,460 116,482 L196,482 C194,450 196,420 204,390 C214,352 234,300 246,256 C252,228 256,210 262,200 C270,176 284,150 296,132 Z",
+    breit:  "M296,132 C294,90 256,62 204,62 C144,62 92,92 74,140 C58,196 54,262 62,318 C70,372 96,414 140,426 C184,436 226,430 258,418" + DK_VORNE,
+    kante:  "M296,132 C294,90 256,62 204,62 C144,62 96,92 80,140 C70,190 72,250 76,300 C78,340 80,370 82,386 L262,386 C258,350 256,300 256,260 C256,230 258,212 262,200 C270,176 284,150 296,132 Z",
+    flach:  pfadAus(FORM.A) + ANSATZ_REV
+  };
+  function dkFig(o){
+    o = o || {};
+    var key = o.dk || "A", d = DK_HAAR[key], id = ++uid, kurz = key === "flach";
+    var top = Math.min.apply(null, punkte(d).map(function(p){ return p[1]; }));
+    var s = '<svg viewBox="20 20 400 470" role="img" aria-label="' + (o.label || "Doppelkinn im Profil") + '">';
+    s += '<path d="' + d + '" fill="var(--g-flaeche)" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="' + (key === "kante" ? '8 5' : '8 5') + '" stroke-linejoin="round"/>';
+    if (key === "kante") s += '<line x1="82" y1="386" x2="262" y2="386" stroke="var(--ink)" stroke-width="3"/>';
+    s += '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+      (kurz ? '<path d="' + ANSATZ + '" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="1.5 4.5"/><path d="' + OHR + '" stroke="var(--ink)" stroke-width="2.3"/><path d="' + NACKEN + '" stroke="var(--ink)" stroke-width="2.6"/>' : '') +
+      '<path d="' + DK_GESICHT + '" stroke="var(--ink)" stroke-width="2.6"/></g>';
+    s += profilBraue("gebogen") + profilAuge("mandel") + '<path d="M309,324 Q303,326 297,323" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/>';
+    // Kinn und Hals (fix) in der Akzentfarbe
+    s += '<path d="' + DK_KINN + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
+    if (o.hilfe){
+      s += '<g class="hilfe">' + pfeil(372, 386, 372, top + 2, "var(--g-haar-kontur)", 3) + pfeil(372, top, 372, 384, "var(--g-haar-kontur)", 3) +
+        '<line x1="300" y1="' + top.toFixed(0) + '" x2="384" y2="' + top.toFixed(0) + '" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
+        '<line x1="300" y1="386" x2="384" y2="386" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
+        txt(380, ((top + 386) / 2).toFixed(0), "Höhe", {size:14}) +
+        (key === "A" || key === "breit" || key === "kante" ? pfeil(100, 440, 240, 440, "var(--accent)", 2.5) + txt(170, 464, "Linie waagrecht", {size:13, anchor:"middle", fill:"var(--accent)"}) : '') +
+        (key === "B" || key === "M" ? pfeil(100, 300, 100, 470, "var(--accent)", 2.5) + txt(92, 292, "Linie senkrecht", {size:13, fill:"var(--accent)"}) : '') + '</g>';
+    }
+    s += '<g class="hinweis"><line x1="300" y1="440" x2="284" y2="414" stroke="var(--ink)" stroke-width="1.5"/>' +
+      txt(282, 458, "Kinn und Hals", {size:16, fill:"var(--accent)"}) + txt(282, 477, "unverändert", {size:16, fill:"var(--accent)"}) + '</g>';
+    return s + '</svg>';
+  }
+  var FEHLER_DK = {
+    breit: {t:"Volumen am Kiefer", d:"Viel Breite und Gewicht auf Höhe von Kiefer und Kinn. Die untere Partie wirkt noch schwerer.", fig:{dk:"breit", hilfe:true}},
+    kante: {t:"Harte Kante auf Kinnhöhe", d:"Eine gerade, harte Linie genau auf Kinnhöhe lenkt den Blick auf den Kinn- und Halsbereich.", fig:{dk:"kante"}},
+    flach: {t:"Oben flach und kurz", d:"Keine Höhe am Oberkopf. Die Form bekommt keine Streckung, die untere Partie dominiert.", fig:{dk:"flach", hilfe:true}},
+    gut:   {t:"So kann es passen", d:"Etwas Höhe am Oberkopf, Längen, die senkrecht über das Kinn hinausführen, der Nacken bleibt schmal.", fig:{dk:"B", hilfe:true}, ok:true}
+  };
+  var FRAGEN_DK = [
+    {q:"Was kann die untere Gesichtspartie gestreckter wirken lassen?",
+     a:["Viel Volumen auf Kieferhöhe","Höhe am Oberkopf und senkrechte Längen","Eine harte Kante genau auf Kinnhöhe"],
+     r:1, f:"Die vertikale Formführung streckt. Breite unten beschwert."},
+    {q:"Bei welchem Bild wirkt die untere Partie leichter?", bild:true,
+     a:["Kinnlang, Volumen am Kiefer","Höhe oben, Längen senkrecht"],
+     r:1, f:"Senkrechte Linien führen den Blick über das Kinn hinaus."},
+    {q:"Was verändert sich an Kinn und Hals?",
+     a:["Das Kinn wird kleiner.","Nichts. Nur die Form rundherum ändert sich.","Der Hals wird länger."],
+     r:1, f:"Kinn und Hals bleiben gleich. Es verändert sich die Wirkung durch die Gesamtform."},
+    {q:"Richtig oder falsch? „Bei Doppelkinn braucht es immer lange Haare.“",
+     a:["Richtig","Falsch"],
+     r:1, f:"Längen sind eine mögliche Richtung. Auch Höhe am Oberkopf oder ein schmaler Nacken können strecken."},
+    {q:"Welche Linie auf Kinnhöhe ist eher ungünstig?",
+     a:["Eine harte, waagrechte Kante","Eine weich auslaufende Länge","Keine Linie"],
+     r:0, f:"Eine harte Kante auf Kinnhöhe lenkt den Blick genau dorthin."}
+  ];
+  var SCREENS_DK = [
+    {step:-1, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + dkFig({dk:"A", label:"Vorher: Volumen am Kiefer"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + dkFig({dk:"B", label:"Nachher: Höhe und senkrechte Längen"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Worum es geht</h2>' +
+        '<p>Wie schwer die untere Gesichtspartie wirkt, hängt auch von der Form rundherum ab.</p>' +
+        '<p>Kinn und Hals bleiben in jedem Bild gleich. Nur die Haarform ändert sich.</p>' +
+        '<div class="callout accent"><p><strong>Aus dem Unterricht:</strong> Bei Doppelkinn mehr Volumen am Oberkopf. (Seite 6)</p></div>') + steckbrief("dk");
+    }},
+    {step:0, render:function(){
+      return card(dkFig({dk:"A", hilfe:st.dkHilfe, label:"Ausgangsform"}) + controls(toggle("dkHilfe","Hilfslinien zeigen", st.dkHilfe)),
+        '<h2>Ausgangsform</h2>' +
+        '<p>Die untere Gesichtspartie wirkt schwerer oder kürzer.</p>' +
+        '<p>Die Haarform ist oben flach und hat ihr Gewicht auf Höhe von Kiefer und Kinn. Die Linie verläuft waagrecht.</p>');
+    }},
+    {step:1, render:function(){
+      return card(dkFig({dk:st.dk, hilfe:st.dkHilfe, label:{A:"Zustand A", M:"Zwischenstufe", B:"Zustand B"}[st.dk]}) +
+        controls(seg("dk",[["A","A · Gewicht unten"],["M","Zwischenstufe"],["B","B · gestreckt"]], st.dk) + toggle("dkHilfe","Hilfslinien", st.dkHilfe)),
+        '<h2>Zielwirkung</h2>' +
+        '<p>Das Gesicht soll gestreckter und leichter wirken.</p>' +
+        '<p>Kinn und Hals bleiben genau gleich. Achte auf die Höhe und auf die Richtung der Linien.</p>');
+    }},
+    {step:2, render:function(){
+      return card(dkFig({dk:"B", hilfe:true, label:"Mögliche Schnittentscheidung"}),
+        '<h2>Mögliche gestalterische Richtungen</h2>' +
+        '<ul>' +
+        '<li><strong>Höhe am Oberkopf:</strong> Die Form wird nach oben gestreckt.</li>' +
+        '<li><strong>Längenführung:</strong> Längen, die senkrecht über das Kinn hinausführen, lenken den Blick nach unten weiter.</li>' +
+        '<li><strong>Volumenverteilung:</strong> wenig Breite auf Höhe von Kiefer und Nacken, der Nacken bleibt schmal.</li>' +
+        '</ul>' +
+        '<p>Das sind mögliche Richtungen, keine feste Regel. Welche passt, hängt von Haarstruktur, Haarmenge und Wunsch ab.</p>');
+    }},
+    {step:3, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + dkFig({dk:"A", hilfe:true, label:"Vorher"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + dkFig({dk:"B", hilfe:true, label:"Nachher"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Warum es wirkt</h2>' +
+        '<p>Das Auge folgt Linien. Waagrechte Linien und Gewicht auf Kinnhöhe halten den Blick unten fest und betonen die Breite.</p>' +
+        '<p>Senkrechte Linien und Höhe am Oberkopf führen den Blick nach oben und unten weiter. Die Form wirkt gestreckt, die untere Partie leichter.</p>');
+    }},
+    {step:4, render:function(){
+      var f = FEHLER_DK[st.fehlerDk];
+      return card(dkFig(Object.assign({label:f.t}, f.fig)) +
+        controls(seg("fehlerDk",[["breit","Breit unten"],["kante","Harte Kante"],["flach","Oben flach"],["gut","So kann es passen"]], st.fehlerDk)) +
+        '<div class="callout ' + (f.ok ? 'good' : 'bad') + '"><strong>' + f.t + '</strong><p>' + f.d + '</p></div>',
+        '<h2>Worauf achten: Fehlerbilder</h2>' +
+        '<p>Zu viel Breite oder Gewicht unten kann die Schwere verstärken.</p>');
+    }},
+    {step:5, render:renderCheck},
+    {step:6, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + dkFig({dk:"A", label:"Vorher"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + dkFig({dk:"B", label:"Nachher"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Merksatz</h2><p class="merksatz">' + STECKBRIEF.dk.m + '</p>');
+    }}
+  ];
+
+  // ==================== Fall 4: Rundes Gesicht (vorne) ====================
+  // Fix: Gesichtsgrundform (rund). Variiert: Länge, vertikale Linien, Seitenvolumen, Konturführung.
+  var RUND_BASIS = {form:"rund", augen:"mandel", brauen:"gebogen", mund:"voll", bart:"kein"};
+  var RUND_ZUSTAND = {
+    A:        {frisur:"kurz", pony:"kein"},
+    M:        {frisur:"oben", pony:"kein"},
+    B:        {frisur:"lang", pony:"schraeg"},
+    seitlich: {frisur:"seitlich", pony:"kein"},
+    bob:      {frisur:"bob", pony:"kein"},
+    gerade:   {frisur:"kurz", pony:"gerade"},
+    lang:     {frisur:"lang", pony:"kein"},
+    oben:     {frisur:"oben", pony:"kein"},
+    schraeg:  {frisur:"kurz", pony:"schraeg"}
+  };
+  function rundFig(o){
+    o = o || {};
+    var k = Object.assign({}, RUND_BASIS, RUND_ZUSTAND[o.rund || "A"]), g = bkGeo("rund"), innen = "";
+    if (o.hilfe){
+      var m = bkMass(k), I = BK_IDEAL || (bkScore(k), BK_IDEAL), rx = m.wC / 2, ry = rx * I.rL, cyO = (m.oben + m.unten) / 2;
+      innen += '<ellipse cx="200" cy="' + cyO.toFixed(1) + '" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '" fill="none" stroke="var(--g-haar-kontur)" stroke-width="2" stroke-dasharray="3 6" stroke-linecap="round"/>';
+      [[BK_Y.F, m.wF], [BK_Y.C, m.wC], [BK_Y.J, m.wJ]].forEach(function(l){
+        innen += '<line x1="' + (200 - l[1]/2).toFixed(1) + '" y1="' + l[0] + '" x2="' + (200 + l[1]/2).toFixed(1) + '" y2="' + l[0] + '" stroke="var(--g-haar-kontur)" stroke-width="2" opacity=".8"/>';
+      });
+    }
+    innen += '<path d="' + bkGesicht(g.F) + '" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round"/>' +
+      txt(200, 458, "Gesichtsform unverändert", {size:15, anchor:"middle", fill:"var(--accent)"});
+    return bkVorne(k, {label:o.label || "Rundes Gesicht", innen:innen});
+  }
+  function rundScore(z){ return Math.round(bkScore(Object.assign({}, RUND_BASIS, RUND_ZUSTAND[z])) * 100); }
+  var RICHTUNG4 = {
+    lang:    {t:"Länge", d:"Längen, die über das Kinn hinausführen, strecken das Gesicht."},
+    oben:    {t:"Höhe am Oberkopf", d:"Etwas Höhe oben verlängert die Form nach oben."},
+    schraeg: {t:"Seitlicher Pony", d:"Eine schräge Linie unterbricht die Rundung (Seite 6)."},
+    B:       {t:"Länge und seitlicher Pony", d:"Senkrechte Längen und eine schräge Linie vorne zusammen."}
+  };
+  var FEHLER_RUND = {
+    seitlich: {t:"Volumen an den Seiten", d:"Breite auf Wangenhöhe macht die Form noch runder.", fig:{rund:"seitlich", hilfe:true}},
+    bob:      {t:"Kinnlange, runde Kontur", d:"Gewicht und Rundung auf Kinnhöhe wiederholen die Gesichtsform.", fig:{rund:"bob", hilfe:true}},
+    gerade:   {t:"Gerader Pony", d:"Eine waagrechte Linie verkürzt das Gesicht optisch.", fig:{rund:"gerade", hilfe:true}},
+    gut:      {t:"So kann es passen", d:"Längen und eine schräge Linie vorne strecken die Form.", fig:{rund:"B", hilfe:true}, ok:true}
+  };
+  var FRAGEN_RUND = [
+    {q:"Was kann ein rundes Gesicht gestreckter wirken lassen?",
+     a:["Volumen an den Seiten","Längen und senkrechte Linien","Ein gerader Pony"],
+     r:1, f:"Linien in der Länge strecken, Breite an den Seiten rundet."},
+    {q:"Bei welchem Bild wirkt das Gesicht schmaler?", bild:true,
+     a:["Kurz und rund","Lang mit seitlichem Pony"],
+     r:1, f:"Längen und die schräge Linie strecken die wahrgenommene Form."},
+    {q:"Was verändert sich an der Gesichtsform?",
+     a:["Sie wird schmaler.","Nichts. Nur die wahrgenommene Form ändert sich.","Sie wird länger."],
+     r:1, f:"Die Gesichtsgrundform bleibt gleich. Linien und Volumen verändern, wie sie wirkt."},
+    {q:"Richtig oder falsch? „Ein rundes Gesicht braucht immer lange Haare.“",
+     a:["Richtig","Falsch"],
+     r:1, f:"Länge ist eine mögliche Richtung. Auch Höhe oben oder eine schräge Linie können strecken."},
+    {q:"Welche Frisur kann die Rundung verstärken?",
+     a:["Viel Volumen an den Seiten","Höhe am Oberkopf","Längen über das Kinn hinaus"],
+     r:0, f:"Zu viel Breite an den Seiten verstärkt die Rundung."}
+  ];
+  var SCREENS_RUND = [
+    {step:-1, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + rundFig({rund:"A", label:"Vorher"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + rundFig({rund:"B", label:"Nachher"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Worum es geht</h2>' +
+        '<p>Ein rundes Gesicht wirkt weich, breit oder kurz. Wie es wirkt, hängt auch von Linien und Volumen rundherum ab.</p>' +
+        '<p>Die Gesichtsform bleibt in jedem Bild gleich. Nur die Frisur ändert sich.</p>' +
+        '<div class="callout accent"><p><strong>Aus dem Unterricht:</strong> Lange, wellige oder gestufte Haare, ein seitlicher Pony oder ein asymmetrischer Bob lassen ein weiches (rundes) Gesicht schmaler erscheinen. (Seite 6)</p></div>') + steckbrief("rund");
+    }},
+    {step:0, render:function(){
+      return card(rundFig({rund:"A", hilfe:st.rundHilfe, label:"Ausgangsform"}) + controls(toggle("rundHilfe","Hilfslinien zeigen", st.rundHilfe)),
+        '<h2>Ausgangsform</h2>' +
+        '<p>Das Gesicht wirkt weich, breit oder kurz. Der kurze, runde Schnitt folgt der Gesichtsform.</p>' +
+        '<p class="note">Die Hilfslinien zeigen die wirkende Breite von Stirn, Wangen und Kiefer und die harmonische Oval-Form als Vergleich.</p>');
+    }},
+    {step:1, render:function(){
+      return card(rundFig({rund:st.rund, hilfe:st.rundHilfe, label:{A:"Zustand A", M:"Zwischenstufe", B:"Zustand B"}[st.rund]}) +
+        '<p class="note" style="text-align:center">Balance ' + rundScore(st.rund) + ' %</p>' +
+        controls(seg("rund",[["A","A · kurz, rund"],["M","Zwischenstufe"],["B","B · gestreckt"]], st.rund) + toggle("rundHilfe","Hilfslinien", st.rundHilfe)),
+        '<h2>Zielwirkung</h2>' +
+        '<p>Das Gesicht soll schmaler oder gestreckter wirken.</p>' +
+        '<p>Die Gesichtsform bleibt genau gleich. Es verändern sich Länge, Linien und Volumen.</p>');
+    }},
+    {step:2, render:function(){
+      var r = RICHTUNG4[st.richtung4];
+      return card(rundFig({rund:st.richtung4, hilfe:true, label:r.t}) +
+        '<p class="note" style="text-align:center">Balance ' + rundScore(st.richtung4) + ' %</p>' +
+        controls(seg("richtung4",[["lang","Länge"],["oben","Höhe oben"],["schraeg","Seitlicher Pony"],["B","Kombiniert"]], st.richtung4)) +
+        '<div class="callout accent"><strong>' + r.t + '</strong><p>' + r.d + '</p></div>',
+        '<h2>Mögliche gestalterische Richtungen</h2>' +
+        '<p>Es gibt nicht die eine Lösung. Diese Richtungen können ein rundes Gesicht strecken. Welche passt, hängt von Haarstruktur, Haarmenge und Wunsch ab.</p>');
+    }},
+    {step:3, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + rundFig({rund:"A", hilfe:true, label:"Vorher"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + rundFig({rund:"B", hilfe:true, label:"Nachher"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Warum es wirkt</h2>' +
+        '<p>Das Auge vergleicht Breite und Länge. Senkrechte Linien und Längen betonen die Länge, die Form wirkt gestreckter.</p>' +
+        '<p>Breite an den Seiten und runde Konturen wiederholen die Rundung und verstärken sie.</p>');
+    }},
+    {step:4, render:function(){
+      var f = FEHLER_RUND[st.fehlerRund];
+      return card(rundFig(Object.assign({label:f.t}, f.fig)) +
+        controls(seg("fehlerRund",[["seitlich","Seitenvolumen"],["bob","Kinnlang rund"],["gerade","Gerader Pony"],["gut","So kann es passen"]], st.fehlerRund)) +
+        '<div class="callout ' + (f.ok ? 'good' : 'bad') + '"><strong>' + f.t + '</strong><p>' + f.d + '</p></div>',
+        '<h2>Worauf achten: Fehlerbilder</h2>' +
+        '<p>Zu viel Breite an den Seiten kann die Rundung verstärken.</p>');
+    }},
+    {step:5, render:renderCheck},
+    {step:6, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + rundFig({rund:"A", label:"Vorher"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + rundFig({rund:"B", label:"Nachher"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Merksatz</h2><p class="merksatz">' + STECKBRIEF.rund.m + '</p>');
+    }}
+  ];
+
+  // ==================== Fälle zusammenführen ====================
+  (function(){
+    // Steckbrief im Einstieg von Fall 1, 2 und 5
+    [[SCREENS,"nase"],[SCREENS_AUGE,"auge"],[SCREENS_HD,"hd"]].forEach(function(x){
+      var alt = x[0][0].render; x[0][0].render = function(){ return alt() + steckbrief(x[1]); };
+    });
+    // Fall 1: mögliche Richtungen (nach dem Winkel-Labor)
+    SCREENS.splice(5, 0, {step:2, render:function(){
+      var r = RICHTUNG1[st.richtung1];
+      return card(fig(Object.assign({ohr:true, label:r.t}, r.fig)) +
+        controls(seg("richtung1",[["hinterkopf","Hinterkopf"],["oberkopf","Oberkopf"],["pony","Pony"],["bewegt","Bewegtheit"]], st.richtung1)) +
+        '<div class="callout accent"><strong>' + r.t + '</strong><p>' + r.d + '</p></div>',
+        '<h2>Mögliche gestalterische Richtungen</h2>' +
+        '<p>Es gibt nicht die eine Lösung. Diese Richtungen können das Verhältnis in der Gesamtform verändern. Die Nase bleibt dabei immer gleich.</p>' +
+        '<p class="note">Die Diagonale zeigt jeweils, wie weit die Form hinten reicht.</p>');
+    }});
+    // Fall 2: mögliche Richtungen (nach der Schnittentscheidung)
+    SCREENS_AUGE.splice(4, 0, {step:2, render:function(){
+      var r = RICHTUNG2[st.richtung2];
+      return card(augeFig(Object.assign({hilfe:true, label:r.t}, r.fig)) +
+        controls(seg("richtung2",[["B","Schräger Pony"],["scheitel","Seitlicher Scheitel"],["leicht","Leichter Vorderbereich"]], st.richtung2)) +
+        '<div class="callout accent"><strong>' + r.t + '</strong><p>' + r.d + '</p></div>',
+        '<h2>Mögliche gestalterische Richtungen</h2>' +
+        '<p>Es gibt nicht die eine Lösung. Diese Richtungen können die Augenpartie öffnen. Die Augen bleiben dabei immer gleich.</p>');
+    }});
+    var hdFall = FAELLE.hd; delete FAELLE.hd;
+    FAELLE.dk = {titel:"Doppelkinn", kurz:"Doppelkinn", screens:SCREENS_DK, fragen:FRAGEN_DK, bild:function(i, t){ return dkFig({dk: i === 0 ? "A" : "B", label:t}); }};
+    FAELLE.rund = {titel:"Rundes Gesicht", kurz:"Rundes Gesicht", screens:SCREENS_RUND, fragen:FRAGEN_RUND, bild:function(i, t){ return rundFig({rund: i === 0 ? "A" : "B", label:t}); }};
+    FAELLE.hd = hdFall;
+  })();
+
   // ---------- Bausteine ----------
   function card(figHtml, textHtml){
     return (figHtml ? '<section class="card fig">' + figHtml + '</section>' : '') +
@@ -1772,7 +2097,7 @@ svg text{font-family:var(--f-body)}
 
 
   // ---------- App-Rahmen ----------
-  function neuStart(){ return {hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", ans1:"profil", ans2:"vorne", bk:st.bk, bkAnim:false, bkVon:null, view:st.view, fall:st.fall, kap:st.kap, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
+  function neuStart(){ return {richtung1:"hinterkopf", richtung2:"B", dk:"A", dkHilfe:true, fehlerDk:"breit", rund:"A", rundHilfe:true, richtung4:"lang", fehlerRund:"seitlich", hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", ans1:"profil", ans2:"vorne", bk:st.bk, bkAnim:false, bkVon:null, view:st.view, fall:st.fall, kap:st.kap, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
 
   function renderPilot(){
     var SC = fall().screens, S = SC[st.screen];
@@ -1788,7 +2113,7 @@ svg text{font-family:var(--f-body)}
       '</div>';
     var wahl = '<div class="faelle" role="group" aria-label="Fall wählen">' + Object.keys(FAELLE).map(function(k, i){
         var on = k === st.fall;
-        return '<button class="btn' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="fall" data-val="' + k + '">Fall ' + (i + 1) + ': ' + FAELLE[k].kurz + '</button>';
+        return '<button class="chip' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="fall" data-val="' + k + '">Fall ' + (i + 1) + ': ' + FAELLE[k].kurz + '</button>';
       }).join("") + '</div>';
     return '<div class="screen">' + wahl + '<div class="pagehead"><h1>' + fall().titel + ' <span class="tag">V1</span></h1></div>' +
       steps + S.render() + nav + '</div>';
