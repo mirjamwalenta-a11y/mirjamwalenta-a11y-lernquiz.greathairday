@@ -13,7 +13,7 @@
   --bg:#F5F3F7;--surface:#FFFFFF;--ink:#231B2E;--muted:#6B6278;--line:#DDD6E6;
   --accent:#6D2E7F;--accent-ink:#FFFFFF;--accent-soft:#F1E4F6;
   --good:#2F7D55;--good-soft:#E3F2EA;--bad:#B3362D;--bad-soft:#FBE6E3;
-  --g-kopf:#E7E7EA;--g-kontur:#8C8C94;--g-haar:#8A8A92;--g-haar-kontur:#4C4C53;--g-hilfe:#A6A6AE;
+  --g-kopf:#E7E7EA;--g-kontur:#8C8C94;--g-haar:#8A8A92;--g-haar-kontur:#4C4C53;--g-hilfe:#A6A6AE;--g-flaeche:#EDEDF0;
   --shadow:0 1px 2px rgba(35,27,46,.06),0 4px 14px rgba(35,27,46,.05);
   --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
   --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
@@ -24,7 +24,7 @@
     --bg:#16121B;--surface:#201A28;--ink:#EEE8F4;--muted:#A79CB5;--line:#3A3045;
     --accent:#CFA2E0;--accent-ink:#1C1422;--accent-soft:#3A2A45;
     --good:#6CC196;--good-soft:#1D3328;--bad:#EE8177;--bad-soft:#3E1F1C;
-    --g-kopf:#3B3B41;--g-kontur:#8E8E97;--g-haar:#6E6E76;--g-haar-kontur:#B4B4BC;--g-hilfe:#74747C;
+    --g-kopf:#3B3B41;--g-kontur:#8E8E97;--g-haar:#6E6E76;--g-haar-kontur:#B4B4BC;--g-hilfe:#74747C;--g-flaeche:#2C2C31;
     --shadow:none;
   }
 }
@@ -33,7 +33,7 @@
   --bg:#16121B;--surface:#201A28;--ink:#EEE8F4;--muted:#A79CB5;--line:#3A3045;
   --accent:#CFA2E0;--accent-ink:#1C1422;--accent-soft:#3A2A45;
   --good:#6CC196;--good-soft:#1D3328;--bad:#EE8177;--bad-soft:#3E1F1C;
-  --g-kopf:#3B3B41;--g-kontur:#8E8E97;--g-haar:#6E6E76;--g-haar-kontur:#B4B4BC;--g-hilfe:#74747C;
+  --g-kopf:#3B3B41;--g-kontur:#8E8E97;--g-haar:#6E6E76;--g-haar-kontur:#B4B4BC;--g-hilfe:#74747C;--g-flaeche:#2C2C31;
   --shadow:none;
 }
 *{box-sizing:border-box}
@@ -87,29 +87,41 @@ svg text{font-family:var(--f-body)}
 <script>
 (function(){
   // ---------- Lehrgrafik (SVG) ----------
-  // Aufbau in festen Ebenen:
-  //   kopf   – neutrale Profilkontur, fix
-  //   haar   – Haarfläche, wechselt je Zustand
-  //   nase   – Nasenlinie, fix, liegt immer obenauf
-  //   Einblendungen: hilfslinie, balance, schaedel, zonen, blick
-  var KOPF = "M152,470 C150,430 148,395 142,352 C118,328 92,298 84,262 C76,226 76,172 98,130 C118,94 162,72 214,74 C258,76 292,108 301,160 C304,182 302,198 299,208 C301,214 297,221 293,227 C306,246 322,266 340,282 C350,290 351,300 342,304 C332,307 318,304 309,307 C314,326 314,350 306,370 C300,388 280,396 252,394 C244,396 238,404 238,418 L240,470";
+  // Stil wie Fach-Skizze: Kopf als Linienzeichnung, Kopfhaut fein gestrichelt,
+  // Haarform als kräftig gestrichelte Umrisslinie, keine Füllungen.
+  // Ebenen: kopf (fix) · haar (je Zustand) · nase (fix, obenauf) · Einblendungen
   var NASE = "M293,227 C306,246 322,266 340,282 C350,290 351,300 342,304 C332,307 318,304 309,307";
+  var GESICHT = "M296,132 C299,142 301,152 301,160 C304,182 302,198 299,208 C301,214 297,221 293,227 " +
+    NASE.slice(NASE.indexOf("C")) +
+    " C313,313 315,318 312,322 C309,324 307,326 306,327 C310,330 311,336 307,340 C303,344 300,346 301,352 C303,362 306,374 300,386 C292,396 272,396 252,394 C244,396 238,404 238,434";
+  var NACKEN = "M150,372 C151,392 152,414 152,438";
+  var KOPFHAUT = "M150,372 L142,352 C118,328 92,298 84,262 C76,226 76,172 98,130 C118,94 162,72 214,74 C258,76 290,104 296,132";
+  var ANSATZ = "M296,132 C284,160 270,190 262,200 L258,226 C246,222 232,208 214,210 C200,206 184,212 180,228 C176,260 168,320 150,372";
+  var ANSATZ_REV = " C168,320 176,260 180,228 C184,212 200,206 214,210 C232,208 246,222 258,226 L262,200 C270,190 284,160 296,132 Z";
+  var OHR = "M188,222 C205,214 217,230 213,252 C210,272 205,290 195,297 C189,301 184,296 186,289" +
+    " M192,232 C203,229 208,241 204,256 C202,264 197,266 195,262";
+  var AUGE = '<path d="M246,207 Q262,199 278,204" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M254,227 Q263,220 273,226 Q263,232 254,227 Z" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linejoin="round"/>' +
+    '<circle cx="265" cy="226.5" r="2.4" fill="var(--ink)"/>' +
+    '<path d="M306,327 L299,328" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>';
   var NASENSPITZE = [348, 294];
   var OHRLINIE = 196;
 
-  // Haaransatz vorne und hinter dem Ohr: in allen Zuständen gleich
-  var ANSATZ = " L156,372 C170,330 176,262 196,214 C226,206 252,214 262,198 C268,170 280,146 293,127 Z";
-  // back = hinterster Punkt der Haarfläche auf Nasenhöhe (für die Balanceanzeige)
+  // Haarform: Außenlinie vom Stirnansatz bis zum Nacken; back = hinterster Punkt auf Nasenhöhe
   var HAAR = {
-    A:     {d:"M293,127 C290,92 256,66 206,66 C150,66 102,88 86,128 C68,170 68,226 76,264 C84,300 104,330 132,356" + ANSATZ, back:81},
-    M:     {d:"M293,127 C291,88 254,58 199,57 C136,56 82,85 63,136 C47,183 45,237 54,274 C63,307 94,332 132,355" + ANSATZ, back:55},
-    B:     {d:"M293,127 C292,84 252,50 192,48 C122,46 62,82 40,144 C26,196 22,248 32,284 C42,314 84,336 132,354" + ANSATZ, back:32},
-    tief:  {d:"M293,127 C290,92 256,66 206,66 C150,66 102,88 86,128 C68,170 68,226 72,270 C70,330 60,384 96,400 C120,408 140,392 156,372" + ANSATZ, back:72},
-    hoch:  {d:"M293,127 C298,64 248,24 182,24 C116,24 72,66 66,132 C62,180 66,230 74,266 C84,304 104,330 132,356" + ANSATZ, back:77},
-    flach: {d:"M293,127 C290,92 256,66 206,66 C150,66 102,88 86,128 C120,150 160,190 196,214 C226,206 252,214 262,198 C268,170 280,146 293,127 Z", back:91}
+    A:     {o:"M296,132 C292,92 256,66 206,66 C150,66 102,88 86,128 C68,170 68,226 76,264 C84,300 104,330 132,356 L150,372", back:81},
+    M:     {o:"M296,132 C293,88 254,58 199,57 C136,56 82,85 63,136 C47,183 45,237 54,274 C63,307 94,332 132,355 L150,372", back:55},
+    B:     {o:"M296,132 C294,84 252,50 192,48 C122,46 62,82 40,144 C26,196 22,248 32,284 C42,314 84,336 132,354 L150,372", back:32},
+    tief:  {o:"M296,132 C292,92 256,66 206,66 C150,66 102,88 86,128 C68,170 68,226 72,270 C70,330 60,384 96,400 C120,408 140,392 150,372", back:72},
+    hoch:  {o:"M296,132 C300,64 248,24 182,24 C116,24 72,66 66,132 C62,180 66,230 74,266 C84,304 104,330 132,356 L150,372", back:77},
+    flach: {o:"M296,132 C292,92 256,66 206,66 C150,66 102,88 86,128 C120,150 170,196 214,210", back:84, kurz:true}
   };
-  var SPITZE = "M292,122 C314,132 336,150 352,174 C332,174 314,178 300,190 C298,168 296,146 292,122 Z";
+  var SPITZE = "M296,128 C316,136 338,152 354,176 C334,176 316,180 302,190";
   var uid = 0;
+
+  function haarFlaeche(H){
+    return H.kurz ? H.o + " C232,208 246,222 258,226 L262,200 C270,190 284,160 296,132 Z" : H.o + ANSATZ_REV;
+  }
 
   function txt(x, y, t, o){
     o = o || {};
@@ -120,41 +132,45 @@ svg text{font-family:var(--f-body)}
 
   function fig(o){
     o = o || {};
-    var H = HAAR[o.hair || "A"], id = ++uid;
+    var H = HAAR[o.hair || "A"], id = ++uid, flaeche = haarFlaeche(H);
     var h = o.ohr ? 515 : 470;
     var s = '<svg viewBox="0 20 496 ' + h + '" role="img" aria-label="' + (o.label || "Profil") + '">';
 
-    // kopf (fix)
-    s += '<g class="kopf"><path d="' + KOPF + ' Z" fill="var(--g-kopf)" stroke="var(--g-kontur)" stroke-width="1.8" stroke-linejoin="round"/></g>';
-
-    // haar (veränderbar)
-    s += '<g class="haar"><path d="' + H.d + '" fill="var(--g-haar)" stroke="var(--g-haar-kontur)" stroke-width="1.8" stroke-linejoin="round"/>';
-    if (o.spitze) s += '<path d="' + SPITZE + '" fill="var(--g-haar)" stroke="var(--g-haar-kontur)" stroke-width="1.8" stroke-linejoin="round"/>';
-    s += '</g>';
-
-    // schnittzonen
+    // schnittzonen (unter den Linien)
     if (o.zonen){
-      s += '<clipPath id="z' + id + '"><path d="' + H.d + '"/></clipPath>';
+      s += '<clipPath id="z' + id + '"><path d="' + flaeche + '"/></clipPath>';
       s += '<g class="zonen"><g clip-path="url(#z' + id + ')">' +
-        '<rect x="0" y="180" width="' + OHRLINIE + '" height="125" fill="var(--accent)" fill-opacity=".28"/>' +
-        '<path d="M0,180 H320 M0,305 H' + OHRLINIE + ' M' + OHRLINIE + ',150 V420" stroke="var(--g-haar-kontur)" stroke-width="1.5" stroke-dasharray="6 5" fill="none"/>' +
-        '</g>' +
+        '<rect x="0" y="0" width="496" height="500" fill="var(--g-flaeche)"/>' +
+        '<rect x="0" y="180" width="' + OHRLINIE + '" height="125" fill="var(--accent)" fill-opacity=".22"/>' +
+        '<path d="M0,180 H320 M0,305 H' + OHRLINIE + ' M' + OHRLINIE + ',150 V420" stroke="var(--g-kontur)" stroke-width="1.4" fill="none"/>' +
+        '</g></g>';
+    }
+
+    // kopf (fix): Kopfhaut fein gestrichelt, Gesicht/Nacken/Ohr als Linie
+    s += '<g class="kopf" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="' + KOPFHAUT + '" stroke="' + (o.schaedel ? 'var(--ink)' : 'var(--g-kontur)') + '" stroke-width="' + (o.schaedel ? 2 : 1.5) + '" stroke-dasharray="3 4"/>' +
+      '<path d="' + ANSATZ + '" stroke="var(--g-kontur)" stroke-width="1.5" stroke-dasharray="3 4"/>' +
+      '<path d="' + GESICHT + '" stroke="var(--ink)" stroke-width="2.4"/>' +
+      '<path d="' + NACKEN + '" stroke="var(--ink)" stroke-width="2.4"/>' +
+      '<path d="' + OHR + '" stroke="var(--ink)" stroke-width="2.2"/>' +
+      '</g>' + AUGE;
+
+    // haar (veränderbar): kräftig gestrichelte Außenform
+    s += '<g class="haar" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-dasharray="10 6" stroke-linecap="round">' +
+      '<path d="' + H.o + '"/>' + (o.spitze ? '<path d="' + SPITZE + '"/>' : '') + '</g>';
+
+    // nase (fix, immer obenauf)
+    s += '<g class="nase"><path d="' + NASE + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>';
+
+    if (o.zonen){
+      s += '<g class="zonen-text">' +
         '<circle cx="84" cy="262" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.5"/>' +
         txt(150, 120, "Oberkopf", {anchor:"middle", size:14}) +
         txt(118, 232, "Hinterkopf", {anchor:"middle", size:14}) +
         txt(96, 280, "HHB", {size:13, fill:"var(--accent)"}) +
         txt(150, 336, "Nacken", {anchor:"middle", size:14}) +
-        txt(214, 172, "Vorderpartie", {size:14}) +
-        '</g>';
+        txt(214, 172, "Vorderpartie", {size:14}) + '</g>';
     }
-
-    // schaedel: Kopfkontur gestrichelt über dem Haar
-    if (o.schaedel){
-      s += '<g class="schaedel"><path d="' + KOPF + '" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="5 4" opacity=".7"/></g>';
-    }
-
-    // nase (fix, immer obenauf)
-    s += '<g class="nase"><path d="' + NASE + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>';
 
     // hilfslinie + balance
     if (o.ohr){
