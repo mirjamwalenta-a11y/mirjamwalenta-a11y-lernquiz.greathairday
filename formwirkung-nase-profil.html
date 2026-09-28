@@ -97,12 +97,13 @@ p{margin:0;max-width:62ch}
   // Haaransatz vorne/um das Ohr: in allen Varianten gleich
   var INNER = " C170,300 170,270 172,250 C175,215 185,198 205,196 L232,205 L236,232 L246,232 C250,190 270,150 292,128 Z";
   var HAIR = {
-    A:  "M292,128 C286,90 252,72 205,72 C140,72 80,122 80,200 C80,255 102,305 140,334 L165,338" + INNER,
-    B:  "M292,128 C288,88 250,62 200,62 C130,62 72,105 58,170 C50,210 52,245 62,268 C75,300 115,322 150,332 L165,338" + INNER,
+    A:  "M292,128 C286,90 252,74 205,74 C150,74 100,110 90,170 C86,215 92,270 118,315 C128,328 140,335 165,338" + INNER,
+    B:  "M292,128 C288,84 250,58 196,58 C120,58 62,100 46,165 C36,205 34,245 44,275 C58,310 110,328 150,334 L165,338" + INNER,
     tief: "M292,128 C286,90 252,72 205,72 C140,72 80,122 80,200 C78,262 62,330 92,362 C115,380 150,368 165,338" + INNER,
     hoch: "M292,128 C292,64 240,28 175,32 C112,36 80,92 80,165 C80,240 100,300 140,334 L165,338" + INNER,
     flach: "M292,128 C286,90 252,76 205,76 C142,76 90,118 88,176 C120,180 160,186 190,192 L205,196 L232,205 L236,232 L246,232 C250,190 270,150 292,128 Z"
   };
+  var BACK = {A:98, B:41, tief:84, hoch:92, flach:118};
   var SPIKE = "M290,124 L338,166 L301,172 L297,146 Z";
   var uid = 0;
 
@@ -110,7 +111,7 @@ p{margin:0;max-width:62ch}
     o = o || {};
     var hairKey = o.hair || "A";
     var id = "c" + (++uid);
-    var s = '<svg viewBox="30 20 460 420" role="img" aria-label="' + (o.label || "Kopf im Profil") + '">';
+    var s = '<svg viewBox="30 20 460 ' + (o.ohr ? 475 : 420) + '" role="img" aria-label="' + (o.label || "Kopf im Profil") + '">';
     s += '<path d="' + SKIN + '" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>';
     s += '<path class="hair" d="' + HAIR[hairKey] + '" fill="var(--hair)"/>';
     if (o.spike) s += '<path d="' + SPIKE + '" fill="var(--hair)"/>';
@@ -130,15 +131,23 @@ p{margin:0;max-width:62ch}
       s += '<line x1="190" y1="46" x2="190" y2="432" stroke="var(--accent)" stroke-width="2" stroke-dasharray="7 6"/>';
       s += '<text x="180" y="40" text-anchor="end" font-size="15" font-weight="700" fill="var(--accent)" font-family="var(--f-body)">hinten</text>';
       s += '<text x="200" y="40" font-size="15" font-weight="700" fill="var(--accent)" font-family="var(--f-body)">vorne</text>';
+      var xb = BACK[hairKey] || 98;
+      s += '<line x1="' + xb + '" y1="265" x2="' + xb + '" y2="450" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/>';
+      s += '<line x1="352" y1="290" x2="352" y2="450" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/>';
+      s += '<circle cx="' + xb + '" cy="265" r="4" fill="var(--z-hinter)"/><circle cx="352" cy="288" r="4" fill="var(--ink)"/>';
+      s += '<rect x="' + xb + '" y="440" width="' + (188 - xb) + '" height="16" rx="3" fill="var(--z-hinter)"/>';
+      s += '<rect x="192" y="440" width="160" height="16" rx="3" fill="var(--muted)"/>';
+      s += '<text x="' + ((xb + 188) / 2) + '" y="478" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">hinten</text>';
+      s += '<text x="272" y="478" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">vorne</text>';
     }
     if (o.blick === "A"){
       s += '<circle cx="338" cy="268" r="30" fill="var(--bad)" fill-opacity=".12"/>';
       s += '<circle cx="338" cy="268" r="16" fill="var(--bad)" fill-opacity=".28" stroke="var(--bad)" stroke-width="2.5"/>';
     }
     if (o.blick === "B"){
-      s += '<line x1="326" y1="266" x2="72" y2="236" stroke="var(--good)" stroke-width="2" stroke-dasharray="5 6"/>';
+      s += '<line x1="326" y1="266" x2="60" y2="238" stroke="var(--good)" stroke-width="2" stroke-dasharray="5 6"/>';
       s += '<circle cx="338" cy="268" r="12" fill="var(--good)" fill-opacity=".25" stroke="var(--good)" stroke-width="2.5"/>';
-      s += '<circle cx="60" cy="235" r="12" fill="var(--good)" fill-opacity=".25" stroke="var(--good)" stroke-width="2.5"/>';
+      s += '<circle cx="48" cy="238" r="12" fill="var(--good)" fill-opacity=".25" stroke="var(--good)" stroke-width="2.5"/>';
     }
     // Fester Hinweis an der Nase
     s += '<line x1="358" y1="228" x2="322" y2="250" stroke="var(--ink)" stroke-width="1.5"/>';
@@ -178,30 +187,33 @@ p{margin:0;max-width:62ch}
   ];
 
   // ---------- Zustand ----------
-  var st = {screen:0, ohr:false, hair:"A", zonen:true, fehler:"tief", q:0, picked:null, score:0};
+  var st = {screen:0, ohr:true, hair:"A", zonen:true, fehler:"tief", q:0, picked:null, score:0};
 
   var SCREENS = [
     {step:-1, render:function(){
-      return card(fig({hair:"A", label:"Kopf im Profil mit langer Nase"}),
+      return card('<div class="pair">' +
+          '<figure>' + fig({hair:"A", label:"Vorher: flacher Hinterkopf"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + fig({hair:"B", label:"Nachher: Aufbau am Hinterkopf"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
         '<h2>Lange Nase im Profil</h2>' +
         '<p>Manche Kundinnen und Kunden haben eine lange oder markante Nase. Die Nase können wir nicht verändern. Aber wir können verändern, wie sie im Verhältnis zum ganzen Kopf wirkt.</p>' +
         '<p>In diesem Beispiel siehst du, wie das im Profil funktioniert. Die Nase bleibt in jedem Bild gleich. Nur die Haarform ändert sich.</p>');
     }},
     {step:0, render:function(){
       return card(fig({hair:"A", ohr:st.ohr, label:"Ausgangsform: flacher Hinterkopf"}) +
-        controls(toggle("ohr","Hilfslinie zeigen", st.ohr)),
+        controls(toggle("ohr","Verhältnis zeigen", st.ohr)),
         '<h2>Ausgangsform</h2>' +
         '<p>Schau dir das Profil an. Der Hinterkopf ist flach, das Haar liegt eng an.</p>' +
         '<p>Vor der Ohrlinie ist viel los: Stirn, Nase, Kinn. Hinter der Ohrlinie ist wenig Form. Das Gewicht liegt vorne. Deshalb fällt die Nase besonders auf.</p>' +
-        (st.ohr ? '' : '<p class="note">Tipp: Schalte die Hilfslinie ein.</p>'));
+        '<p class="note">Die Balken unten zeigen es: Der Kopf ist vorne viel länger als hinten.</p>');
     }},
     {step:1, render:function(){
       return card(fig({hair:st.hair, ohr:st.ohr, label: st.hair==="A" ? "Vorher: flacher Hinterkopf" : "Nachher: Aufbau am Hinterkopf"}) +
-        controls(seg("hair",[["A","Vorher"],["B","Nachher"]], st.hair) + toggle("ohr","Hilfslinie", st.ohr)),
+        controls(seg("hair",[["A","Vorher"],["B","Nachher"]], st.hair) + toggle("ohr","Verhältnis", st.ohr)),
         '<h2>Zielwirkung</h2>' +
         '<p>Ziel ist ein Gleichgewicht zwischen vorne und hinten. Wenn der Hinterkopf mehr Rundung bekommt, entsteht ein Gegengewicht zur Nase.</p>' +
         '<p>Die Nase bleibt genau gleich. Sie wirkt aber nicht mehr so stark, weil der Kopf als Ganzes ausgeglichener aussieht.</p>' +
-        '<p class="note">Schalte ein paar Mal zwischen Vorher und Nachher um und schau nur auf die Nase.</p>');
+        '<p class="note">Schalte ein paar Mal zwischen Vorher und Nachher um. Der Balken „vorne“ bleibt gleich lang, der Balken „hinten“ wächst. Die Nase ändert sich nicht.</p>');
     }},
     {step:2, render:function(){
       var leg = st.zonen ? '<ul class="legend">' +
@@ -325,7 +337,7 @@ p{margin:0;max-width:62ch}
     var a = b.dataset.act, moved = false;
     if (a==="next"){ st.screen = Math.min(st.screen+1, SCREENS.length-1); moved = true; }
     if (a==="prev"){ st.screen = Math.max(st.screen-1, 0); moved = true; }
-    if (a==="restart"){ st = {screen:0, ohr:false, hair:"A", zonen:true, fehler:"tief", q:0, picked:null, score:0}; moved = true; }
+    if (a==="restart"){ st = {screen:0, ohr:true, hair:"A", zonen:true, fehler:"tief", q:0, picked:null, score:0}; moved = true; }
     if (a==="toggle"){ st[b.dataset.key] = !st[b.dataset.key]; }
     if (a==="set"){ st[b.dataset.key] = b.dataset.val; }
     if (a==="pick"){ st.picked = +b.dataset.i; if (st.picked === FRAGEN[st.q].r) st.score++; }
