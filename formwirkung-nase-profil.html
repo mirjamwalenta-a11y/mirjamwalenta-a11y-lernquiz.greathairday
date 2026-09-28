@@ -13,7 +13,7 @@
   --bg:#F5F3F7;--surface:#FFFFFF;--ink:#231B2E;--muted:#6B6278;--line:#DDD6E6;
   --accent:#6D2E7F;--accent-ink:#FFFFFF;--accent-soft:#F1E4F6;
   --good:#2F7D55;--good-soft:#E3F2EA;--bad:#B3362D;--bad-soft:#FBE6E3;
-  --skin:#EFDCCD;--skin-line:#B8917A;--face-line:#5E4436;--lip:#D9A89A;--hair:#6B4631;--hair-line:#3F2719;--hair-hi:#A87A58;--cape:#C9D1DC;--cape-line:#98A4B3;
+  --skin:#F3E3D7;--skin-line:#8A6553;--face-line:#5A3E30;--lip:#D9A092;--hair:#7A4E33;--hair-dark:#4A2B1B;--hair-line:#2F1A0F;--hair-hi:#C99A72;
   --z-ober:#7FA6D1;--z-hinter:#9B5BB0;--z-nacken:#C27A45;--z-vorne:#4E9B72;
   --shadow:0 1px 2px rgba(35,27,46,.06),0 4px 14px rgba(35,27,46,.05);
   --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
@@ -25,7 +25,7 @@
     --bg:#16121B;--surface:#201A28;--ink:#EEE8F4;--muted:#A79CB5;--line:#3A3045;
     --accent:#CFA2E0;--accent-ink:#1C1422;--accent-soft:#3A2A45;
     --good:#6CC196;--good-soft:#1D3328;--bad:#EE8177;--bad-soft:#3E1F1C;
-    --skin:#D8BBA6;--skin-line:#8F6B56;--face-line:#4A3326;--lip:#C48E80;--hair:#80563C;--hair-line:#3A2417;--hair-hi:#B8896A;--cape:#55606F;--cape-line:#7D8998;
+    --skin:#E6CCBA;--skin-line:#6E4E3E;--face-line:#4A3326;--lip:#C98D7F;--hair:#94644A;--hair-dark:#5A3825;--hair-line:#2A170D;--hair-hi:#D8AA82;
     --z-ober:#8DB5E0;--z-hinter:#C08AD4;--z-nacken:#E3A06B;--z-vorne:#6CC196;
     --shadow:none;
   }
@@ -35,7 +35,7 @@
   --bg:#16121B;--surface:#201A28;--ink:#EEE8F4;--muted:#A79CB5;--line:#3A3045;
   --accent:#CFA2E0;--accent-ink:#1C1422;--accent-soft:#3A2A45;
   --good:#6CC196;--good-soft:#1D3328;--bad:#EE8177;--bad-soft:#3E1F1C;
-  --skin:#D8BBA6;--skin-line:#8F6B56;--face-line:#4A3326;--lip:#C48E80;--hair:#80563C;--hair-line:#3A2417;--hair-hi:#B8896A;--cape:#55606F;--cape-line:#7D8998;
+  --skin:#E6CCBA;--skin-line:#6E4E3E;--face-line:#4A3326;--lip:#C98D7F;--hair:#94644A;--hair-dark:#5A3825;--hair-line:#2A170D;--hair-hi:#D8AA82;
   --z-ober:#8DB5E0;--z-hinter:#C08AD4;--z-nacken:#E3A06B;--z-vorne:#6CC196;
   --shadow:none;
 }
@@ -91,78 +91,103 @@ p{margin:0;max-width:62ch}
 <script>
 (function(){
   // ---------- Zeichnung ----------
-  // Kopf, Gesicht und Umhang: in jeder Variante exakt gleich (auch die Nase).
-  var SKIN = "M60,510 C70,478 110,458 150,450 C156,420 158,380 160,340 C125,318 90,268 88,205 C86,135 138,84 205,82 C258,80 293,108 300,148 C304,170 302,188 298,200 C302,205 305,210 303,216 C301,220 299,223 298,226 C312,248 334,270 350,284 C356,290 353,297 344,298 C338,299 332,298 327,297 C322,297 318,299 316,302 C318,306 322,310 321,314 C318,316 316,317 315,318 C319,320 320,326 316,331 C312,335 308,337 307,340 C309,348 312,356 309,364 C304,376 290,380 276,381 C262,382 250,384 244,392 C240,405 238,420 240,440 C250,452 290,468 330,510 Z";
+  // Kopf und Gesicht: in jeder Variante exakt dieselbe Zeichnung (auch die Nase).
+  // Proportionen: Augen auf halber Kopfhöhe, Ohr zwischen Braue und Nasenunterkante.
+  var SKIN = "M152,480 C150,430 148,395 142,352 C118,328 92,298 84,262 C76,226 76,172 98,130 C118,94 162,72 214,74 C258,76 292,108 301,160 C304,182 302,198 299,208 C301,214 297,221 293,227 C306,246 322,266 340,282 C350,290 351,300 342,304 C332,307 318,304 309,307 C312,314 316,320 314,325 C310,328 306,330 305,332 C310,336 312,342 307,347 C302,351 298,352 299,357 C302,366 306,376 300,386 C292,396 272,396 252,394 C244,396 238,404 238,418 L240,480 Z";
   var FACE =
-    // Augenbraue, Auge mit Wimpern, Nasenflügel, Mundwinkel, Kieferlinie
-    '<path d="M268,199 Q284,191 299,197" fill="none" stroke="var(--hair-line)" stroke-width="3.2" stroke-linecap="round"/>' +
-    '<path d="M277,213 Q285,206 293,212" fill="none" stroke="var(--face-line)" stroke-width="2.2" stroke-linecap="round"/>' +
-    '<path d="M280,217 Q286,219 292,215" fill="none" stroke="var(--face-line)" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>' +
-    '<path d="M288,209 l4,-4 M291,211 l5,-3" stroke="var(--face-line)" stroke-width="1.2" stroke-linecap="round"/>' +
-    '<path d="M324,289 C327,282 337,282 340,291" fill="none" stroke="var(--skin-line)" stroke-width="1.6" stroke-linecap="round"/>' +
-    '<path d="M314,318 L307,320" stroke="var(--skin-line)" stroke-width="1.6" stroke-linecap="round"/>' +
-    '<path d="M316,302 C318,306 322,310 321,314 C318,316 316,317 315,318 C319,320 320,326 316,331 C314,327 312,322 314,318 C312,313 313,307 316,302 Z" fill="var(--lip)"/>' +
-    '<path d="M204,268 C222,322 250,360 288,376" fill="none" stroke="var(--skin-line)" stroke-width="1.3" opacity=".45"/>';
+    '<path d="M262,207 Q280,198 297,205" fill="none" stroke="var(--hair-dark)" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<path d="M269,225 Q279,218 289,225" fill="none" stroke="var(--face-line)" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<path d="M272,230 Q280,233 287,228" fill="none" stroke="var(--face-line)" stroke-width="1.1" stroke-linecap="round" opacity=".6"/>' +
+    '<path d="M285,221 l4,-4 M288,223 l5,-3" stroke="var(--face-line)" stroke-width="1.1" stroke-linecap="round"/>' +
+    '<path d="M318,297 C321,289 333,288 336,297" fill="none" stroke="var(--skin-line)" stroke-width="1.5" stroke-linecap="round"/>' +
+    '<path d="M309,307 C312,314 316,320 314,325 C310,328 306,330 305,332 C310,336 312,342 307,347 C303,343 301,337 303,331 C301,323 304,313 309,307 Z" fill="var(--lip)"/>' +
+    '<path d="M305,332 L298,333" stroke="var(--skin-line)" stroke-width="1.4" stroke-linecap="round"/>' +
+    '<path d="M204,300 C212,334 240,372 286,392" fill="none" stroke="var(--skin-line)" stroke-width="1.2" opacity=".35"/>' +
+    '<path d="M208,322 C220,362 232,404 236,450" fill="none" stroke="var(--skin-line)" stroke-width="1.1" opacity=".22"/>';
   var EAR =
-    '<path d="M186,212 C200,204 212,216 209,236 C207,252 200,264 191,263 C185,262 184,256 185,250 C181,240 179,222 186,212 Z" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>' +
-    '<path d="M190,219 C200,216 205,228 201,240 C199,247 194,248 193,243" fill="none" stroke="var(--skin-line)" stroke-width="1.3"/>';
-  // Frisierumhang
-  var CAPE = '<path d="M30,530 C44,488 100,462 152,454 C185,470 228,470 250,452 C300,466 350,494 372,530 Z" fill="var(--cape)" stroke="var(--cape-line)" stroke-width="1.5"/>' +
-    '<path d="M152,454 C185,470 228,470 250,452" fill="none" stroke="var(--cape-line)" stroke-width="5" stroke-linecap="round"/>';
+    '<path d="M184,216 C202,210 214,224 212,246 C210,268 206,288 196,298 C190,304 182,300 182,292 C180,280 178,262 180,246 C180,232 178,222 184,216 Z" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.6"/>' +
+    '<path d="M188,228 C200,224 206,238 202,254 C199,266 192,268 190,262" fill="none" stroke="var(--skin-line)" stroke-width="1.3"/>';
 
-  // Vorderpartie des Bobs (Seitenlänge bis Kinnhöhe, Ohr bedeckt)
-  var BOB_FRONT = " C200,368 235,378 262,374 C268,340 262,290 258,250 C256,215 262,190 272,168 C280,150 290,136 297,126 Z";
+  // Frisuren: Füllform + Außen- und Innenkontur (die Strähnen laufen zwischen beiden)
+  var B_FRONT = "M293,127 C276,146 262,172 258,200 C254,240 256,300 262,340 C264,362 266,380 264,396";
+  var B_FRONT_REV = " C190,382 230,394 264,396 C266,380 264,362 262,340 C256,300 254,240 258,200 C262,172 276,146 293,127 Z";
+  var A_INNER = "M293,127 C278,150 262,190 256,222 C246,236 226,212 206,214 C190,214 176,224 172,250 C168,300 166,380 170,470";
   var STYLE = {
     // Vorher: langes, glattes Haar, liegt am Hinterkopf flach an, hinter das Ohr gelegt
-    A: {d:"M297,126 C302,96 262,70 200,70 C140,70 96,108 92,168 C88,220 94,262 104,300 C110,340 112,400 108,470 C125,480 150,480 168,468 C168,420 176,330 182,262 C178,236 184,205 205,198 C222,196 236,200 240,206 L244,232 L254,230 C258,190 276,150 297,126 Z",
-        ear:true, back:97, len:430},
+    A: {outer:"M293,127 C290,92 256,66 206,66 C150,66 102,88 86,128 C68,170 68,226 76,264 C84,300 104,330 124,356 C134,390 136,430 132,470",
+        inner:A_INNER,
+        d:"M293,127 C290,92 256,66 206,66 C150,66 102,88 86,128 C68,170 68,226 76,264 C84,300 104,330 124,356 C134,390 136,430 132,470 Q150,484 170,470 C166,380 168,300 172,250 C176,224 190,214 206,214 C226,212 246,236 256,222 C262,190 278,150 293,127 Z",
+        ear:true, back:81},
     // Nachher: graduierter Bob, Aufbau am Hinterhauptbein, Nacken schmal
-    B: {d:"M297,126 C304,98 262,56 196,54 C122,52 60,96 44,162 C34,205 34,248 44,276 C54,304 96,322 142,338 C152,342 160,346 164,352" + BOB_FRONT,
-        back:41, len:300, stufen:true},
-    tief: {d:"M297,126 C302,96 262,70 200,70 C140,70 96,108 92,168 C86,215 86,260 76,300 C62,345 78,384 118,386 C140,388 150,370 164,352" + BOB_FRONT,
-        back:82, len:320},
-    hoch: {d:"M297,126 C300,70 250,30 180,32 C112,36 78,90 84,160 C86,215 94,262 104,300 C112,330 140,346 164,352" + BOB_FRONT,
-        back:96, len:300},
-    flach: {d:"M297,126 C302,98 262,72 200,72 C140,72 96,106 90,160 C120,170 160,182 186,196 C210,200 238,204 244,232 L254,230 C258,190 276,150 297,126 Z",
-        ear:true, back:94, len:140, stoppel:true}
+    B: {outer:"M293,127 C292,84 252,50 192,48 C122,46 62,82 40,144 C26,196 22,248 32,284 C42,314 84,336 128,350 C140,354 150,362 156,372",
+        inner:B_FRONT, back:32, stufen:true},
+    tief: {outer:"M293,127 C290,92 256,66 206,66 C150,66 102,88 86,128 C68,170 68,226 72,270 C70,330 60,384 96,400 C124,410 146,394 156,372",
+        inner:B_FRONT, back:72},
+    hoch: {outer:"M293,127 C298,64 248,24 182,24 C116,24 72,66 66,132 C62,180 66,230 74,266 C84,304 100,334 128,350 C140,354 150,362 156,372",
+        inner:B_FRONT, back:77},
+    flach: {outer:"M293,127 C290,92 256,66 206,66 C150,66 102,88 86,128 C110,150 160,190 206,214",
+        inner:"M293,127 C278,150 262,190 256,222 C246,236 226,212 206,214",
+        d:"M293,127 C290,92 256,66 206,66 C150,66 102,88 86,128 C110,150 160,190 206,214 C226,212 246,236 256,222 C262,190 278,150 293,127 Z",
+        ear:true, back:91, stoppel:true}
   };
-  var SPIKE = "M296,122 L348,162 L302,178 L292,150 Z";
-  var CROWN = [158, 100];
-  var NOSE = [354, 290];
-  var uid = 0;
+  ["B","tief","hoch"].forEach(function(k){ STYLE[k].d = STYLE[k].outer + B_FRONT_REV; });
+  var SPIKE = "M292,122 C314,132 336,150 352,174 C332,174 314,178 300,190 C298,168 296,146 292,122 Z";
+  var NOSE = [348, 294];
+  var NS = "http://www.w3.org/2000/svg";
+  var uid = 0, MEAS = null, CACHE = {};
 
-  // Haarsträhnen: vom Wirbel aus gefächert, fallen nach unten, auf die Frisurform zugeschnitten
-  function strands(len){
-    var out = "", cx = CROWN[0], cy = CROWN[1];
-    for (var i = 0; i <= 40; i++){
-      var a = (-18 + i * 5.4) * Math.PI / 180;
-      var r = 120 + (i % 3) * 18;
-      var qx = cx + Math.cos(a) * r, qy = cy + Math.sin(a) * r * 0.55;
-      var ex = qx + Math.cos(a) * 30, ey = qy + len;
-      var sx = cx + Math.cos(a) * 24, sy = cy + Math.sin(a) * 14;
-      out += "M" + sx.toFixed(1) + "," + sy.toFixed(1) + " Q" + qx.toFixed(1) + "," + qy.toFixed(1) + " " + ex.toFixed(1) + "," + ey.toFixed(1) + " ";
+  function sample(d, n){
+    if (!MEAS){
+      MEAS = document.createElementNS(NS, "svg");
+      MEAS.setAttribute("width", "0"); MEAS.setAttribute("height", "0");
+      MEAS.style.position = "absolute"; MEAS.style.visibility = "hidden";
+      document.body.appendChild(MEAS);
     }
-    return out;
+    var p = document.createElementNS(NS, "path");
+    p.setAttribute("d", d); MEAS.appendChild(p);
+    var L = p.getTotalLength(), pts = [];
+    for (var i = 0; i <= n; i++){ var q = p.getPointAtLength(L * i / n); pts.push([q.x, q.y]); }
+    MEAS.removeChild(p);
+    return pts;
+  }
+  function smooth(pts){
+    function f(p){ return p[0].toFixed(1) + "," + p[1].toFixed(1); }
+    var d = "M" + f(pts[0]);
+    for (var i = 0; i < pts.length - 1; i++){
+      var p0 = pts[i-1] || pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2] || p2;
+      d += " C" + f([p1[0] + (p2[0]-p0[0])/6, p1[1] + (p2[1]-p0[1])/6]) + " " +
+                  f([p2[0] - (p3[0]-p1[0])/6, p2[1] - (p3[1]-p1[1])/6]) + " " + f(p2);
+    }
+    return d;
+  }
+  // Strähnen: Zwischenlinien von Außen- zu Innenkontur, folgen so der Frisurform
+  function strands(key){
+    if (CACHE[key]) return CACHE[key];
+    var S = STYLE[key], n = 44, o = sample(S.outer, n), inn = sample(S.inner, n), list = [], N = 26;
+    for (var k = 0; k < N; k++){
+      var t = (k + 0.5) / N, pts = [];
+      for (var j = 2; j <= n; j++) pts.push([o[j][0]*(1-t) + inn[j][0]*t, o[j][1]*(1-t) + inn[j][1]*t]);
+      list.push({t:t, d:smooth(pts)});
+    }
+    return (CACHE[key] = list);
   }
 
   function hair(key, id, spike){
-    var S = STYLE[key], s = "";
-    s += '<clipPath id="h' + id + '"><path d="' + S.d + '"/>' + (spike ? '<path d="' + SPIKE + '"/>' : '') + '</clipPath>';
-    s += '<path d="' + S.d + '" fill="var(--hair)"/>';
-    if (spike) s += '<path d="' + SPIKE + '" fill="var(--hair)"/>';
-    s += '<g clip-path="url(#h' + id + ')">';
-    s += '<path d="M96,140 C124,92 200,70 282,108" fill="none" stroke="var(--hair-hi)" stroke-width="12" stroke-linecap="round" opacity=".32"/>';
-    s += '<path d="' + strands(S.len) + '" fill="none" stroke="var(--hair-line)" stroke-width="1.3" opacity=".55"/>';
-    s += '<path d="' + strands(S.len * 0.93) + '" fill="none" stroke="var(--hair-hi)" stroke-width=".9" opacity=".45" transform="translate(4 2)"/>';
-    if (S.stufen){
-      s += '<path d="M52,205 C62,238 84,262 116,276 M60,258 C78,284 106,300 136,314 M84,300 C104,318 128,330 154,340" fill="none" stroke="var(--hair-line)" stroke-width="2" stroke-linecap="round" opacity=".8"/>';
-    }
+    var S = STYLE[key], s = "", L = strands(key);
+    s += '<defs><linearGradient id="g' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" style="stop-color:var(--hair)"/><stop offset="1" style="stop-color:var(--hair-dark)"/></linearGradient>' +
+      '<clipPath id="h' + id + '"><path d="' + S.d + '"/></clipPath></defs>';
+    s += '<path d="' + S.d + '" fill="url(#g' + id + ')"/>';
+    s += '<g clip-path="url(#h' + id + ')" fill="none" stroke-linecap="round">';
+    L.forEach(function(x){ if (x.t > 0.12 && x.t < 0.42) s += '<path d="' + x.d + '" stroke="var(--hair-hi)" stroke-width="7" opacity=".12"/>'; });
+    L.forEach(function(x, k){ s += '<path d="' + x.d + '" stroke="var(--hair-line)" stroke-width="' + (0.8 + (k % 3) * 0.35) + '" opacity="' + (0.3 + (k % 2) * 0.2) + '"/>'; });
+    L.forEach(function(x, k){ if (k % 3 === 1) s += '<path d="' + x.d + '" stroke="var(--hair-hi)" stroke-width=".9" opacity=".55" transform="translate(1.5 1)"/>'; });
+    if (S.stufen) s += '<path d="M38,232 C50,268 84,296 124,314 M46,276 C64,302 98,322 134,336" stroke="var(--hair-line)" stroke-width="1.8" opacity=".55"/>';
     s += '</g>';
-    s += '<path d="' + S.d + '" fill="none" stroke="var(--hair-line)" stroke-width="1.5"/>';
-    if (spike) s += '<path d="' + SPIKE + '" fill="none" stroke="var(--hair-line)" stroke-width="1.5"/>';
-    if (S.stoppel){
-      s += '<path d="M90,162 C88,230 110,300 160,340 L182,262 L186,198 C160,184 120,170 90,162 Z" fill="var(--hair)" opacity=".22"/>';
-    }
+    s += '<path d="' + S.d + '" fill="none" stroke="var(--hair-line)" stroke-width="1.4" stroke-linejoin="round"/>';
+    if (spike) s += '<path d="' + SPIKE + '" fill="var(--hair)" stroke="var(--hair-line)" stroke-width="1.4"/>' +
+      '<path d="M296,132 C314,144 330,158 344,172 M298,150 C312,160 322,168 334,174" fill="none" stroke="var(--hair-line)" stroke-width="1" opacity=".5"/>';
+    if (S.stoppel) s += '<path d="M86,128 C70,170 70,226 78,262 C88,300 112,330 142,352 L168,300 L172,250 C176,224 190,214 206,214 C160,190 110,150 86,128 Z" fill="var(--hair-dark)" opacity=".2"/>';
     return s;
   }
 
@@ -170,48 +195,51 @@ p{margin:0;max-width:62ch}
     o = o || {};
     var key = o.hair || "A", S = STYLE[key];
     var id = ++uid;
-    var h = o.ohr ? 545 : 490;
-    var s = '<svg viewBox="30 20 460 ' + h + '" role="img" aria-label="' + (o.label || "Kopf im Profil") + '">';
-    s += '<path d="' + SKIN + '" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>';
-    s += FACE + CAPE;
+    var h = o.ohr ? 515 : 470;
+    var s = '<svg viewBox="0 20 480 ' + h + '" role="img" aria-label="' + (o.label || "Kopf im Profil") + '">';
+    s += '<defs><linearGradient id="f' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" style="stop-color:var(--surface);stop-opacity:0"/><stop offset="1" style="stop-color:var(--surface);stop-opacity:1"/></linearGradient></defs>';
+    s += '<path d="' + SKIN + '" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.8" stroke-linejoin="round"/>';
+    s += FACE;
     s += hair(key, id, o.spike);
     if (S.ear) s += EAR;
+    s += '<rect x="0" y="425" width="480" height="66" fill="url(#f' + id + ')"/>';
     if (o.zonen){
       s += '<clipPath id="z' + id + '"><path d="' + S.d + '"/></clipPath>';
-      s += '<g clip-path="url(#z' + id + ')" fill-opacity=".72">' +
-        '<rect x="0" y="0" width="480" height="185" fill="var(--z-ober)"/>' +
-        '<rect x="0" y="185" width="225" height="120" fill="var(--z-hinter)"/>' +
-        '<rect x="0" y="305" width="225" height="200" fill="var(--z-nacken)"/>' +
-        '<rect x="225" y="160" width="120" height="240" fill="var(--z-vorne)"/>' +
+      s += '<g clip-path="url(#z' + id + ')" fill-opacity=".62">' +
+        '<rect x="0" y="0" width="480" height="180" fill="var(--z-ober)"/>' +
+        '<rect x="0" y="180" width="205" height="125" fill="var(--z-hinter)"/>' +
+        '<rect x="0" y="305" width="205" height="200" fill="var(--z-nacken)"/>' +
+        '<rect x="205" y="160" width="140" height="260" fill="var(--z-vorne)"/>' +
         '</g>';
     }
     if (o.ohr){
-      s += '<line x1="190" y1="46" x2="190" y2="520" stroke="var(--accent)" stroke-width="2" stroke-dasharray="7 6"/>';
-      s += '<text x="180" y="40" text-anchor="end" font-size="15" font-weight="700" fill="var(--accent)" font-family="var(--f-body)">hinten</text>';
-      s += '<text x="200" y="40" font-size="15" font-weight="700" fill="var(--accent)" font-family="var(--f-body)">vorne</text>';
+      s += '<line x1="196" y1="46" x2="196" y2="486" stroke="var(--accent)" stroke-width="2" stroke-dasharray="7 6"/>';
+      s += '<text x="186" y="40" text-anchor="end" font-size="15" font-weight="700" fill="var(--accent)" font-family="var(--f-body)">hinten</text>';
+      s += '<text x="206" y="40" font-size="15" font-weight="700" fill="var(--accent)" font-family="var(--f-body)">vorne</text>';
       var xb = S.back;
-      s += '<line x1="' + xb + '" y1="265" x2="' + xb + '" y2="520" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/>';
-      s += '<line x1="' + NOSE[0] + '" y1="' + NOSE[1] + '" x2="' + NOSE[0] + '" y2="520" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/>';
-      s += '<circle cx="' + xb + '" cy="265" r="4.5" fill="var(--z-hinter)" stroke="var(--surface)" stroke-width="1.5"/>';
+      s += '<line x1="' + xb + '" y1="282" x2="' + xb + '" y2="486" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/>';
+      s += '<line x1="' + NOSE[0] + '" y1="' + NOSE[1] + '" x2="' + NOSE[0] + '" y2="486" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/>';
+      s += '<circle cx="' + xb + '" cy="282" r="4.5" fill="var(--z-hinter)" stroke="var(--surface)" stroke-width="1.5"/>';
       s += '<circle cx="' + NOSE[0] + '" cy="' + NOSE[1] + '" r="4.5" fill="var(--ink)" stroke="var(--surface)" stroke-width="1.5"/>';
-      s += '<rect x="' + xb + '" y="518" width="' + (188 - xb) + '" height="16" rx="3" fill="var(--z-hinter)"/>';
-      s += '<rect x="192" y="518" width="' + (NOSE[0] - 192) + '" height="16" rx="3" fill="var(--muted)"/>';
-      s += '<text x="' + ((xb + 188) / 2) + '" y="556" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">hinten</text>';
-      s += '<text x="' + ((192 + NOSE[0]) / 2) + '" y="556" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">vorne</text>';
+      s += '<rect x="' + xb + '" y="488" width="' + (194 - xb) + '" height="16" rx="3" fill="var(--z-hinter)"/>';
+      s += '<rect x="198" y="488" width="' + (NOSE[0] - 198) + '" height="16" rx="3" fill="var(--muted)"/>';
+      s += '<text x="' + ((xb + 194) / 2) + '" y="526" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">hinten</text>';
+      s += '<text x="' + ((198 + NOSE[0]) / 2) + '" y="526" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">vorne</text>';
     }
     if (o.blick === "A"){
-      s += '<circle cx="340" cy="280" r="32" fill="var(--bad)" fill-opacity=".12"/>';
-      s += '<circle cx="340" cy="280" r="17" fill="var(--bad)" fill-opacity=".25" stroke="var(--bad)" stroke-width="2.5"/>';
+      s += '<circle cx="336" cy="286" r="32" fill="var(--bad)" fill-opacity=".12"/>';
+      s += '<circle cx="336" cy="286" r="17" fill="var(--bad)" fill-opacity=".25" stroke="var(--bad)" stroke-width="2.5"/>';
     }
     if (o.blick === "B"){
-      s += '<line x1="326" y1="278" x2="60" y2="240" stroke="var(--good)" stroke-width="2.5" stroke-dasharray="5 6"/>';
-      s += '<circle cx="340" cy="280" r="13" fill="var(--good)" fill-opacity=".25" stroke="var(--good)" stroke-width="2.5"/>';
-      s += '<circle cx="48" cy="240" r="13" fill="var(--good)" fill-opacity=".25" stroke="var(--good)" stroke-width="2.5"/>';
+      s += '<line x1="322" y1="284" x2="52" y2="270" stroke="var(--good)" stroke-width="2.5" stroke-dasharray="5 6"/>';
+      s += '<circle cx="336" cy="286" r="13" fill="var(--good)" fill-opacity=".25" stroke="var(--good)" stroke-width="2.5"/>';
+      s += '<circle cx="40" cy="270" r="13" fill="var(--good)" fill-opacity=".25" stroke="var(--good)" stroke-width="2.5"/>';
     }
     // Fester Hinweis an der Nase
-    s += '<line x1="362" y1="234" x2="328" y2="255" stroke="var(--ink)" stroke-width="1.5"/>';
-    s += '<text x="366" y="226" font-size="16" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">Nase</text>';
-    s += '<text x="366" y="245" font-size="16" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">unverändert</text>';
+    s += '<line x1="358" y1="228" x2="318" y2="254" stroke="var(--ink)" stroke-width="1.5"/>';
+    s += '<text x="362" y="220" font-size="16" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">Nase</text>';
+    s += '<text x="362" y="239" font-size="16" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">unverändert</text>';
     s += '</svg>';
     return s;
   }
