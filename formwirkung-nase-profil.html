@@ -79,6 +79,14 @@ svg text{font-family:var(--f-body)}
 .imgchoice .btn.right{background:var(--good-soft);border-color:var(--good)}
 .imgchoice .btn.wrong{background:var(--bad-soft);border-color:var(--bad)}
 .feedback{padding:10px 12px;border-radius:10px;background:var(--accent-soft)}
+.range{display:flex;flex-direction:column;gap:6px}
+.range label{font-weight:700}
+.range input{width:100%;accent-color:var(--accent);min-height:32px}
+.winkel-stufe{font-size:1.15rem}
+.meter{display:flex;flex-direction:column;gap:4px}
+.meter-bar{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,var(--g-flaeche),var(--accent-soft));border:1px solid var(--line)}
+.meter-bar span{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);transform:translate(-50%,-50%)}
+.meter-lbl{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
 .merksatz{font-family:var(--f-display);font-size:1.5rem;font-weight:800;line-height:1.3;text-align:center;text-wrap:balance;color:var(--accent);padding:12px 0}
 </style>
 </head>
@@ -207,6 +215,112 @@ svg text{font-family:var(--f-body)}
     return s + '</svg>';
   }
 
+  // ---------- Winkel-Labor: Erhebungswinkel am Hinterkopf ----------
+  // Haarform-Außenlinie als Punktliste (Start + 5 Bézier-Segmente), je Winkel interpoliert:
+  //   0° kompakt (Gewicht unten) · 45° mittlere Graduierung (Gewicht am HHB) · 90° sehr hoch (Gewicht oben)
+  var W0  = [296,132, 292,92,256,66,206,66, 150,66,102,88,86,128, 68,170,68,226,72,270, 70,330,60,384,96,400, 120,408,140,392,150,372];
+  var W45 = [296,132, 294,84,252,50,192,48, 122,46,62,82,40,144, 26,196,22,248,32,284, 42,314,84,336,132,354, 138,360,146,368,150,372];
+  var W90 = [296,132, 300,64,248,24,182,24, 116,24,72,66,66,132, 62,180,66,230,74,266, 84,304,104,330,132,356, 138,362,146,368,150,372];
+  var NASENHOEHE = 282;
+
+  function winkelPunkte(t){
+    var a = t <= 45 ? W0 : W45, b = t <= 45 ? W45 : W90, f = t <= 45 ? t / 45 : (t - 45) / 45;
+    return a.map(function(v, i){ return v + (b[i] - v) * f; });
+  }
+  function winkelPfad(p){
+    var d = "M" + p[0].toFixed(1) + "," + p[1].toFixed(1);
+    for (var i = 2; i < p.length; i += 6) d += " C" + p.slice(i, i + 6).map(function(v){ return v.toFixed(1); }).join(",");
+    return d;
+  }
+  // Punkte der Hinterkopf-Segmente abtasten
+  function winkelKurve(p){
+    var out = [];
+    for (var s = 1; s <= 3; s++){
+      var i = 2 + s * 6, x0 = p[i - 2], y0 = p[i - 1];
+      for (var k = 0; k <= 40; k++){
+        var t = k / 40, u = 1 - t;
+        out.push([u*u*u*x0 + 3*u*u*t*p[i] + 3*u*t*t*p[i+2] + t*t*t*p[i+4],
+                  u*u*u*y0 + 3*u*u*t*p[i+1] + 3*u*t*t*p[i+3] + t*t*t*p[i+5]]);
+      }
+    }
+    return out;
+  }
+  function winkelDaten(t){
+    var p = winkelPunkte(t), kurve = winkelKurve(p), back = 999, best = 999, gew = [999, 0];
+    kurve.forEach(function(q){
+      if (Math.abs(q[1] - NASENHOEHE) < best){ best = Math.abs(q[1] - NASENHOEHE); back = q[0]; }
+      if (q[0] < gew[0]) gew = q;
+    });
+    var hinten = OHRLINIE - back;
+    var score = Math.max(0, Math.min(1, (hinten - 115) / (164 - 115)));
+    return {p:p, back:back, gewicht:gew, score:score};
+  }
+
+  function winkelFig(t){
+    var D = winkelDaten(t), id = ++uid;
+    var s = '<svg viewBox="0 20 496 515" role="img" aria-label="Profil mit Erhebungswinkel ' + t + ' Grad">';
+    s += '<g class="kopf" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="' + KOPFHAUT + '" stroke="var(--g-kontur)" stroke-width="1.5" stroke-dasharray="3 4"/>' +
+      '<path d="' + ANSATZ + '" stroke="var(--g-kontur)" stroke-width="1.5" stroke-dasharray="3 4"/>' +
+      '<path d="' + GESICHT + '" stroke="var(--ink)" stroke-width="2.4"/>' +
+      '<path d="' + NACKEN + '" stroke="var(--ink)" stroke-width="2.4"/>' +
+      '<path d="' + OHR + '" stroke="var(--ink)" stroke-width="2.2"/>' +
+      '</g>' + AUGE;
+    s += '<g class="haar"><path d="' + winkelPfad(D.p) + '" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-dasharray="10 6" stroke-linecap="round"/></g>';
+    // Nasenhöhe und Gewichtslinie
+    s += '<line x1="12" y1="' + NASENHOEHE + '" x2="336" y2="' + NASENHOEHE + '" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="2 5"/>';
+    s += txt(214, NASENHOEHE + 18, "Nasenhöhe", {size:12, fill:"var(--muted)"});
+    var gy = D.gewicht[1], gx = D.gewicht[0];
+    s += '<line x1="' + (gx - 10) + '" y1="' + gy + '" x2="' + (gx + 70) + '" y2="' + gy + '" stroke="var(--ink)" stroke-width="3"/>';
+    s += txt(gx + 76, gy + 5, "Gewicht", {size:13});
+    // Erhebungswinkel: Strähne am Hinterkopf, 0° = natürlicher Fall
+    var P = [128, 300], r = t * Math.PI / 180, L = 50, dx = -Math.sin(r), dy = Math.cos(r);
+    var E = [P[0] + dx * L, P[1] + dy * L];
+    s += '<g class="winkel">' +
+      '<line x1="' + P[0] + '" y1="' + P[1] + '" x2="' + P[0] + '" y2="' + (P[1] + L) + '" stroke="var(--g-hilfe)" stroke-width="1.6" stroke-dasharray="4 4"/>' +
+      '<line x1="' + P[0] + '" y1="' + P[1] + '" x2="' + E[0].toFixed(1) + '" y2="' + E[1].toFixed(1) + '" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>' +
+      '<circle cx="' + E[0].toFixed(1) + '" cy="' + E[1].toFixed(1) + '" r="4" fill="var(--ink)"/>' +
+      '<circle cx="' + P[0] + '" cy="' + P[1] + '" r="3.5" fill="var(--ink)"/>';
+    if (t > 0){
+      var R = 26;
+      s += '<path d="M' + P[0] + ',' + (P[1] + R) + ' A' + R + ',' + R + ' 0 0 1 ' + (P[0] + dx * R).toFixed(1) + ',' + (P[1] + dy * R).toFixed(1) + '" fill="none" stroke="var(--ink)" stroke-width="1.6"/>';
+    }
+    var lr = (t / 2) * Math.PI / 180;
+    s += txt((P[0] - Math.sin(lr) * 44 + (t < 20 ? 12 : 0)).toFixed(1), (P[1] + Math.cos(lr) * 44 + 5).toFixed(1), t + "°", {size:14, anchor:"middle"}) + '</g>';
+    // nase (fix)
+    s += '<g class="nase"><path d="' + NASE + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>';
+    // Balance
+    var xb = D.back, nx = NASENSPITZE[0];
+    s += '<g class="balance">' +
+      '<line x1="' + OHRLINIE + '" y1="60" x2="' + OHRLINIE + '" y2="486" stroke="var(--g-hilfe)" stroke-width="1.4" stroke-dasharray="7 6"/>' +
+      '<line x1="' + xb.toFixed(1) + '" y1="' + NASENHOEHE + '" x2="' + xb.toFixed(1) + '" y2="486" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
+      '<line x1="' + nx + '" y1="' + NASENSPITZE[1] + '" x2="' + nx + '" y2="486" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
+      '<rect x="' + xb.toFixed(1) + '" y="488" width="' + (OHRLINIE - 2 - xb).toFixed(1) + '" height="14" fill="var(--g-haar-kontur)"/>' +
+      '<rect x="' + (OHRLINIE + 2) + '" y="488" width="' + (nx - OHRLINIE - 2) + '" height="14" fill="var(--g-hilfe)"/>' +
+      txt(((xb + OHRLINIE) / 2).toFixed(1), 524, "hinten", {anchor:"middle", size:14}) +
+      txt((OHRLINIE + nx) / 2, 524, "vorne", {anchor:"middle", size:14}) + '</g>';
+    s += '<g class="hinweis"><line x1="360" y1="232" x2="322" y2="258" stroke="var(--ink)" stroke-width="1.5"/>' +
+      txt(364, 224, "Nase", {size:17, fill:"var(--accent)"}) +
+      txt(364, 244, "unverändert", {size:17, fill:"var(--accent)"}) + '</g>';
+    return s + '</svg>';
+  }
+
+  function winkelText(t){
+    var D = winkelDaten(t), stufe, text;
+    if (t === 0){ stufe = "0° · kompakt"; text = "Nichts wird angehoben. Das Gewicht sitzt ganz unten an der Kontur. Auf Nasenhöhe bleibt der Hinterkopf flach, die Nase wirkt weiter stark."; }
+    else if (t <= 30){ stufe = t + "° · niedrige Graduierung"; text = "Das Gewicht sitzt noch tief, unterhalb der Nasenhöhe. Der Hinterkopf gewinnt etwas Form, das Gegengewicht ist noch schwach."; }
+    else if (t <= 60){ stufe = t + "° · mittlere Graduierung"; text = "Das Gewicht sitzt etwa am Hinterhauptbein, auf Höhe der Nase. Hinten entsteht ein Gegengewicht, die Nase wirkt ruhiger."; }
+    else if (t < 90){ stufe = t + "° · hohe Graduierung"; text = "Das Gewicht wandert nach oben Richtung Oberkopf. Auf Nasenhöhe nimmt das Gegengewicht wieder ab, der Kopf wirkt länger."; }
+    else { stufe = "90° · sehr hohe Graduierung"; text = "Das Gewicht sitzt hoch am Oberkopf. Auf Nasenhöhe ist der Hinterkopf wieder flach, die Nase bleibt dominant."; }
+    var wort = D.score < 0.35 ? "Nase wirkt dominant" : D.score < 0.7 ? "Nase wirkt etwas ruhiger" : "Kopf wirkt ausgeglichen";
+    return '<div class="eyebrow">Erhebungswinkel</div><h2 class="winkel-stufe">' + stufe + '</h2>' +
+      '<p>' + text + '</p>' +
+      '<div class="meter" role="img" aria-label="Wirkung im Gesicht: ' + wort + '">' +
+        '<div class="meter-bar"><span style="left:' + (D.score * 100).toFixed(0) + '%"></span></div>' +
+        '<div class="meter-lbl"><span>Nase dominant</span><span>ausgeglichen</span></div></div>' +
+      '<p><strong>Wirkung im Gesicht:</strong> ' + wort + '.</p>';
+  }
+
   // ---------- Inhalte (aus konzept/2d-tool-pilot-nase-im-profil.md) ----------
   var STEPS = ["Ausgangsform","Zielwirkung","Schnitt","Warum","Achten","Check","Merksatz"];
 
@@ -237,7 +351,7 @@ svg text{font-family:var(--f-body)}
   ];
 
   // ---------- Zustand ----------
-  var st = {screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, fehler:"tief", q:0, picked:null, score:0};
+  var st = {screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
 
   var SCREENS = [
     {step:-1, render:function(){
@@ -277,6 +391,16 @@ svg text{font-family:var(--f-body)}
         '<li><strong>Vorderpartie:</strong> weich, nicht spitz nach vorne.</li>' +
         '</ul>' +
         '<p>Das ist eine Möglichkeit, nicht die einzige. Entscheidend ist die Wirkung: hinten Aufbau, vorne Ruhe.</p>');
+    }},
+    {step:2, render:function(){
+      return card(
+        '<div id="winkelFig">' + winkelFig(st.winkel) + '</div>' +
+        '<div class="range"><label for="winkel">Erhebungswinkel am Hinterkopf</label>' +
+        '<input type="range" id="winkel" min="0" max="90" step="5" value="' + st.winkel + '"></div>' +
+        controls(seg("winkel",[["0","0°"],["20","20°"],["45","45°"],["70","70°"],["90","90°"]], String(st.winkel))),
+        '<h2>Ausprobieren: der Winkel macht die Wirkung</h2>' +
+        '<p>Beim Graduieren hebst du die Strähnen am Hinterkopf in einem Winkel an. Der Winkel bestimmt, wo das Gewicht entsteht. Zieh den Regler und beobachte die Gewichtslinie, die Balken und die Wirkung auf die Nase.</p>' +
+        '<div id="winkelText" aria-live="polite">' + winkelText(st.winkel) + '</div>');
     }},
     {step:3, render:function(){
       return card('<div class="pair">' +
@@ -383,14 +507,25 @@ svg text{font-family:var(--f-body)}
     var a = b.dataset.act, moved = false;
     if (a==="next"){ st.screen = Math.min(st.screen+1, SCREENS.length-1); moved = true; }
     if (a==="prev"){ st.screen = Math.max(st.screen-1, 0); moved = true; }
-    if (a==="restart"){ st = {screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, fehler:"tief", q:0, picked:null, score:0}; moved = true; }
+    if (a==="restart"){ st = {screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; moved = true; }
     if (a==="toggle"){ st[b.dataset.key] = !st[b.dataset.key]; }
-    if (a==="set"){ st[b.dataset.key] = b.dataset.val; }
+    if (a==="set"){ st[b.dataset.key] = b.dataset.key === "winkel" ? +b.dataset.val : b.dataset.val; }
     if (a==="pick"){ st.picked = +b.dataset.i; if (st.picked === FRAGEN[st.q].r) st.score++; }
     if (a==="nextQ"){ st.q++; st.picked = null; }
     if (a==="checkReset"){ st.q = 0; st.picked = null; st.score = 0; }
     render();
     if (moved) window.scrollTo(0,0);
+  });
+
+  // Regler: nur Grafik und Text neu zeichnen, damit der Regler beim Ziehen bedienbar bleibt
+  document.addEventListener("input", function(e){
+    if (e.target.id !== "winkel") return;
+    st.winkel = +e.target.value;
+    document.getElementById("winkelFig").innerHTML = winkelFig(st.winkel);
+    document.getElementById("winkelText").innerHTML = winkelText(st.winkel);
+    document.querySelectorAll('[data-key="winkel"]').forEach(function(b){
+      var on = +b.dataset.val === st.winkel; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
+    });
   });
 
   render();
