@@ -168,6 +168,7 @@ svg text{font-family:var(--f-body)}
 .mittel-pfeil svg{width:56px;height:24px;display:block}
 .lesen dl.sml{grid-template-columns:5em 1fr}
 @media (max-width:520px){.lesen dl.sml{grid-template-columns:5em 1fr;gap:6px 10px}.lesen dl.sml dd{margin-bottom:0}}
+.faelle{display:flex;flex-wrap:wrap;gap:8px}
 .tabelle{overflow-x:auto}
 .tabelle table{border-collapse:collapse;width:100%;min-width:480px;font-size:var(--t-s)}
 .tabelle th,.tabelle td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
@@ -678,9 +679,9 @@ svg text{font-family:var(--f-body)}
     {t:"Gesichtsmerkmale ausgleichen", s:"Seite 6", k:"Nase, Augen, Ohren, Lippe und Gesichtsformen. Mit welcher Frisur man sie ausgleicht.", html: function(){ return '' +
       '<dl>' +
       '<dt>Doppelkinn</dt><dd>Mehr Volumen am Oberkopf.</dd>' +
-      '<dt>Große Nase (Seitenprofil)</dt><dd>Mehr Hinterkopf betonen.<br><button class="btn" type="button" data-act="goPilot" style="margin-top:8px">Im Pilotfall ausprobieren ' + ICON_WEITER + '</button></dd>' +
+      '<dt>Große Nase (Seitenprofil)</dt><dd>Mehr Hinterkopf betonen.<br><button class="btn" type="button" data-act="goPilot" style="margin-top:8px">Im Fall „Nase im Profil“ ansehen ' + ICON_WEITER + '</button></dd>' +
       '<dt>Markante Nase</dt><dd>Kann durch eine Frisur mit seitlichem Pony oder voluminösem Haar am Oberkopf kaschiert werden. Auch eine lockige oder wellige Frisur lenkt die Aufmerksamkeit von der Nase ab.</dd>' +
-      '<dt>Hängendes Auge</dt><dd>Eine Frisur mit seitlichem Pony oder seitlichem Scheitel. Dadurch wird das Auge optisch angehoben und der Blick auf das andere Auge gelenkt.</dd>' +
+      '<dt>Hängendes Auge</dt><dd>Eine Frisur mit seitlichem Pony oder seitlichem Scheitel. Dadurch wird das Auge optisch angehoben und der Blick auf das andere Auge gelenkt.<br><button class="btn" type="button" data-act="goFall" data-val="auge" style="margin-top:8px">Im Fall „Auge öffnen“ ansehen ' + ICON_WEITER + '</button></dd>' +
       '<dt>Abstehende Ohren</dt><dd>Lange Haare, die die Ohren bedecken, oder eine Frisur mit seitlichem Scheitel. Auch ein seitlich gesteckter Zopf oder Volumen am Oberkopf lenkt die Aufmerksamkeit von den Ohren ab.</dd>' +
       '<dt>Hängende Lippe</dt><dd>Eine Frisur mit seitlichem Pony oder seitlichem Scheitel. Das Haar soll das Gesicht umrahmen und von der Lippe ablenken. Auch lockiges oder welliges Haar kann das Aussehen der Lippe verändern.</dd>' +
       '<dt>Weiches (rundes) Gesicht</dt><dd>Lange, wellige oder gestufte Haare. Auch ein seitlicher Pony oder ein asymmetrischer Bob lässt das Gesicht schmaler erscheinen. Dunklere Haarfarben betonen die Konturen des Gesichts.</dd>' +
@@ -770,8 +771,8 @@ svg text{font-family:var(--f-body)}
           return '<li><div><h3>' + z[0] + '</h3><dl class="sml">' +
             '<dt>Small</dt><dd>' + z[1] + '</dd><dt>Medium</dt><dd>' + z[2] + '</dd><dt>Large</dt><dd>' + z[3] + '</dd></dl></div></li>';
         }).join("") + '</ol>' +
-        '<div class="callout accent"><p><strong>Zum Pilotfall:</strong> Aufbau am Hinterkopf ist ein Large-Effekt beim Schnitt. Von unten nach oben geschnitten bekommt die Frisur Volumen.</p>' +
-        '<p><button class="btn" type="button" data-act="goPilot">Zum Pilotfall ' + ICON_WEITER + '</button></p></div>'; }},
+        '<div class="callout accent"><p><strong>Zum Fall „Nase im Profil“:</strong> Aufbau am Hinterkopf ist ein Large-Effekt beim Schnitt. Von unten nach oben geschnitten bekommt die Frisur Volumen.</p>' +
+        '<p><button class="btn" type="button" data-act="goPilot">Zum Fall „Nase im Profil“ ' + ICON_WEITER + '</button></p></div>'; }},
 
     {t:"Die Mittel des Coiffeurs und des Kunden", s:"Seite 15", k:"Mund und Hände, Ohr und Auge.", html: function(){ return '' +
       '<div class="grafik"><div class="mittel">' +
@@ -851,7 +852,7 @@ svg text{font-family:var(--f-body)}
   ];
 
   // ---------- Zustand ----------
-  var st = {view:"pilot", kap:-1, screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
+  var st = {view:"pilot", fall:"nase", kap:-1, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
 
   var SCREENS = [
     {step:-1, render:function(){
@@ -944,18 +945,19 @@ svg text{font-family:var(--f-body)}
   ];
 
   function renderCheck(){
-    if (st.q >= FRAGEN.length){
+    var FR = fall().fragen;
+    if (st.q >= FR.length){
       return card('',
         '<h2>Verständnis-Check</h2>' +
-        '<p><strong>' + st.score + ' von ' + FRAGEN.length + '</strong> Fragen beim ersten Versuch richtig.</p>' +
+        '<p><strong>' + st.score + ' von ' + FR.length + '</strong> Fragen beim ersten Versuch richtig.</p>' +
         '<div class="controls"><button class="btn" type="button" data-act="checkReset">Check wiederholen</button></div>');
     }
-    var F = FRAGEN[st.q], done = st.picked !== null, html;
+    var F = FR[st.q], done = st.picked !== null, html;
     function cls(i){ if(!done) return ""; if(i===F.r) return " right"; if(i===st.picked) return " wrong"; return ""; }
     if (F.bild){
       html = '<div class="imgchoice">' + F.a.map(function(t,i){
         return '<button class="btn' + cls(i) + '" type="button" data-act="pick" data-i="' + i + '"' + (done?' disabled':'') + '>' +
-          fig({hair: i===0 ? "A" : "B", label:t}) + t + '</button>';
+          fall().bild(i, t) + t + '</button>';
       }).join("") + '</div>';
     } else {
       html = '<div class="answers">' + F.a.map(function(t,i){
@@ -964,11 +966,231 @@ svg text{font-family:var(--f-body)}
     }
     if (done){
       html += '<div class="callout ' + (st.picked===F.r ? 'good' : 'bad') + '"><p><strong>' + (st.picked===F.r ? "Richtig. " : "Nicht ganz. ") + '</strong>' + F.f + '</p></div>' +
-        '<div class="controls"><button class="btn primary" type="button" data-act="nextQ">' + (st.q < FRAGEN.length-1 ? "Nächste Frage" : "Ergebnis zeigen") + '</button></div>';
+        '<div class="controls"><button class="btn primary" type="button" data-act="nextQ">' + (st.q < FR.length-1 ? "Nächste Frage" : "Ergebnis zeigen") + '</button></div>';
     }
     return card('',
-      '<h2>' + F.q + '</h2><p class="note">Frage ' + (st.q+1) + ' von ' + FRAGEN.length + '</p>' + html);
+      '<h2>' + F.q + '</h2><p class="note">Frage ' + (st.q+1) + ' von ' + FR.length + '</p>' + html);
   }
+
+
+  // ==================== Fall 2: Auge optisch öffnen durch schräg geführten Pony ====================
+  // Frontalansicht im selben Linienstil. Fix: Kopf und beide Augen. Veränderbar: nur der Pony.
+  // Das schwerer wirkende Auge ist das rechte im Bild (x = 300).
+  var F_GESICHT = "M162,200 C160,300 192,392 250,420 C308,392 340,300 338,200";
+  var F_ANSATZ  = "M166,204 C170,150 210,127 250,127 C290,127 330,150 334,204";
+  var F_HAAR    = "M150,262 C128,170 168,64 250,60 C332,64 372,170 350,262";
+  var F_OHREN   = "M162,236 C148,228 142,250 148,268 C152,282 159,288 165,282 M338,236 C352,228 358,250 352,268 C348,282 341,288 335,282";
+  var F_HALS    = "M212,404 L209,470 M288,404 L291,470";
+  var F_NASE    = "M246,268 C242,300 240,322 247,334 M238,338 Q250,344 262,338";
+  var F_MUND    = "M228,374 Q250,381 272,374";
+  var F_BRAUEN  = '<path d="M172,222 C186,210 212,208 230,216 C212,212 190,214 173,226 Z" fill="var(--ink)"/>' +
+                  '<path d="M328,222 C314,210 288,208 270,216 C288,212 310,214 327,226 Z" fill="var(--ink)"/>';
+  // Augen (fix, Akzentfarbe): links offen, rechts mit schwererem Lid
+  var AUGE_L = "M180,250 Q201,235 222,250 Q201,263 180,250 Z", AUGE_R = "M278,252 Q300,243 322,252 Q300,263 278,252 Z";
+  function augenpaar(id){
+    return '<clipPath id="al' + id + '"><path d="' + AUGE_L + '"/></clipPath><clipPath id="ar' + id + '"><path d="' + AUGE_R + '"/></clipPath>' +
+      '<g clip-path="url(#al' + id + ')"><circle cx="201" cy="250" r="8" fill="none" stroke="var(--accent)" stroke-width="2"/><circle cx="201" cy="250" r="3.6" fill="var(--accent)"/></g>' +
+      '<g clip-path="url(#ar' + id + ')"><circle cx="300" cy="252" r="8" fill="none" stroke="var(--accent)" stroke-width="2"/><circle cx="300" cy="252" r="3.6" fill="var(--accent)"/></g>' +
+      '<g fill="none" stroke="var(--accent)" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="' + AUGE_L + '" stroke-width="2.6"/><path d="' + AUGE_R + '" stroke-width="2.6"/>' +
+      '<path d="M183,243 Q201,230 219,241" stroke-width="1.4"/>' +
+      '<path d="M280,249 Q300,241 321,250" stroke-width="1.6"/></g>';
+  }
+
+  // Ponyformen: 5 Punkte Ponykante (links nach rechts) + 7 Punkte Haaransatz (rechts nach links)
+  var PONY_OBEN = [[334,200],[326,160],[296,134],[250,127],[204,134],[174,160],[166,200]];
+  var PONY = {
+    A:     [[168,216],[210,219],[250,219],[290,219],[332,216]],
+    B:     [[170,214],[212,207],[252,191],[288,163],[306,132]],
+    schwer:[[168,238],[210,243],[250,245],[290,243],[332,238]],
+    kurz:  [[168,178],[210,176],[250,176],[290,176],[332,178]]
+  };
+  PONY.M = PONY.A.map(function(p, i){ return [(p[0] + PONY.B[i][0]) / 2, (p[1] + PONY.B[i][1]) / 2]; });
+  PONY.dicht = PONY.A;
+
+  function glattZu(pts){
+    var n = pts.length, f = function(p){ return p[0].toFixed(1) + "," + p[1].toFixed(1); }, d = "M" + f(pts[0]);
+    for (var i = 0; i < n; i++){
+      var p0 = pts[(i-1+n)%n], p1 = pts[i], p2 = pts[(i+1)%n], p3 = pts[(i+2)%n];
+      d += " C" + f([p1[0] + (p2[0]-p0[0])/6, p1[1] + (p2[1]-p0[1])/6]) + " " + f([p2[0] - (p3[0]-p1[0])/6, p2[1] - (p3[1]-p1[1])/6]) + " " + f(p2);
+    }
+    return d + " Z";
+  }
+  function glattOffen(pts){
+    var f = function(p){ return p[0].toFixed(1) + "," + p[1].toFixed(1); }, d = "M" + f(pts[0]);
+    for (var i = 0; i < pts.length - 1; i++){
+      var p0 = pts[i-1] || pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2] || p2;
+      d += " C" + f([p1[0] + (p2[0]-p0[0])/6, p1[1] + (p2[1]-p0[1])/6]) + " " + f([p2[0] - (p3[0]-p1[0])/6, p2[1] - (p3[1]-p1[1])/6]) + " " + f(p2);
+    }
+    return d;
+  }
+  function kanteY(kante, x){
+    for (var i = 1; i < kante.length; i++){
+      var a = kante[i-1], b = kante[i];
+      if ((x >= a[0] && x <= b[0]) || (x <= a[0] && x >= b[0])) return a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0] || 1);
+    }
+    return kante[kante.length - 1][1];
+  }
+
+  function augeFig(o){
+    o = o || {};
+    var key = o.pony || "A", kante = PONY[key], id = ++uid;
+    var pony = glattZu(kante.concat(PONY_OBEN)), schraeg = key === "B" || key === "M";
+    var s = '<svg viewBox="92 44 400 436" role="img" aria-label="' + (o.label || "Frontalansicht") + '">';
+    // Kopf (fix)
+    s += '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="' + F_HAAR + '" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5"/>' +
+      '<path d="' + F_ANSATZ + '" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="1.5 4.5"/>' +
+      '<path d="' + F_GESICHT + '" stroke="var(--ink)" stroke-width="2.6"/>' +
+      '<path d="' + F_OHREN + '" stroke="var(--ink)" stroke-width="2.3"/>' +
+      '<path d="' + F_HALS + '" stroke="var(--ink)" stroke-width="2.6"/>' +
+      '<path d="' + F_NASE + '" stroke="var(--ink)" stroke-width="2"/>' +
+      '<path d="' + F_MUND + '" stroke="var(--ink)" stroke-width="2"/></g>' + F_BRAUEN;
+    // Pony (veränderbar)
+    s += '<g class="pony">';
+    if (schraeg) s += '<path d="M306,132 L314,82" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="4 4"/>';
+    s += '<path d="' + pony + '" fill="' + (key === "dicht" ? 'var(--g-haar)' : 'var(--g-flaeche)') + '" fill-opacity="' + (key === "dicht" ? '.85' : '.9') + '" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="' + (key === "dicht" || key === "kurz" ? '0' : '8 5') + '" stroke-linejoin="round"/>';
+    s += '</g>';
+    if (o.zonen){
+      s += '<path d="' + glattOffen(kante) + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" opacity=".55"/>' +
+        '<circle cx="306" cy="132" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.5"/>' +
+        txt(318, 118, "Scheitel", {size:14}) +
+        txt(206, 172, "schräge Ponylinie", {size:14, anchor:"middle"}) +
+        txt(314, 212, "offen", {size:14, fill:"var(--accent)"}) +
+        txt(98, 200, "weich auslaufen", {size:14});
+    }
+    // Augen (fix, obenauf)
+    s += augenpaar(id);
+    // Hilfslinien: Augenachse und Luft über dem schwereren Auge
+    if (o.hilfe){
+      var ky = kanteY(kante, 300);
+      s += '<g class="hilfe">' +
+        '<line x1="150" y1="251" x2="352" y2="251" stroke="var(--g-hilfe)" stroke-width="1.4" stroke-dasharray="6 5"/>' +
+        txt(356, 248, "Augenachse", {size:13, fill:"var(--muted)"}) +
+        '<line x1="300" y1="' + (ky + 3).toFixed(1) + '" x2="300" y2="243" stroke="var(--g-haar-kontur)" stroke-width="6" stroke-linecap="round" opacity=".85"/>' +
+        txt(250, ((ky + 243) / 2 + 5).toFixed(1), "Luft", {size:14, anchor:"middle"}) +
+        '</g>';
+    }
+    // Blickführung
+    if (o.blick === "A"){
+      s += '<g class="blick"><circle cx="300" cy="226" r="26" fill="var(--accent)" fill-opacity=".12"/><circle cx="300" cy="226" r="14" fill="none" stroke="var(--accent)" stroke-width="3"/></g>';
+    }
+    if (o.blick === "B"){
+      s += '<g class="blick">' + pfeil(196, 222, 312, 150, "var(--accent)", 3) + '</g>';
+    }
+    // Hinweis an den Augen (fix)
+    s += '<g class="hinweis"><line x1="362" y1="290" x2="318" y2="258" stroke="var(--ink)" stroke-width="1.5"/>' +
+      txt(362, 304, "Augen", {size:17, fill:"var(--accent)"}) +
+      txt(362, 324, "unverändert", {size:17, fill:"var(--accent)"}) + '</g>';
+    return s + '</svg>';
+  }
+
+  var FEHLER_AUGE = {
+    schwer: {t:"Zu schwer", d:"Der Pony liegt bis auf dem Lid. Er drückt zusätzlich auf das Auge, es wirkt noch kleiner.", fig:{pony:"schwer"}},
+    dicht:  {t:"Zu dicht", d:"Eine dichte, geschlossene Fläche mit harter Kante bringt viel Gewicht direkt über die Augen.", fig:{pony:"dicht"}},
+    kurz:   {t:"Zu kurz", d:"Eine kurze, harte Kante läuft waagrecht parallel zu den Augen. Der Unterschied zwischen beiden Augen fällt stärker auf.", fig:{pony:"kurz"}},
+    gut:    {t:"So kann es passen", d:"Weich und schräg geführt, über dem schwerer wirkenden Auge offen, seitlich weich auslaufend.", fig:{pony:"B"}, ok:true}
+  };
+
+  var FRAGEN_AUGE = [
+    {q:"Wovon hängt ab, wie offen ein Auge wirkt?",
+     a:["Nur vom Auge selbst.","Auch von Linien, Übergängen und Gewicht im Vorderbereich.","Nur von der Haarfarbe."],
+     r:1, f:"Im Gesicht wirkt nie nur ein einzelnes Detail. Auch die Linienführung rundherum zählt."},
+    {q:"Bei welchem Bild wirkt die Augenpartie offener?", bild:true,
+     a:["Gerader, schwerer Pony","Weich und schräg geführter Pony"],
+     r:1, f:"Die schräge Linie führt den Blick und nimmt Schwere aus dem Bereich über dem Auge."},
+    {q:"Was kann das Auge zusätzlich belasten?",
+     a:["Ein weich und schräg geführter Pony","Ein zu schwerer, zu dichter oder zu kurzer Pony","Ein seitlicher Scheitel"],
+     r:1, f:"Schwere, dichte oder harte kurze Kanten bringen Gewicht auf die Augenpartie."},
+    {q:"Richtig oder falsch? „Wenn ein Auge schwerer wirkt, passt immer ein schräger Pony.“",
+     a:["Richtig","Falsch"],
+     r:1, f:"Der schräge Pony ist eine mögliche Lösung, keine feste Regel. Er muss zu Stirnhöhe, Haarmenge, Haarstruktur und Gesichtsform passen."},
+    {q:"Eine Kundin hat eine sehr niedrige Stirn und feines, wenig Haar. Was klärst du zuerst?",
+     a:["Nichts. Der Pony wird einfach dicht geschnitten.","Ob Stirnhöhe und Haarmenge einen weichen, schrägen Pony überhaupt tragen.","Welche Haarfarbe sie möchte."],
+     r:1, f:"Die Lösung muss zur Stirnhöhe, zur Haarmenge und zur Haarstruktur passen."}
+  ];
+
+  var SCREENS_AUGE = [
+    {step:-1, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + augeFig({pony:"A", label:"Vorher: gerader, schwerer Pony"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + augeFig({pony:"B", label:"Nachher: weich und schräg geführter Pony"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Worum es geht</h2>' +
+        '<p>Wie offen ein Auge wirkt, hängt nicht nur vom Auge selbst ab. Auch die Linienführung im Vorderbereich spielt mit.</p>' +
+        '<p>In diesem Beispiel bleiben beide Augen in jedem Bild gleich. Nur der Pony ändert sich.</p>' +
+        '<div class="callout accent"><p><strong>Wichtig:</strong> Der schräge Pony ist eine mögliche Lösung, keine feste Regel.</p></div>');
+    }},
+    {step:0, render:function(){
+      return card(augeFig({pony:"A", hilfe:st.hilfe, label:"Ausgangsform: gerader, schwerer Pony"}) +
+        controls(toggle("hilfe","Hilfslinien zeigen", st.hilfe)),
+        '<h2>Ausgangsform</h2>' +
+        '<p>Ein Auge wirkt schwerer, kleiner oder etwas geschlossener als das andere.</p>' +
+        '<p>Manchmal liegt der Eindruck am Lid, manchmal an der Linienführung rund um Stirn und Vorderbereich. Hier liegt ein gerader Pony schwer auf der Stirn, direkt über den Augen.</p>' +
+        '<p class="note">Die Hilfslinien zeigen: Über dem schwerer wirkenden Auge bleibt kaum Luft bis zur Ponykante.</p>');
+    }},
+    {step:1, render:function(){
+      return card(augeFig({pony:st.pony, hilfe:st.hilfe, label:{A:"Zustand A: gerader, schwerer Pony", M:"Zwischenstufe", B:"Zustand B: weich und schräg geführter Pony"}[st.pony]}) +
+        controls(seg("pony",[["A","A · gerade"],["M","Zwischenstufe"],["B","B · schräg"]], st.pony) + toggle("hilfe","Hilfslinien", st.hilfe)),
+        '<h2>Zielwirkung</h2>' +
+        '<p>Die Augenpartie soll offener, leichter und wacher wirken.</p>' +
+        '<p>Die Augen bleiben genau gleich. Es verändert sich nur die Linie darüber.</p>' +
+        '<p class="note">Schalte zwischen A, Zwischenstufe und B um. Achte auf die Luft über dem schwerer wirkenden Auge.</p>');
+    }},
+    {step:2, render:function(){
+      return card(augeFig({pony:"B", zonen:st.zonen, label:"Mögliche Schnittentscheidung"}) +
+        controls(toggle("zonen","Schnittzonen", st.zonen)),
+        '<h2>Mögliche Schnittentscheidung</h2>' +
+        '<p>Ein weich und schräg geführter Pony kann eine Möglichkeit sein, die Augenpartie optisch zu öffnen.</p>' +
+        '<ul>' +
+        '<li><strong>Linienführung:</strong> Die Ponylinie verläuft schräg. Die schräge Führung lenkt den Blick und kann Schwere aus dem Bereich nehmen.</li>' +
+        '<li><strong>Über dem schwerer wirkenden Auge:</strong> offen lassen, damit Luft bis zum Auge bleibt.</li>' +
+        '<li><strong>Kante:</strong> weich auslaufen lassen, keine harte, dichte Kante.</li>' +
+        '</ul>' +
+        '<p>Das ist eine Möglichkeit, nicht die einzige. Entscheidend ist die Wirkung: Die Augenpartie wird leichter.</p>');
+    }},
+    {step:3, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + augeFig({pony:"A", blick:"A", label:"Vorher: Blick bleibt an der schweren Kante"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + augeFig({pony:"B", blick:"B", label:"Nachher: Blick wird entlang der Linie geführt"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Warum es wirkt</h2>' +
+        '<p>Im Gesicht wirkt nie nur ein einzelnes Detail. Auch Linien, Übergänge und Gewicht im Vorderbereich beeinflussen, wie offen oder geschlossen ein Auge wirkt.</p>' +
+        '<p>Eine weiche, schräge Führung kann die Blickrichtung unterstützen und die Augenpartie leichter erscheinen lassen.</p>');
+    }},
+    {step:4, render:function(){
+      var f = FEHLER_AUGE[st.fehlerAuge];
+      return card(augeFig(Object.assign({label:f.t}, f.fig)) +
+        controls(seg("fehlerAuge",[["schwer","Zu schwer"],["dicht","Zu dicht"],["kurz","Zu kurz"],["gut","So kann es passen"]], st.fehlerAuge)) +
+        '<div class="callout ' + (f.ok ? 'good' : 'bad') + '"><strong>' + f.t + '</strong><p>' + f.d + '</p></div>',
+        '<h2>Worauf achten: Fehlerbilder</h2>' +
+        '<p>Ein zu schwerer, zu dichter oder zu kurzer Pony kann das Auge zusätzlich belasten.</p>');
+    }},
+    {step:4, render:function(){
+      return card(augeFig({pony:"B", label:"Mögliche Zielform"}),
+        '<h2>Worauf achten: passt es zur Person?</h2>' +
+        '<p>Die Lösung muss immer passen zur:</p>' +
+        '<ul><li><strong>Stirnhöhe</strong></li><li><strong>Haarmenge</strong></li><li><strong>Haarstruktur</strong></li><li><strong>gesamten Gesichtsform</strong></li></ul>' +
+        '<p>Passt eines davon nicht, ist ein schräger Pony vielleicht nicht die richtige Lösung.</p>');
+    }},
+    {step:5, render:renderCheck},
+    {step:6, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + augeFig({pony:"A", label:"Vorher"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + augeFig({pony:"B", label:"Nachher"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Merksatz</h2>' +
+        '<p class="merksatz">Nicht das Auge allein entscheidet über die Wirkung, sondern auch die Linienführung rundherum.</p>');
+    }}
+  ];
+
+  var FAELLE = {
+    nase: {titel:"Lange Nase im Profil", kurz:"Nase im Profil", screens:SCREENS, fragen:FRAGEN,
+           bild:function(i, t){ return fig({hair: i === 0 ? "A" : "B", label:t}); }},
+    auge: {titel:"Auge optisch öffnen", kurz:"Auge öffnen", screens:SCREENS_AUGE, fragen:FRAGEN_AUGE,
+           bild:function(i, t){ return augeFig({pony: i === 0 ? "A" : "B", label:t}); }}
+  };
+  function fall(){ return FAELLE[st.fall]; }
 
   // ---------- Bausteine ----------
   function card(figHtml, textHtml){
@@ -988,21 +1210,25 @@ svg text{font-family:var(--f-body)}
 
 
   // ---------- App-Rahmen ----------
-  function neuStart(){ return {view:st.view, kap:st.kap, screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
+  function neuStart(){ return {view:st.view, fall:st.fall, kap:st.kap, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
 
   function renderPilot(){
-    var S = SCREENS[st.screen];
+    var SC = fall().screens, S = SC[st.screen];
     var steps = '<ol class="steps" aria-label="Lernschritte">' + STEPS.map(function(t,i){
       var c = i < S.step ? "done" : (i === S.step ? "now" : "");
       return '<li class="' + c + '"' + (i===S.step?' aria-current="step"':'') + '>' + t + '</li>';
     }).join("") + '</ol>';
-    var last = st.screen === SCREENS.length-1;
+    var last = st.screen === SC.length-1;
     var nav = '<div class="nav">' +
       '<button class="btn" type="button" data-act="prev"' + (st.screen===0?' disabled':'') + '>' + ICON_ZURUECK + 'Zurück</button>' +
       (last ? '<button class="btn primary" type="button" data-act="restart">Von vorne</button>'
             : '<button class="btn primary" type="button" data-act="next">' + (st.screen===0 ? "Los geht’s" : "Weiter") + ICON_WEITER + '</button>') +
       '</div>';
-    return '<div class="screen"><div class="pagehead"><h1>Lange Nase im Profil <span class="tag">Pilotfall V1</span></h1></div>' +
+    var wahl = '<div class="faelle" role="group" aria-label="Fall wählen">' + Object.keys(FAELLE).map(function(k, i){
+        var on = k === st.fall;
+        return '<button class="btn' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="fall" data-val="' + k + '">Fall ' + (i + 1) + ': ' + FAELLE[k].kurz + '</button>';
+      }).join("") + '</div>';
+    return '<div class="screen">' + wahl + '<div class="pagehead"><h1>' + fall().titel + ' <span class="tag">V1</span></h1></div>' +
       steps + S.render() + nav + '</div>';
   }
 
@@ -1010,7 +1236,7 @@ svg text{font-family:var(--f-body)}
     document.getElementById("bar").innerHTML =
       '<span class="brand">Beratung &amp; Formwirkung</span>' +
       '<nav class="tabs" aria-label="Bereiche">' +
-        '<button type="button" data-act="view" data-val="pilot"' + (st.view==="pilot" ? ' aria-current="page"' : '') + '>Pilotfall</button>' +
+        '<button type="button" data-act="view" data-val="pilot"' + (st.view==="pilot" ? ' aria-current="page"' : '') + '>Fälle</button>' +
         '<button type="button" data-act="view" data-val="wissen"' + (st.view==="wissen" ? ' aria-current="page"' : '') + '>Wissen</button>' +
       '</nav>';
     document.getElementById("app").innerHTML = st.view === "wissen" ? renderWissen() : renderPilot();
@@ -1021,13 +1247,14 @@ svg text{font-family:var(--f-body)}
     var a = b.dataset.act, moved = false;
     if (a==="view"){ if (st.view !== b.dataset.val){ st.view = b.dataset.val; moved = true; } }
     if (a==="kap"){ st.kap = +b.dataset.val; moved = true; }
-    if (a==="goPilot"){ st.view = "pilot"; st.screen = 0; moved = true; }
-    if (a==="next"){ st.screen = Math.min(st.screen+1, SCREENS.length-1); moved = true; }
+    if (a==="goPilot"){ st.view = "pilot"; st.fall = "nase"; st = neuStart(); moved = true; }
+    if (a==="goFall" || a==="fall"){ st.view = "pilot"; st.fall = b.dataset.val; st = neuStart(); moved = true; }
+    if (a==="next"){ st.screen = Math.min(st.screen+1, fall().screens.length-1); moved = true; }
     if (a==="prev"){ st.screen = Math.max(st.screen-1, 0); moved = true; }
     if (a==="restart"){ st = neuStart(); moved = true; }
     if (a==="toggle"){ st[b.dataset.key] = !st[b.dataset.key]; }
     if (a==="set"){ st[b.dataset.key] = b.dataset.key === "winkel" ? +b.dataset.val : b.dataset.val; }
-    if (a==="pick"){ st.picked = +b.dataset.i; if (st.picked === FRAGEN[st.q].r) st.score++; }
+    if (a==="pick"){ st.picked = +b.dataset.i; if (st.picked === fall().fragen[st.q].r) st.score++; }
     if (a==="nextQ"){ st.q++; st.picked = null; }
     if (a==="checkReset"){ st.q = 0; st.picked = null; st.score = 0; }
     render();
