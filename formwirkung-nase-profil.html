@@ -169,6 +169,22 @@ svg text{font-family:var(--f-body)}
 .lesen dl.sml{grid-template-columns:5em 1fr}
 @media (max-width:520px){.lesen dl.sml{grid-template-columns:5em 1fr;gap:6px 10px}.lesen dl.sml dd{margin-bottom:0}}
 .faelle{display:flex;flex-wrap:wrap;gap:8px}
+.wrap.breit{max-width:1120px}
+.bk-grid{display:grid;gap:16px;align-items:start}
+@media (min-width:900px){.bk-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.bk-fig{position:sticky;top:76px}}
+.bk-fig svg{max-width:420px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 13px;font:inherit;font-size:var(--t-s);font-weight:700;min-height:38px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background-color .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease)}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.chip[disabled]{opacity:.45;cursor:default}
+.punkt{width:12px;height:12px;border-radius:50%;display:inline-block;border:1px solid var(--line)}
+.wahl{border:0;margin:0;padding:0;min-width:0}
+.wahl legend{font-weight:700;padding:0;margin-bottom:8px}
+.bk-wahl{gap:18px}
+.werkzeuge{padding-top:10px;border-top:1px solid var(--line)}
+#bk-marker{transition:left .9s var(--ease)}
+@media (prefers-reduced-motion: no-preference){.sim-in{animation:simIn .9s var(--ease)}@keyframes simIn{from{opacity:0}to{opacity:1}}}
 .tabelle{overflow-x:auto}
 .tabelle table{border-collapse:collapse;width:100%;min-width:480px;font-size:var(--t-s)}
 .tabelle th,.tabelle td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
@@ -852,7 +868,8 @@ svg text{font-family:var(--f-body)}
   ];
 
   // ---------- Zustand ----------
-  var st = {view:"pilot", fall:"nase", kap:-1, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
+  var BK_START = {form:"rund", augen:"mandel", brauen:"gebogen", mund:"voll", frisur:"seitlich", pony:"kein", bart:"kein", mess:true, oval:true, zeichnen:false, farbe:"ink", dicke:4, radieren:false, striche:[], vorher:null, vergleich:null};
+  var st = {bk:null, bkAnim:false, bkVon:null, view:"pilot", fall:"nase", kap:-1, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
 
   var SCREENS = [
     {step:-1, render:function(){
@@ -1192,6 +1209,267 @@ svg text{font-family:var(--f-body)}
   };
   function fall(){ return FAELLE[st.fall]; }
 
+
+  // ==================== Baukasten: Gesicht zusammenstellen, Balance simulieren, zeichnen ====================
+  var BK_OPT = {
+    form:   [["oval","Oval"],["rund","Rund"],["viereck","Viereck"],["rechteck","Rechteck (lang)"],["aufsteigend","Dreieck aufsteigend"],["abfallend","Dreieck abfallend"],["raute","Raute"]],
+    augen:  [["mandel","Mandel"],["rund","Rund"],["schmal","Schmal"],["haengend","Hängend"]],
+    brauen: [["gerade","Gerade"],["gebogen","Gebogen"],["kantig","Kantig"]],
+    mund:   [["schmal","Schmal"],["voll","Voll"],["breit","Breit"]],
+    frisur: [["kurz","Kurz anliegend"],["oben","Volumen oben"],["seitlich","Volumen seitlich"],["bob","Bob kinnlang"],["lang","Lang"]],
+    pony:   [["kein","Kein Pony"],["gerade","Gerade"],["schraeg","Schräg"]],
+    bart:   [["kein","Kein Bart"],["stoppeln","Stoppeln"],["schnurr","Schnurrbart"],["kinn","Kinnbart"],["voll","Vollbart"]]
+  };
+  var BK_TITEL = {form:"Gesichtsform", augen:"Augen", brauen:"Augenbrauen", mund:"Mund", frisur:"Frisur", pony:"Pony", bart:"Bart"};
+  // Gesichtsformen: Breite von Stirn (f), Wangen (c), Kiefer (j), Kinnbreite (ch), Oberkante (top), Kinn (cy)
+  var BK_FORM = {
+    oval:        {top:112, f:150, c:172, j:128, ch:44,  cy:402},
+    rund:        {top:122, f:160, c:198, j:170, ch:84,  cy:382},
+    viereck:     {top:118, f:174, c:180, j:178, ch:116, cy:384},
+    rechteck:    {top:96,  f:148, c:154, j:144, ch:86,  cy:430},
+    aufsteigend: {top:112, f:190, c:172, j:112, ch:30,  cy:400},
+    abfallend:   {top:120, f:126, c:166, j:186, ch:100, cy:392},
+    raute:       {top:112, f:126, c:192, j:118, ch:34,  cy:404}
+  };
+  var BK_Y = {F:160, C:250, J:330};
+  var BK_TIPP = {
+    oval: "Ein harmonisches (ovales) Gesicht kann nahezu jede Frisur tragen. (Seite 6)",
+    rund: "Ein weiches (rundes) Gesicht: lange, wellige oder gestufte Haare, ein seitlicher Pony oder ein asymmetrischer Bob lassen es schmaler erscheinen. (Seite 6)",
+    abfallend: "Ein abfallendes Gesicht mit schmaler Stirn und breiterem Kiefer wird durch viel Volumen am Oberkopf ausgeglichen. (Seite 6)",
+    aufsteigend: "Ein aufsteigendes Gesicht mit breiterer Stirn und schmalerem Kiefer: seitlicher Pony oder seitlicher Scheitel, lange Haare, die das Gesicht umrahmen. (Seite 6)",
+    viereck: "Ziel ist die harmonische Form: eckige Linien harmonieren mit weichen Linien. (Seite 4)",
+    rechteck: "Ziel ist die harmonische Form: ein langes Gesicht braucht eher Breite als Höhe.",
+    raute: "Ziel ist die harmonische Form: Stirn und Kinn ergänzen, die breiten Wangen nicht zusätzlich betonen."
+  };
+
+  function bkGeo(form){
+    var F = BK_FORM[form], yE = F.top + (F.cy - F.top) * 0.42, yN = F.top + (F.cy - F.top) * 0.64;
+    return {F:F, yE:yE, yB:yE - 25, yN:yN, yM:yN + (F.cy - yN) * 0.38, yH:F.top + (yE - F.top) * 0.36, ex:F.c * 0.22};
+  }
+  function bkGesicht(F){
+    var pts = [[200,F.top],[200+F.f*0.38,F.top+22],[200+F.f/2,BK_Y.F],[200+F.c/2,BK_Y.C],[200+F.j/2,BK_Y.J],[200+F.ch/2,F.cy-12],[200,F.cy],
+               [200-F.ch/2,F.cy-12],[200-F.j/2,BK_Y.J],[200-F.c/2,BK_Y.C],[200-F.f/2,BK_Y.F],[200-F.f*0.38,F.top+22]];
+    return glattZu(pts);
+  }
+  // Frisur-Silhouette als Punkte (hinter dem Gesicht)
+  function bkHaarPunkte(frisur, g){
+    var F = g.F, t = F.top, e = g.yE, sp = function(pts){ return pts.concat(pts.slice(1, -1).reverse().map(function(p){ return [400 - p[0], p[1]]; })); };
+    var P = {
+      kurz:     [[200,t-14],[200+F.f*0.42,t-2],[200+F.f/2+12,BK_Y.F-8],[200+F.c/2+8,e+18],[200+F.c/2-12,e+34],[200,e]],
+      oben:     [[200,t-50],[200+F.f*0.46,t-26],[200+F.f/2+14,BK_Y.F-10],[200+F.c/2+8,e+18],[200+F.c/2-12,e+34],[200,e]],
+      seitlich: [[200,t-16],[200+F.f*0.46,t],[200+F.f/2+30,BK_Y.F],[200+F.c/2+36,BK_Y.C],[200+F.j/2+22,BK_Y.J-6],[200+F.j/2-10,BK_Y.J],[200,e]],
+      bob:      [[200,t-16],[200+F.f*0.44,t],[200+F.f/2+16,BK_Y.F],[200+F.c/2+20,BK_Y.C],[200+F.j/2+30,F.cy-18],[200+F.j/2+4,F.cy-8],[200+F.c/2-14,BK_Y.C],[200,e]],
+      lang:     [[200,t-16],[200+F.f*0.44,t],[200+F.f/2+14,BK_Y.F],[200+F.c/2+18,BK_Y.C],[200+F.j/2+28,F.cy],[200+F.c/2+30,478],[200+F.c*0.26,478],[200+F.c/2-12,BK_Y.C],[200,e]]
+    }[frisur];
+    return sp(P);
+  }
+  function bkBreite(pts, y){
+    var xs = [];
+    for (var i = 0; i < pts.length; i++){
+      var a = pts[i], b = pts[(i+1) % pts.length];
+      if ((a[1] - y) * (b[1] - y) <= 0 && a[1] !== b[1]) xs.push(a[0] + (b[0]-a[0]) * (y - a[1]) / (b[1] - a[1]));
+    }
+    return xs.length ? Math.max.apply(null, xs) - Math.min.apply(null, xs) : 0;
+  }
+  var BK_BART_LAENGE = {kein:0, stoppeln:0, schnurr:0, kinn:22, voll:16};
+  // Wirkung auf die wahrgenommene Form: Breite Stirn (dF), Wangen (dC), Kiefer (dJ), Länge (dL, Faktor k)
+  var BK_WIRKUNG = {
+    frisur: {kurz:{dF:0,dC:0,dJ:0,dL:0}, oben:{dF:20,dC:0,dJ:0,dL:30}, seitlich:{dF:40,dC:50,dJ:20,dL:0}, bob:{dF:0,dC:0,dJ:24,dL:0}, lang:{dF:0,dC:-12,dJ:-26,dL:30}},
+    pony:   {kein:{dF:0,k:1}, gerade:{dF:10,k:0.9}, schraeg:{dF:-12,k:0.97}},
+    bart:   {kein:{dJ:0,dL:0}, stoppeln:{dJ:0,dL:0}, schnurr:{dJ:0,dL:-6}, kinn:{dJ:0,dL:22}, voll:{dJ:12,dL:16}}
+  };
+  function bkMass(k){
+    var F = BK_FORM[k.form], fr = BK_WIRKUNG.frisur[k.frisur], po = BK_WIRKUNG.pony[k.pony], ba = BK_WIRKUNG.bart[k.bart];
+    var wF = F.f + fr.dF + po.dF, wC = F.c + fr.dC, wJ = F.j + fr.dJ + ba.dJ;
+    var L = ((F.cy - F.top) + fr.dL + ba.dL) * po.k;
+    var oben = F.top - 14 - (k.frisur === "oben" ? 36 : 0), unten = F.cy + BK_BART_LAENGE[k.bart];
+    return {rF:wF / wC, rJ:wJ / wC, rL:L / wC, wF:wF, wC:wC, wJ:wJ, oben:oben, unten:unten};
+  }
+  var BK_IDEAL = null;
+  function bkScore(k){
+    if (!BK_IDEAL) BK_IDEAL = bkMass({form:"oval", frisur:"kurz", pony:"kein", bart:"kein"});
+    var m = bkMass(k), I = BK_IDEAL;
+    var dev = Math.abs(Math.log(m.rF / I.rF)) + Math.abs(Math.log(m.rJ / I.rJ)) + Math.abs(Math.log(m.rL / I.rL));
+    return Math.max(0, Math.min(1, 1 - dev));
+  }
+  function bkBeste(k){
+    var best = null, beste = -1, barte = k.bart === "kein" ? ["kein"] : ["stoppeln","schnurr","kinn","voll"];
+    BK_OPT.frisur.forEach(function(fr){ BK_OPT.pony.forEach(function(po){ barte.forEach(function(ba){
+      var c = Object.assign({}, k, {frisur:fr[0], pony:po[0], bart:ba}), s = bkScore(c);
+      if (s > beste + 0.001){ beste = s; best = c; }
+    }); }); });
+    return best;
+  }
+  function bkWasAendert(v, n){
+    var a = bkMass(v), b = bkMass(n), I = BK_IDEAL, out = [];
+    var naeher = function(x, y, i){ return Math.abs(Math.log(y / i)) < Math.abs(Math.log(x / i)) - 0.01; };
+    if (naeher(a.rL, b.rL, I.rL)) out.push(b.rL > a.rL ? "Das Gesicht wirkt länger und schmaler." : "Das Gesicht wirkt kürzer und breiter, also weniger lang.");
+    if (naeher(a.rF, b.rF, I.rF)) out.push("Stirn und Wangen wirken im Verhältnis ausgeglichener.");
+    if (naeher(a.rJ, b.rJ, I.rJ)) out.push(b.rJ > a.rJ ? "Der Kinn- und Kieferbereich bekommt Gewicht und gleicht die Stirn aus." : "Der Kieferbereich wirkt schmaler und leichter.");
+    return out.length ? out : ["Die Form war schon ausgeglichen. Es ändert sich nur wenig."];
+  }
+  function bkNamen(key, val){ for (var i = 0; i < BK_OPT[key].length; i++) if (BK_OPT[key][i][0] === val) return BK_OPT[key][i][1]; return val; }
+
+  // --- Einzelteile zeichnen ---
+  function bkAuge(art, ex, ey, s, id){
+    var o = ex + 18 * s, i = ex - 18 * s, d;
+    if (art === "mandel") d = "M" + i + "," + ey + " Q" + ex + "," + (ey-13) + " " + o + "," + ey + " Q" + ex + "," + (ey+11) + " " + i + "," + ey + " Z";
+    if (art === "rund") d = "M" + i + "," + ey + " Q" + i + "," + (ey-13) + " " + ex + "," + (ey-13) + " Q" + o + "," + (ey-13) + " " + o + "," + ey + " Q" + o + "," + (ey+12) + " " + ex + "," + (ey+12) + " Q" + i + "," + (ey+12) + " " + i + "," + ey + " Z";
+    if (art === "schmal") d = "M" + i + "," + ey + " Q" + ex + "," + (ey-8) + " " + o + "," + ey + " Q" + ex + "," + (ey+7) + " " + i + "," + ey + " Z";
+    if (art === "haengend") d = "M" + i + "," + (ey-2) + " Q" + (ex + 2*s) + "," + (ey-12) + " " + o + "," + (ey+6) + " Q" + ex + "," + (ey+11) + " " + i + "," + (ey-2) + " Z";
+    return '<clipPath id="bka' + id + s + '"><path d="' + d + '"/></clipPath>' +
+      '<g clip-path="url(#bka' + id + s + ')"><circle cx="' + ex + '" cy="' + ey + '" r="7.5" fill="none" stroke="var(--ink)" stroke-width="1.8"/><circle cx="' + ex + '" cy="' + ey + '" r="3.4" fill="var(--ink)"/></g>' +
+      '<path d="' + d + '" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round"/>';
+  }
+  function bkBraue(art, ex, by, s){
+    var i = ex - 21 * s, o = ex + 23 * s, d;
+    if (art === "gerade") d = "M" + i + "," + (by+2) + " Q" + ex + "," + (by-2) + " " + o + "," + (by+1);
+    if (art === "gebogen") d = "M" + i + "," + (by+3) + " Q" + (ex + 2*s) + "," + (by-13) + " " + o + "," + (by+3);
+    if (art === "kantig") d = "M" + i + "," + (by+3) + " L" + (ex + 9*s) + "," + (by-8) + " L" + o + "," + (by+4);
+    return '<path d="' + d + '" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  function bkMund(art, y){
+    var w = {schmal:22, voll:24, breit:32}[art], h = {schmal:4, voll:8, breit:5}[art];
+    return '<g fill="none" stroke="var(--ink)" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M' + (200-w) + ',' + y + ' Q' + (200-w/2) + ',' + (y-h) + ' 196,' + (y-h+1) + ' Q200,' + (y-h+3) + ' 204,' + (y-h+1) + ' Q' + (200+w/2) + ',' + (y-h) + ' ' + (200+w) + ',' + y + '" stroke-width="1.8"/>' +
+      '<path d="M' + (200-w) + ',' + y + ' Q200,' + (y+2) + ' ' + (200+w) + ',' + y + '" stroke-width="2.2"/>' +
+      '<path d="M' + (200-w*0.8) + ',' + (y+1) + ' Q200,' + (y+h*1.7) + ' ' + (200+w*0.8) + ',' + (y+1) + '" stroke-width="1.8"/></g>';
+  }
+  function bkBart(art, g, id){
+    if (art === "kein") return "";
+    var F = g.F, yN = g.yN, yM = g.yM, cy = F.cy, ext = BK_BART_LAENGE[art], d = "";
+    var schnurr = "M" + 170 + "," + (yM-4) + " C176,"+ (yM-16) + " 194," + (yM-15) + " 200," + (yM-11) + " C206," + (yM-15) + " 224," + (yM-16) + " 230," + (yM-4) + " C220," + (yM-8) + " 210," + (yM-6) + " 200," + (yM-5) + " C190," + (yM-6) + " 180," + (yM-8) + " 170," + (yM-4) + " Z";
+    var voll = glattZu([[200+F.c/2-4,yN-24],[200+F.j/2+5,BK_Y.J+2],[200+F.ch/2+10,cy-2],[200,cy+ext],[200-F.ch/2-10,cy-2],[200-F.j/2-5,BK_Y.J+2],[200-F.c/2+4,yN-24],
+      [200-F.c/2+20,yN-14],[166,yM+2],[178,yM+16],[200,yM+20],[222,yM+16],[234,yM+2],[200+F.c/2-20,yN-14]]);
+    if (art === "schnurr") d = schnurr;
+    if (art === "kinn") d = glattZu([[178,yM+12],[200-F.ch/2-4,cy-10],[200,cy+ext],[200+F.ch/2+4,cy-10],[222,yM+12],[200,yM+16]]);
+    if (art === "voll") d = voll + " " + schnurr;
+    if (art === "stoppeln") d = voll + " " + schnurr;
+    var muster = art === "stoppeln"
+      ? '<pattern id="bkp' + id + '" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r=".9" fill="var(--ink)"/></pattern>'
+      : '<pattern id="bkp' + id + '" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(70)"><line x1="0" y1="0" x2="0" y2="5" stroke="var(--ink)" stroke-width="1.3"/></pattern>';
+    return '<defs>' + muster + '</defs><path d="' + d + '" fill="url(#bkp' + id + ')" fill-rule="evenodd" stroke="var(--ink)" stroke-width="' + (art === "stoppeln" ? 0 : 1.4) + '" stroke-dasharray="3 3"/>';
+  }
+  function bkPony(art, g, gesicht, id){
+    if (art === "kein") return "";
+    var F = g.F, yE = g.yE, kante;
+    if (art === "gerade") kante = "M" + (200-F.f/2-20) + "," + (yE-30) + " Q200," + (yE-36) + " " + (200+F.f/2+20) + "," + (yE-30);
+    if (art === "schraeg") kante = "M" + (200-F.f/2-20) + "," + (yE-28) + " C" + (200-F.f*0.1) + "," + (yE-34) + " " + (200+F.f*0.14) + "," + (g.yH+26) + " " + (200+F.f*0.3) + "," + (g.yH-10);
+    var flaeche = kante + " L" + (art === "gerade" ? (200+F.f/2+20) + ",0" : (200+F.f*0.3) + ",0") + " L" + (200-F.f/2-20) + ",0 Z";
+    return '<clipPath id="bkg' + id + '"><path d="' + gesicht + '"/></clipPath>' +
+      '<g clip-path="url(#bkg' + id + ')"><path d="' + flaeche + '" fill="var(--g-flaeche)"/><path d="' + kante + '" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5"/></g>';
+  }
+
+  function bkFig(k, o){
+    o = o || {};
+    var g = bkGeo(k.form), F = g.F, id = ++uid, gesicht = bkGesicht(F), hp = bkHaarPunkte(k.frisur, g), ex = g.ex;
+    var s = '<svg viewBox="40 20 320 470" role="img" aria-label="Gesicht: ' + bkNamen("form", k.form) + ', Frisur ' + bkNamen("frisur", k.frisur) + '" class="bk-svg"' + (o.zeichnen ? ' style="touch-action:none"' : '') + '>';
+    // Frisur hinten
+    s += '<g class="' + (o.einblenden ? 'sim-in' : '') + '"><path d="' + glattZu(hp) + '" fill="var(--g-flaeche)" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5" stroke-linejoin="round"/></g>';
+    // Hals, Ohren
+    s += '<g fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round">' +
+      '<path d="M' + (200-F.c*0.22) + ',' + (F.cy-26) + ' L' + (200-F.c*0.24) + ',488 M' + (200+F.c*0.22) + ',' + (F.cy-26) + ' L' + (200+F.c*0.24) + ',488"/>' +
+      '<path d="M' + (200-F.c/2+2) + ',' + (g.yE-6) + ' C' + (200-F.c/2-16) + ',' + (g.yE-16) + ' ' + (200-F.c/2-20) + ',' + (g.yN-6) + ' ' + (200-F.c/2+2) + ',' + (g.yN+4) + '"/>' +
+      '<path d="M' + (200+F.c/2-2) + ',' + (g.yE-6) + ' C' + (200+F.c/2+16) + ',' + (g.yE-16) + ' ' + (200+F.c/2+20) + ',' + (g.yN-6) + ' ' + (200+F.c/2-2) + ',' + (g.yN+4) + '"/></g>';
+    // Gesicht
+    s += '<path d="' + gesicht + '" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.6" stroke-linejoin="round"/>';
+    // Haar am Oberkopf (bis zum Haaransatz)
+    var ansatz = "M" + (200-F.f/2-4) + "," + (BK_Y.F-2) + " C" + (200-F.f*0.34) + "," + (g.yH+10) + " " + (200-F.f*0.18) + "," + g.yH + " 200," + g.yH + " C" + (200+F.f*0.18) + "," + g.yH + " " + (200+F.f*0.34) + "," + (g.yH+10) + " " + (200+F.f/2+4) + "," + (BK_Y.F-2);
+    s += '<clipPath id="bkf' + id + '"><path d="' + gesicht + '"/></clipPath>' +
+      '<g clip-path="url(#bkf' + id + ')"><path d="' + ansatz + ' L' + (200+F.f/2+30) + ',0 L' + (200-F.f/2-30) + ',0 Z" fill="var(--g-flaeche)"/></g>' +
+      '<path d="' + ansatz + '" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="1.5 4.5" stroke-linecap="round"/>';
+    s += '<g class="' + (o.einblenden ? 'sim-in' : '') + '">' + bkPony(k.pony, g, gesicht, id) + '</g>';
+    // Gesichtszüge
+    s += bkBraue(k.brauen, 200 - ex, g.yB, -1) + bkBraue(k.brauen, 200 + ex, g.yB, 1);
+    s += bkAuge(k.augen, 200 - ex, g.yE, -1, id) + bkAuge(k.augen, 200 + ex, g.yE, 1, id);
+    s += '<path d="M198,' + (g.yE+14) + ' C195,' + (g.yN-22) + ' 190,' + (g.yN-6) + ' 194,' + g.yN + ' M186,' + (g.yN+2) + ' Q200,' + (g.yN+9) + ' 214,' + (g.yN+2) + '" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>';
+    s += bkMund(k.mund, g.yM);
+    s += '<g class="' + (o.einblenden ? 'sim-in' : '') + '">' + bkBart(k.bart, g, id) + '</g>';
+    // Oval-Schablone
+    if (k.oval){
+      var m = bkMass(k), I = BK_IDEAL || (bkScore(k), BK_IDEAL), rx = m.wC / 2, ry = rx * I.rL, cyO = (m.oben + m.unten) / 2;
+      s += '<ellipse cx="200" cy="' + cyO.toFixed(1) + '" rx="' + rx.toFixed(1) + '" ry="' + (ry).toFixed(1) + '" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-dasharray="3 6" stroke-linecap="round"/>';
+    }
+    // Messlinien
+    if (k.mess){
+      var M = bkMass(k), linie = function(y, w, t){
+        return '<line x1="' + (200 - w/2).toFixed(1) + '" y1="' + y + '" x2="' + (200 + w/2).toFixed(1) + '" y2="' + y + '" stroke="var(--accent)" stroke-width="2" opacity=".8"/>' +
+          '<line x1="' + (200 - w/2).toFixed(1) + '" y1="' + (y-6) + '" x2="' + (200 - w/2).toFixed(1) + '" y2="' + (y+6) + '" stroke="var(--accent)" stroke-width="2"/>' +
+          '<line x1="' + (200 + w/2).toFixed(1) + '" y1="' + (y-6) + '" x2="' + (200 + w/2).toFixed(1) + '" y2="' + (y+6) + '" stroke="var(--accent)" stroke-width="2"/>' +
+          txt(46, y + 5, t, {size:13, fill:"var(--accent)"});
+      };
+      s += linie(BK_Y.F, M.wF, "Stirn") + linie(BK_Y.C, M.wC, "Wangen") + linie(BK_Y.J, M.wJ, "Kiefer");
+    }
+    // Zeichenebene
+    s += '<g id="bk-striche">' + (st.bk.striche || []).map(bkStrich).join("") + '</g>';
+    if (o.zeichnen) s += '<rect id="bk-flaeche" x="40" y="20" width="320" height="470" fill="transparent" style="cursor:crosshair"/>';
+    return s + '</svg>';
+  }
+
+  // --- Zeichnen ---
+  var BK_FARBEN = {ink:"var(--ink)", accent:"var(--accent)", grau:"var(--g-kontur)"};
+  function bkStrich(z, i){
+    var d = z.p.map(function(p, j){ return (j ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ");
+    return '<path data-strich="' + i + '" d="' + d + '" fill="none" stroke="' + BK_FARBEN[z.f] + '" stroke-width="' + z.w + '" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  function bkSpeichern(){ try { localStorage.setItem("bk-v1", JSON.stringify(st.bk)); } catch(e){} }
+  function bkLaden(){
+    try { var d = JSON.parse(localStorage.getItem("bk-v1") || "null"); if (d && d.form) return d; } catch(e){}
+    return null;
+  }
+
+  function bkWahl(key){
+    return '<fieldset class="wahl"><legend>' + BK_TITEL[key] + '</legend><div class="chips">' + BK_OPT[key].map(function(o){
+      var on = st.bk[key] === o[0];
+      return '<button class="chip' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="bk" data-key="' + key + '" data-val="' + o[0] + '">' + o[1] + '</button>';
+    }).join("") + '</div></fieldset>';
+  }
+
+  function renderBaukasten(){
+    var k = st.bk, score = bkScore(k), vgl = k.vorher ? k.vergleich : null, zeig = vgl === "vorher" ? Object.assign({}, k, k.vorher) : k;
+    var sc = bkScore(zeig), wort = sc < 0.45 ? "unausgeglichen" : sc < 0.75 ? "fast ausgeglichen" : "ausgeglichen";
+    var werkzeuge = k.zeichnen
+      ? '<div class="controls werkzeuge">' +
+          ['ink','accent','grau'].map(function(f){ return '<button class="chip' + (k.farbe === f ? ' on' : '') + '" type="button" data-act="bkset" data-key="farbe" data-val="' + f + '"><span class="punkt" style="background:' + BK_FARBEN[f] + '"></span>' + {ink:"Schwarz", accent:"Lila", grau:"Grau"}[f] + '</button>'; }).join("") +
+          [[2,"Dünn"],[4,"Mittel"],[7,"Dick"]].map(function(w){ return '<button class="chip' + (k.dicke === w[0] ? ' on' : '') + '" type="button" data-act="bkset" data-key="dicke" data-val="' + w[0] + '">' + w[1] + '</button>'; }).join("") +
+          '<button class="chip' + (k.radieren ? ' on' : '') + '" type="button" data-act="bkradier">Radierer</button>' +
+          '<button class="chip" type="button" data-act="bkundo"' + (k.striche.length ? '' : ' disabled') + '>Rückgängig</button>' +
+          '<button class="chip" type="button" data-act="bkleer"' + (k.striche.length ? '' : ' disabled') + '>Zeichnung löschen</button>' +
+        '</div>'
+      : '';
+    return '<div class="screen">' +
+      '<div class="pagehead"><h1>Gesichts-Baukasten</h1><p class="meta">Stell ein Gesicht zusammen, prüfe die Balance und simuliere einen ausgleichenden Haarschnitt. Du kannst auch selbst darauf zeichnen.</p></div>' +
+      '<div class="bk-grid">' +
+        '<section class="card fig bk-fig">' +
+          (vgl ? '<div class="controls">' + seg("bkvgl", [["vorher","Vorher"],["nachher","Nachher"]], vgl) + '</div>' : '') +
+          '<div id="bk-bild">' + bkFig(zeig, {zeichnen:k.zeichnen, einblenden:st.bkAnim}) + '</div>' +
+          '<div class="meter" role="img" aria-label="Balance ' + Math.round(sc * 100) + ' Prozent">' +
+            '<div class="meter-bar"><span id="bk-marker" style="left:' + ((st.bkAnim && st.bkVon != null ? st.bkVon : sc) * 100).toFixed(0) + '%"></span></div>' +
+            '<div class="meter-lbl"><span>unausgeglichen</span><span>Balance ' + Math.round(sc * 100) + ' %</span><span>harmonisch</span></div></div>' +
+          '<div class="controls">' +
+            '<button class="chip' + (k.mess ? ' on' : '') + '" type="button" data-act="bktoggle" data-key="mess">Messlinien</button>' +
+            '<button class="chip' + (k.oval ? ' on' : '') + '" type="button" data-act="bktoggle" data-key="oval">Oval-Schablone</button>' +
+            '<button class="chip' + (k.zeichnen ? ' on' : '') + '" type="button" data-act="bktoggle" data-key="zeichnen">Zeichnen</button>' +
+          '</div>' + werkzeuge +
+        '</section>' +
+        '<section class="card text">' +
+          '<h2>Balance: ' + wort + '</h2>' +
+          '<p class="note">Die lila Messlinien zeigen, wie breit Stirn, Wangen und Kiefer mit Frisur und Bart wirken. Die lila Oval-Schablone zeigt die harmonische Form. Je näher die Gesamtform aus Gesicht, Frisur und Bart daran liegt, desto ausgeglichener wirkt das Gesicht.</p>' +
+          '<div class="callout accent"><p><strong>Aus dem Unterricht:</strong> ' + BK_TIPP[k.form] + '</p></div>' +
+          '<div class="controls" style="justify-content:flex-start"><button class="btn primary" type="button" data-act="bksim">Ausgleichenden Haarschnitt simulieren</button>' +
+          (k.vorher ? '<button class="btn" type="button" data-act="bkzurueck">Zurück zum Vorher</button>' : '') + '</div>' +
+          (k.vorher ? '<div class="callout good"><p><strong>Was sich verändert:</strong></p><ul>' + bkWasAendert(Object.assign({}, k, k.vorher), k).map(function(t){ return '<li>' + t + '</li>'; }).join("") + '</ul>' +
+            '<p class="note">Vorher: ' + bkNamen("frisur", k.vorher.frisur) + ', ' + bkNamen("pony", k.vorher.pony) + (k.vorher.bart !== "kein" ? ', ' + bkNamen("bart", k.vorher.bart) : '') + ' · Nachher: ' + bkNamen("frisur", k.frisur) + ', ' + bkNamen("pony", k.pony) + (k.bart !== "kein" ? ', ' + bkNamen("bart", k.bart) : '') + '</p></div>' : '') +
+          '<p class="note">Die Simulation ist eine Annäherung an die Formwirkung. Sie ersetzt nicht den Blick auf Haarstruktur, Haarmenge und Wunsch der Kundin oder des Kunden.</p>' +
+        '</section>' +
+      '</div>' +
+      '<section class="card text bk-wahl">' +
+        '<h2>Zusammenstellen</h2>' +
+        ["form","augen","brauen","mund","frisur","pony","bart"].map(bkWahl).join("") +
+      '</section>' +
+    '</div>';
+  }
+
   // ---------- Bausteine ----------
   function card(figHtml, textHtml){
     return (figHtml ? '<section class="card fig">' + figHtml + '</section>' : '') +
@@ -1210,7 +1488,7 @@ svg text{font-family:var(--f-body)}
 
 
   // ---------- App-Rahmen ----------
-  function neuStart(){ return {view:st.view, fall:st.fall, kap:st.kap, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
+  function neuStart(){ return {bk:st.bk, bkAnim:false, bkVon:null, view:st.view, fall:st.fall, kap:st.kap, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
 
   function renderPilot(){
     var SC = fall().screens, S = SC[st.screen];
@@ -1237,9 +1515,12 @@ svg text{font-family:var(--f-body)}
       '<span class="brand">Beratung &amp; Formwirkung</span>' +
       '<nav class="tabs" aria-label="Bereiche">' +
         '<button type="button" data-act="view" data-val="pilot"' + (st.view==="pilot" ? ' aria-current="page"' : '') + '>Fälle</button>' +
+        '<button type="button" data-act="view" data-val="baukasten"' + (st.view==="baukasten" ? ' aria-current="page"' : '') + '>Baukasten</button>' +
         '<button type="button" data-act="view" data-val="wissen"' + (st.view==="wissen" ? ' aria-current="page"' : '') + '>Wissen</button>' +
       '</nav>';
-    document.getElementById("app").innerHTML = st.view === "wissen" ? renderWissen() : renderPilot();
+    var app = document.getElementById("app");
+    app.classList.toggle("breit", st.view === "baukasten");
+    app.innerHTML = st.view === "wissen" ? renderWissen() : st.view === "baukasten" ? renderBaukasten() : renderPilot();
   }
 
   document.addEventListener("click", function(e){
@@ -1253,7 +1534,26 @@ svg text{font-family:var(--f-body)}
     if (a==="prev"){ st.screen = Math.max(st.screen-1, 0); moved = true; }
     if (a==="restart"){ st = neuStart(); moved = true; }
     if (a==="toggle"){ st[b.dataset.key] = !st[b.dataset.key]; }
-    if (a==="set"){ st[b.dataset.key] = b.dataset.key === "winkel" ? +b.dataset.val : b.dataset.val; }
+    if (a==="set"){ if (b.dataset.key === "bkvgl") st.bk.vergleich = b.dataset.val; else st[b.dataset.key] = b.dataset.key === "winkel" ? +b.dataset.val : b.dataset.val; }
+    if (a==="bk"){ st.bk[b.dataset.key] = b.dataset.val; st.bk.vorher = null; st.bk.vergleich = null; st.bkAnim = false; bkSpeichern(); }
+    if (a==="bktoggle"){ st.bk[b.dataset.key] = !st.bk[b.dataset.key]; if (!st.bk.zeichnen) st.bk.radieren = false; st.bkAnim = false; bkSpeichern(); }
+    if (a==="bkset"){ st.bk[b.dataset.key] = b.dataset.key === "dicke" ? +b.dataset.val : b.dataset.val; st.bk.radieren = false; st.bkAnim = false; bkSpeichern(); }
+    if (a==="bkradier"){ st.bk.radieren = !st.bk.radieren; st.bkAnim = false; }
+    if (a==="bkundo"){ st.bk.striche.pop(); st.bkAnim = false; bkSpeichern(); }
+    if (a==="bkleer"){ st.bk.striche = []; st.bkAnim = false; bkSpeichern(); }
+    if (a==="bkzurueck"){ Object.assign(st.bk, st.bk.vorher); st.bk.vorher = null; st.bk.vergleich = null; st.bkAnim = false; bkSpeichern(); }
+    if (a==="bksim"){
+      var basis = st.bk.vorher ? Object.assign({}, st.bk, st.bk.vorher) : st.bk, beste = bkBeste(basis);
+      st.bkVon = bkScore(basis);
+      st.bk.vorher = {frisur:basis.frisur, pony:basis.pony, bart:basis.bart};
+      st.bk.frisur = beste.frisur; st.bk.pony = beste.pony; st.bk.bart = beste.bart; st.bk.vergleich = "nachher";
+      st.bkAnim = true; bkSpeichern();
+      render();
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ var m = document.getElementById("bk-marker"); if (m) m.style.left = (bkScore(st.bk) * 100).toFixed(0) + "%"; }); });
+      setTimeout(function(){ st.bkAnim = false; }, 1000);
+      return;
+    }
+    if (a!=="bksim" && a!=="bk") st.bkAnim = false;
     if (a==="pick"){ st.picked = +b.dataset.i; if (st.picked === fall().fragen[st.q].r) st.score++; }
     if (a==="nextQ"){ st.q++; st.picked = null; }
     if (a==="checkReset"){ st.q = 0; st.picked = null; st.score = 0; }
@@ -1272,6 +1572,48 @@ svg text{font-family:var(--f-body)}
     });
   });
 
+  // Zeichnen im Baukasten
+  var NS = "http://www.w3.org/2000/svg", bkZug = null;
+  function bkPunkt(e){
+    var svg = document.querySelector("#bk-bild svg"), pt = svg.createSVGPoint();
+    pt.x = e.clientX; pt.y = e.clientY;
+    var q = pt.matrixTransform(svg.getScreenCTM().inverse());
+    return [q.x, q.y];
+  }
+  function bkRadiere(p){
+    var vorher = st.bk.striche.length;
+    st.bk.striche = st.bk.striche.filter(function(z){ return !z.p.some(function(q){ return Math.hypot(q[0]-p[0], q[1]-p[1]) < 10; }); });
+    if (st.bk.striche.length !== vorher){ document.getElementById("bk-striche").innerHTML = st.bk.striche.map(bkStrich).join(""); bkSpeichern(); }
+  }
+  document.addEventListener("pointerdown", function(e){
+    if (e.target.id !== "bk-flaeche") return;
+    e.preventDefault(); e.target.setPointerCapture(e.pointerId);
+    var p = bkPunkt(e);
+    if (st.bk.radieren){ bkZug = {radier:true}; bkRadiere(p); return; }
+    bkZug = {f:st.bk.farbe, w:st.bk.dicke, p:[p]};
+    var el = document.createElementNS(NS, "path");
+    el.setAttribute("fill", "none"); el.setAttribute("stroke", BK_FARBEN[bkZug.f]); el.setAttribute("stroke-width", bkZug.w);
+    el.setAttribute("stroke-linecap", "round"); el.setAttribute("stroke-linejoin", "round");
+    document.getElementById("bk-striche").appendChild(el); bkZug.el = el;
+  });
+  document.addEventListener("pointermove", function(e){
+    if (!bkZug) return;
+    var p = bkPunkt(e);
+    if (bkZug.radier){ bkRadiere(p); return; }
+    bkZug.p.push(p);
+    bkZug.el.setAttribute("d", bkZug.p.map(function(q, j){ return (j ? "L" : "M") + q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "));
+  });
+  function bkEnde(){
+    if (!bkZug) return;
+    if (!bkZug.radier && bkZug.p.length > 1){ st.bk.striche.push({f:bkZug.f, w:bkZug.w, p:bkZug.p}); bkSpeichern(); render(); }
+    else if (!bkZug.radier && bkZug.el) bkZug.el.remove();
+    else if (bkZug.radier) render();
+    bkZug = null;
+  }
+  document.addEventListener("pointerup", bkEnde);
+  document.addEventListener("pointercancel", bkEnde);
+
+  st.bk = Object.assign({}, BK_START, bkLaden() || {});
   render();
 })();
 </script>
