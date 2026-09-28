@@ -174,9 +174,35 @@ dl.steck dt{font-weight:700}
 dl.steck dd{margin:0}
 @media (max-width:520px){dl.steck{grid-template-columns:1fr;gap:2px}dl.steck dd{margin-bottom:8px}}
 .wrap.breit{max-width:1120px}
-.bk-grid{display:grid;gap:16px;align-items:start}
-@media (min-width:900px){.bk-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.bk-fig{position:sticky;top:76px}}
+.bk-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.bk-info{position:relative;z-index:3}
+.bk-fig .nur-klein{display:none}
+.bk-fig{position:sticky;top:calc(var(--bar-h,64px) + 8px);z-index:2}
 .bk-fig svg{max-width:420px}
+.bk-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:-4px -18px 0;padding:4px 18px}
+.bk-tabs::-webkit-scrollbar{display:none}
+.bk-tabs .chip{flex:none}
+.bk-wahl .wahl.aus{display:none}
+@media (min-width:760px){
+  .bk-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+  .bk-fig{grid-row:span 2}
+  .bk-tabs{display:none}
+  .bk-fig svg{max-height:calc(100vh - var(--bar-h,64px) - 320px);min-height:300px;width:auto;max-width:100%}
+  .bk-wahl .wahl.aus{display:block}
+}
+@media (max-width:759px){
+  .bk-fig{padding:10px 12px;gap:8px}
+  .bk-fig svg{max-height:32vh;width:auto;max-width:100%}
+  .bk-fig .controls,.bk-fig .ansichten{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
+  .bk-fig .controls::-webkit-scrollbar,.bk-fig .ansichten::-webkit-scrollbar{display:none}
+  .bk-fig .chip{flex:none;min-height:34px;padding:4px 11px}
+  .bk-fig .nur-gross{display:none}
+  .bk-fig .nur-klein{display:inline-flex}
+  .bk-fig.frei{position:static}
+  .bk-wahl{gap:12px;padding-top:14px}
+  .bk-wahl h2,.bk-kopf .meta{display:none}
+  .bk-wahl .wahl legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 13px;font:inherit;font-size:var(--t-s);font-weight:700;min-height:38px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background-color .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease)}
 .chip:hover{border-color:var(--accent)}
@@ -1393,6 +1419,7 @@ dl.steck dd{margin:0}
     pony:   [["kein","Kein Pony"],["gerade","Gerade"],["schraeg","Schräg"]],
     bart:   [["kein","Kein Bart"],["stoppeln","Stoppeln"],["schnurr","Schnurrbart"],["kinn","Kinnbart"],["voll","Vollbart"]]
   };
+  var BK_GRUPPEN = ["form","augen","brauen","mund","frisur","pony","bart"];
   var BK_TITEL = {form:"Gesichtsform", augen:"Augen", brauen:"Augenbrauen", mund:"Mund", frisur:"Frisur", pony:"Pony", bart:"Bart"};
   // Gesichtsformen: Breite von Stirn (f), Wangen (c), Kiefer (j), Kinnbreite (ch), Oberkante (top), Kinn (cy)
   var BK_FORM = {
@@ -1569,7 +1596,7 @@ dl.steck dd{margin:0}
   }
 
   function bkWahl(key){
-    return '<fieldset class="wahl"><legend>' + BK_TITEL[key] + '</legend><div class="chips">' + BK_OPT[key].map(function(o){
+    return '<fieldset class="wahl' + ((st.bkGruppe || "form") === key ? '' : ' aus') + '"><legend>' + BK_TITEL[key] + '</legend><div class="chips">' + BK_OPT[key].map(function(o){
       var on = st.bk[key] === o[0];
       return '<button class="chip' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="bk" data-key="' + key + '" data-val="' + o[0] + '">' + o[1] + '</button>';
     }).join("") + '</div></fieldset>';
@@ -1588,13 +1615,13 @@ dl.steck dd{margin:0}
         '</div>'
       : '';
     return '<div class="screen">' +
-      '<div class="pagehead"><h1>Gesichts-Baukasten</h1><p class="meta">Stell ein Gesicht zusammen, prüfe die Balance und simuliere einen ausgleichenden Haarschnitt. Du kannst auch selbst darauf zeichnen.</p></div>' +
+      '<div class="pagehead bk-kopf"><h1>Gesichts-Baukasten</h1><p class="meta">Stell ein Gesicht zusammen, prüfe die Balance und simuliere einen ausgleichenden Haarschnitt. Du kannst auch selbst darauf zeichnen.</p></div>' +
       '<div class="bk-grid">' +
-        '<section class="card fig bk-fig">' +
+        '<section class="card fig bk-fig' + (k.zeichnen ? ' frei' : '') + '">' +
           (vgl ? '<div class="controls">' + seg("bkvgl", [["vorher","Vorher"],["nachher","Nachher"]], vgl) + '</div>' : '') +
           '<div class="chips ansichten" role="group" aria-label="Ansicht">' + ANSICHTEN.map(function(a){ var on = (k.ansicht || "vorne") === a[0]; return '<button class="chip' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="bkset" data-key="ansicht" data-val="' + a[0] + '">' + a[1] + '</button>'; }).join("") + '</div>' +
           '<div id="bk-bild" class="' + (st.bkAnim ? 'sim-in' : '') + '">' + bkFig(zeig, {zeichnen:k.zeichnen}) + '</div>' +
-          ((k.ansicht || "vorne") !== "vorne" ? '<p class="note" style="text-align:center">Die Gesichtsform wirkt vor allem von vorne. Hier siehst du Kopf- und Haarform. Messlinien und Oval-Schablone gibt es in der Ansicht von vorne.</p>' : '') +
+          ((k.ansicht || "vorne") !== "vorne" ? '<p class="note nur-gross" style="text-align:center">Die Gesichtsform wirkt vor allem von vorne. Hier siehst du Kopf- und Haarform. Messlinien und Oval-Schablone gibt es in der Ansicht von vorne.</p>' : '') +
           '<div class="meter" role="img" aria-label="Balance ' + Math.round(sc * 100) + ' Prozent">' +
             '<div class="meter-bar"><span id="bk-marker" style="left:' + ((st.bkAnim && st.bkVon != null ? st.bkVon : sc) * 100).toFixed(0) + '%"></span></div>' +
             '<div class="meter-lbl"><span>unausgeglichen</span><span>Balance ' + Math.round(sc * 100) + ' %</span><span>harmonisch</span></div></div>' +
@@ -1602,9 +1629,15 @@ dl.steck dd{margin:0}
             '<button class="chip' + (k.mess ? ' on' : '') + '" type="button" data-act="bktoggle" data-key="mess">Messlinien</button>' +
             '<button class="chip' + (k.oval ? ' on' : '') + '" type="button" data-act="bktoggle" data-key="oval">Oval-Schablone</button>' +
             '<button class="chip' + (k.zeichnen ? ' on' : '') + '" type="button" data-act="bktoggle" data-key="zeichnen">Zeichnen</button>' +
+            '<button class="chip nur-klein" type="button" data-act="bksim">Ausgleich simulieren</button>' +
           '</div>' + werkzeuge +
         '</section>' +
-        '<section class="card text">' +
+        '<section class="card text bk-wahl">' +
+          '<h2>Zusammenstellen</h2>' +
+          '<div class="bk-tabs" role="group" aria-label="Bereich wählen">' + BK_GRUPPEN.map(function(g){ var on = (st.bkGruppe || "form") === g; return '<button class="chip' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="bkgruppe" data-val="' + g + '">' + BK_TITEL[g] + '</button>'; }).join("") + '</div>' +
+          BK_GRUPPEN.map(bkWahl).join("") +
+        '</section>' +
+        '<section class="card text bk-info">' +
           '<h2>Balance: ' + wort + '</h2>' +
           '<p class="note">Die lila Messlinien zeigen, wie breit Stirn, Wangen und Kiefer mit Frisur und Bart wirken. Die lila Oval-Schablone zeigt die harmonische Form. Je näher die Gesamtform aus Gesicht, Frisur und Bart daran liegt, desto ausgeglichener wirkt das Gesicht.</p>' +
           '<div class="callout accent"><p><strong>Aus dem Unterricht:</strong> ' + BK_TIPP[k.form] + '</p></div>' +
@@ -1615,10 +1648,6 @@ dl.steck dd{margin:0}
           '<p class="note">Die Simulation ist eine Annäherung an die Formwirkung. Sie ersetzt nicht den Blick auf Haarstruktur, Haarmenge und Wunsch der Kundin oder des Kunden.</p>' +
         '</section>' +
       '</div>' +
-      '<section class="card text bk-wahl">' +
-        '<h2>Zusammenstellen</h2>' +
-        ["form","augen","brauen","mund","frisur","pony","bart"].map(bkWahl).join("") +
-      '</section>' +
     '</div>';
   }
 
@@ -2128,9 +2157,14 @@ dl.steck dd{margin:0}
         '<button type="button" data-act="view" data-val="wissen"' + (st.view==="wissen" ? ' aria-current="page"' : '') + '>Wissen</button>' +
       '</nav>';
     var app = document.getElementById("app");
+    document.documentElement.style.setProperty("--bar-h", document.querySelector(".appbar").offsetHeight + "px");
     app.classList.toggle("breit", st.view === "baukasten");
     app.innerHTML = st.view === "wissen" ? renderWissen() : st.view === "baukasten" ? renderBaukasten() : renderPilot();
+    var tab = app.querySelector(".bk-tabs .on");
+    if (tab) tab.parentNode.scrollLeft = tab.offsetLeft - tab.parentNode.offsetLeft - 18;
   }
+
+  window.addEventListener("resize", function(){ var b = document.querySelector(".appbar"); if (b) document.documentElement.style.setProperty("--bar-h", b.offsetHeight + "px"); });
 
   document.addEventListener("click", function(e){
     var b = e.target.closest("[data-act]"); if(!b || b.disabled) return;
@@ -2147,6 +2181,7 @@ dl.steck dd{margin:0}
     if (a==="bk"){ st.bk[b.dataset.key] = b.dataset.val; st.bk.vorher = null; st.bk.vergleich = null; st.bkAnim = false; bkSpeichern(); }
     if (a==="bktoggle"){ st.bk[b.dataset.key] = !st.bk[b.dataset.key]; if (!st.bk.zeichnen) st.bk.radieren = false; st.bkAnim = false; bkSpeichern(); }
     if (a==="bkset"){ st.bk[b.dataset.key] = b.dataset.key === "dicke" ? +b.dataset.val : b.dataset.val; if (b.dataset.key !== "ansicht") st.bk.radieren = false; st.bkAnim = false; bkSpeichern(); }
+    if (a==="bkgruppe"){ st.bkGruppe = b.dataset.val; }
     if (a==="bkradier"){ st.bk.radieren = !st.bk.radieren; st.bkAnim = false; }
     if (a==="bkundo"){ st.bk.striche.pop(); st.bkAnim = false; bkSpeichern(); }
     if (a==="bkleer"){ st.bk.striche = []; st.bkAnim = false; bkSpeichern(); }
