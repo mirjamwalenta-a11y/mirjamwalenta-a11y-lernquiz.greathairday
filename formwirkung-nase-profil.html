@@ -222,23 +222,73 @@ svg text{font-family:var(--f-body)}
       '</g>' + AUGE;
   }
   var NASENSPITZE = [348, 294];
-  var OHRLINIE = 196;
+  var OHRSPITZE = [203, 216];
+  // Diagonale: Nasenspitze – Ohrspitze, nach hinten verlängert. Dort gehört das Volumen hin.
+  var DIAG = (function(){
+    var dx = OHRSPITZE[0] - NASENSPITZE[0], dy = OHRSPITZE[1] - NASENSPITZE[1], l = Math.sqrt(dx*dx + dy*dy);
+    return {ux:dx / l, uy:dy / l, vorne:l};
+  })();
+  function aufDiag(L){ return [OHRSPITZE[0] + DIAG.ux * L, OHRSPITZE[1] + DIAG.uy * L]; }
 
-  // Haarform: Außenlinie vom Stirnansatz bis zum Nacken; back = hinterster Punkt auf Nasenhöhe
-  var HAAR = {
-    A:     {o:"M296,132 C292,92 256,66 206,66 C150,66 102,88 86,128 C68,170 68,226 76,264 C84,300 104,330 132,356 L150,372", back:81},
-    M:     {o:"M296,132 C293,88 254,58 199,57 C136,56 82,85 63,136 C47,183 45,237 54,274 C63,307 94,332 132,355 L150,372", back:55},
-    B:     {o:"M296,132 C294,84 252,50 192,48 C122,46 62,82 40,144 C26,196 22,248 32,284 C42,314 84,336 132,354 L150,372", back:32},
-    tief:  {o:"M296,132 C292,92 256,66 206,66 C150,66 102,88 86,128 C68,170 68,226 72,270 C70,330 60,384 96,400 C120,408 140,392 150,372", back:72},
-    hoch:  {o:"M296,132 C300,64 248,24 182,24 C116,24 72,66 66,132 C62,180 66,230 74,266 C84,304 104,330 132,356 L150,372", back:77},
-    flach: {o:"M296,132 C292,92 256,66 206,66 C150,66 102,88 86,128 C120,150 170,196 214,210", back:84, kurz:true}
+  // Haarformen: Start am Stirnansatz + 5 Bézier-Segmente bis zum Nacken (gleicher Aufbau, daher überblendbar)
+  var FORM = {
+    // A: flach, liegt eng am Kopf
+    A:    [296,132, 293,94,258,66,208,66, 156,66,106,90,88,130, 72,166,70,214,76,254, 78,292,98,328,128,352, 138,360,146,366,150,372],
+    // B: Volumen auf der Diagonale am oberen Hinterkopf, Nacken eng
+    B:    [296,132, 294,84,254,46,190,44, 124,42,58,62,34,110, 18,146,26,200,52,240, 64,280,94,318,128,350, 138,358,146,366,150,372],
+    // Fehler: Volumen im Nacken
+    tief: [296,132, 293,94,258,66,208,66, 156,66,106,90,88,130, 70,170,66,222,68,262, 58,320,70,380,110,392, 130,398,146,388,150,372],
+    // Fehler: Volumen nur ganz oben
+    hoch: [296,132, 300,64,250,22,184,22, 120,22,76,60,70,124, 68,170,70,214,76,254, 78,292,98,328,128,352, 138,360,146,366,150,372]
   };
+  FORM.M = FORM.A.map(function(v, i){ return (v + FORM.B[i]) / 2; });
+  function pfadAus(p){
+    var d = "M" + p[0].toFixed(1) + "," + p[1].toFixed(1);
+    for (var i = 2; i < p.length; i += 6) d += " C" + p.slice(i, i + 6).map(function(v){ return v.toFixed(1); }).join(",");
+    return d;
+  }
+  var HAAR = {};
+  Object.keys(FORM).forEach(function(k){ HAAR[k] = {o:pfadAus(FORM[k])}; });
+  HAAR.flach = {o:"M296,132 C292,92 256,66 206,66 C150,66 102,88 86,128 C120,150 170,196 214,210", kurz:true};
   var SPITZE = "M296,128 C316,136 338,152 354,176 C334,176 316,180 302,190";
   var uid = 0;
 
   function haarFlaeche(H){
     return H.kurz ? H.o + " C232,208 246,222 258,226 L262,200 C270,190 284,160 296,132 Z" : H.o + ANSATZ_REV;
   }
+
+  // Pfad (M/L/C, absolut) in Punkte zerlegen
+  function punkte(d){
+    var t = d.match(/[MLCZ]|-?\d+(?:\.\d+)?/g), pts = [], cur = [0, 0], i = 0, cmd = "M";
+    while (i < t.length){
+      if (/[MLCZ]/.test(t[i])){ cmd = t[i++]; if (cmd === "Z") continue; }
+      if (cmd === "M" || cmd === "L"){ cur = [+t[i], +t[i+1]]; i += 2; pts.push(cur); }
+      else if (cmd === "C"){
+        var c1 = [+t[i], +t[i+1]], c2 = [+t[i+2], +t[i+3]], e = [+t[i+4], +t[i+5]]; i += 6;
+        for (var k = 1; k <= 40; k++){
+          var s = k / 40, u = 1 - s;
+          pts.push([u*u*u*cur[0] + 3*u*u*s*c1[0] + 3*u*s*s*c2[0] + s*s*s*e[0], u*u*u*cur[1] + 3*u*u*s*c1[1] + 3*u*s*s*c2[1] + s*s*s*e[1]]);
+        }
+        cur = e;
+      }
+    }
+    return pts;
+  }
+  // Wie weit reicht die Form hinten auf der Diagonale? (Abstand ab Ohrspitze)
+  function hintenAufDiag(d){
+    var pts = punkte(d), best = 0;
+    for (var i = 1; i < pts.length; i++){
+      var a = pts[i-1], b = pts[i];
+      var pa = (a[0]-OHRSPITZE[0]) * DIAG.uy - (a[1]-OHRSPITZE[1]) * DIAG.ux, pb = (b[0]-OHRSPITZE[0]) * DIAG.uy - (b[1]-OHRSPITZE[1]) * DIAG.ux;
+      if ((pa <= 0) !== (pb <= 0)){
+        var f = pa / (pa - pb), x = a[0] + (b[0]-a[0]) * f, y = a[1] + (b[1]-a[1]) * f;
+        var L = (x-OHRSPITZE[0]) * DIAG.ux + (y-OHRSPITZE[1]) * DIAG.uy;
+        if (L > best) best = L;
+      }
+    }
+    return best;
+  }
+  function hintenVon(H){ return hintenAufDiag(H.kurz ? KOPFHAUT : H.o); }
 
   function txt(x, y, t, o){
     o = o || {};
@@ -247,29 +297,43 @@ svg text{font-family:var(--f-body)}
       ' fill="' + (o.fill || 'var(--ink)') + '" stroke="var(--surface)" stroke-width="4" paint-order="stroke">' + t + '</text>';
   }
 
+  // Diagonale mit Strecke vorne (Nasenspitze bis Ohrspitze) und hinten (Ohrspitze bis Haarkontur)
+  function diagonale(Lh){
+    var N = NASENSPITZE, E = OHRSPITZE, B = aufDiag(Lh), X = aufDiag(Lh + 26), f = function(v){ return v.toFixed(1); };
+    var mv = [(N[0] + E[0]) / 2, (N[1] + E[1]) / 2], mh = aufDiag(Lh / 2);
+    return '<g class="diagonale" stroke-linecap="round">' +
+      '<line x1="' + f(N[0] - DIAG.ux * 22) + '" y1="' + f(N[1] - DIAG.uy * 22) + '" x2="' + f(X[0]) + '" y2="' + f(X[1]) + '" stroke="var(--g-hilfe)" stroke-width="1.4" stroke-dasharray="6 5"/>' +
+      '<line x1="' + N[0] + '" y1="' + N[1] + '" x2="' + E[0] + '" y2="' + E[1] + '" stroke="var(--g-hilfe)" stroke-width="6" opacity=".75"/>' +
+      '<line x1="' + E[0] + '" y1="' + E[1] + '" x2="' + f(B[0]) + '" y2="' + f(B[1]) + '" stroke="var(--g-haar-kontur)" stroke-width="6" opacity=".9"/>' +
+      '<circle cx="' + N[0] + '" cy="' + N[1] + '" r="5" fill="var(--ink)" stroke="var(--surface)" stroke-width="1.5"/>' +
+      '<circle cx="' + E[0] + '" cy="' + E[1] + '" r="5" fill="var(--ink)" stroke="var(--surface)" stroke-width="1.5"/>' +
+      '<circle cx="' + f(B[0]) + '" cy="' + f(B[1]) + '" r="6" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.5"/>' +
+      txt(f(mh[0] + 4), f(mh[1] - 12), "hinten", {size:14, anchor:"middle"}) +
+      txt(f(mv[0] + 6), f(mv[1] + 26), "vorne", {size:14, anchor:"middle"}) +
+      '</g>';
+  }
+
   function fig(o){
     o = o || {};
-    var H = HAAR[o.hair || "A"], id = ++uid, flaeche = haarFlaeche(H);
-    var h = o.ohr ? 515 : 470;
-    var s = '<svg viewBox="0 20 496 ' + h + '" role="img" aria-label="' + (o.label || "Profil") + '">';
+    var H = HAAR[o.hair || "A"], id = ++uid, flaeche = haarFlaeche(H), Lh = hintenVon(H);
+    var s = '<svg viewBox="0 20 496 470" role="img" aria-label="' + (o.label || "Profil") + '">';
 
-    // schnittzonen (unter den Linien)
+    // schnittzonen (unter den Linien): Volumenzone entlang der Diagonale
     if (o.zonen){
+      var vz = aufDiag(hintenVon(HAAR.B) - 40), wink = Math.atan2(DIAG.uy, DIAG.ux) * 180 / Math.PI;
       s += '<clipPath id="z' + id + '"><path d="' + flaeche + '"/></clipPath>';
       s += '<g class="zonen"><g clip-path="url(#z' + id + ')">' +
         '<rect x="0" y="0" width="496" height="500" fill="var(--g-flaeche)"/>' +
-        '<rect x="0" y="180" width="' + OHRLINIE + '" height="125" fill="var(--accent)" fill-opacity=".22"/>' +
-        '<path d="M0,180 H320 M0,305 H' + OHRLINIE + ' M' + OHRLINIE + ',150 V420" stroke="var(--g-kontur)" stroke-width="1.4" fill="none"/>' +
+        '<ellipse cx="' + vz[0].toFixed(1) + '" cy="' + vz[1].toFixed(1) + '" rx="78" ry="46" transform="rotate(' + wink.toFixed(1) + ' ' + vz[0].toFixed(1) + ' ' + vz[1].toFixed(1) + ')" fill="var(--accent)" fill-opacity=".26"/>' +
         '</g></g>';
     }
 
-    // kopf (fix): Kopfhaut fein gestrichelt, Gesicht/Nacken/Ohr als Linie
     s += kopf();
 
     // schaedel: Kopfform unter dem Haar
     if (o.schaedel) s += '<path d="' + KOPFHAUT + '" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="4 4" opacity=".8"/>';
 
-    // haar (veränderbar): kräftig gestrichelte Außenform
+    // haar (veränderbar)
     s += '<g class="haar" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5" stroke-linecap="round">' +
       '<path d="' + H.o + '"/>' + (o.spitze ? '<path d="' + SPITZE + '"/>' : '') + '</g>';
 
@@ -277,30 +341,16 @@ svg text{font-family:var(--f-body)}
     s += '<g class="nase"><path d="' + NASE + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>';
 
     if (o.zonen){
+      var vp = aufDiag(hintenVon(HAAR.B) - 40);
       s += '<g class="zonen-text">' +
-        '<circle cx="84" cy="262" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.5"/>' +
-        txt(150, 120, "Oberkopf", {anchor:"middle", size:14}) +
-        txt(118, 232, "Hinterkopf", {anchor:"middle", size:14}) +
-        txt(96, 280, "HHB", {size:13, fill:"var(--accent)"}) +
-        txt(150, 336, "Nacken", {anchor:"middle", size:14}) +
-        txt(214, 172, "Vorderpartie", {size:14}) + '</g>';
+        '<line x1="' + OHRSPITZE[0] + '" y1="' + OHRSPITZE[1] + '" x2="' + NASENSPITZE[0] + '" y2="' + NASENSPITZE[1] + '" stroke="var(--g-hilfe)" stroke-width="1.4" stroke-dasharray="6 5"/>' +
+        txt(150, 92, "Oberkopf", {anchor:"middle", size:14}) +
+        txt(vp[0].toFixed(0), (vp[1] + 5).toFixed(0), "Volumen", {anchor:"middle", size:14, fill:"var(--accent)"}) +
+        txt(118, 330, "Nacken eng", {anchor:"middle", size:14}) +
+        txt(226, 176, "Vorderpartie", {size:14}) + '</g>';
     }
 
-    // hilfslinie + balance
-    if (o.ohr){
-      var xb = H.back, nx = NASENSPITZE[0], ny = NASENSPITZE[1];
-      s += '<g class="hilfslinie"><line x1="' + OHRLINIE + '" y1="48" x2="' + OHRLINIE + '" y2="486" stroke="var(--g-hilfe)" stroke-width="1.6" stroke-dasharray="7 6"/>' +
-        txt(OHRLINIE - 8, 40, "hinten", {anchor:"end", size:14, fill:"var(--muted)"}) +
-        txt(OHRLINIE + 8, 40, "vorne", {size:14, fill:"var(--muted)"}) + '</g>';
-      s += '<g class="balance">' +
-        '<line x1="' + xb + '" y1="282" x2="' + xb + '" y2="486" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
-        '<line x1="' + nx + '" y1="' + ny + '" x2="' + nx + '" y2="486" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
-        '<rect x="' + xb + '" y="488" width="' + (OHRLINIE - 2 - xb) + '" height="14" fill="var(--g-haar-kontur)"/>' +
-        '<rect x="' + (OHRLINIE + 2) + '" y="488" width="' + (nx - OHRLINIE - 2) + '" height="14" fill="var(--g-hilfe)"/>' +
-        txt((xb + OHRLINIE) / 2, 524, "hinten", {anchor:"middle", size:14}) +
-        txt((OHRLINIE + nx) / 2, 524, "vorne", {anchor:"middle", size:14}) +
-        '</g>';
-    }
+    if (o.ohr) s += diagonale(Lh);
 
     // blickpunkt
     if (o.blick === "A"){
@@ -308,9 +358,10 @@ svg text{font-family:var(--f-body)}
         '<circle cx="338" cy="288" r="16" fill="none" stroke="var(--accent)" stroke-width="3"/></g>';
     }
     if (o.blick === "B"){
-      s += '<g class="blick"><line x1="322" y1="286" x2="60" y2="272" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 6"/>' +
+      var bp = aufDiag(Lh - 8);
+      s += '<g class="blick"><line x1="' + NASENSPITZE[0] + '" y1="' + NASENSPITZE[1] + '" x2="' + bp[0].toFixed(1) + '" y2="' + bp[1].toFixed(1) + '" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 6"/>' +
         '<circle cx="338" cy="288" r="12" fill="none" stroke="var(--accent)" stroke-width="3"/>' +
-        '<circle cx="46" cy="272" r="12" fill="none" stroke="var(--accent)" stroke-width="3"/></g>';
+        '<circle cx="' + bp[0].toFixed(1) + '" cy="' + bp[1].toFixed(1) + '" r="12" fill="none" stroke="var(--accent)" stroke-width="3"/></g>';
     }
 
     // Hinweis an der Nase (fix)
@@ -322,57 +373,29 @@ svg text{font-family:var(--f-body)}
   }
 
   // ---------- Winkel-Labor: Erhebungswinkel am Hinterkopf ----------
-  // Haarform-Außenlinie als Punktliste (Start + 5 Bézier-Segmente), je Winkel interpoliert:
-  //   0° kompakt (Gewicht unten) · 45° mittlere Graduierung (Gewicht am HHB) · 90° sehr hoch (Gewicht oben)
-  var W0  = [296,132, 292,92,256,66,206,66, 150,66,102,88,86,128, 68,170,68,226,72,270, 70,330,60,384,96,400, 120,408,140,392,150,372];
-  var W45 = [296,132, 294,84,252,50,192,48, 122,46,62,82,40,144, 26,196,22,248,32,284, 42,314,84,336,132,354, 138,360,146,368,150,372];
-  var W90 = [296,132, 300,64,248,24,182,24, 116,24,72,66,66,132, 62,180,66,230,74,266, 84,304,104,330,132,356, 138,362,146,368,150,372];
-  var NASENHOEHE = 282;
-
+  // Vereinfachte Überblendung: 0° Gewicht im Nacken · 45° Gewicht auf der Diagonale · 90° Gewicht oben
+  var L_FLACH = hintenAufDiag(HAAR.A.o), L_ZIEL = hintenAufDiag(HAAR.B.o);
   function winkelPunkte(t){
-    var a = t <= 45 ? W0 : W45, b = t <= 45 ? W45 : W90, f = t <= 45 ? t / 45 : (t - 45) / 45;
+    var a = t <= 45 ? FORM.tief : FORM.B, b = t <= 45 ? FORM.B : FORM.hoch, f = t <= 45 ? t / 45 : (t - 45) / 45;
     return a.map(function(v, i){ return v + (b[i] - v) * f; });
   }
-  function winkelPfad(p){
-    var d = "M" + p[0].toFixed(1) + "," + p[1].toFixed(1);
-    for (var i = 2; i < p.length; i += 6) d += " C" + p.slice(i, i + 6).map(function(v){ return v.toFixed(1); }).join(",");
-    return d;
-  }
-  // Punkte der Hinterkopf-Segmente abtasten
-  function winkelKurve(p){
-    var out = [];
-    for (var s = 1; s <= 3; s++){
-      var i = 2 + s * 6, x0 = p[i - 2], y0 = p[i - 1];
-      for (var k = 0; k <= 40; k++){
-        var t = k / 40, u = 1 - t;
-        out.push([u*u*u*x0 + 3*u*u*t*p[i] + 3*u*t*t*p[i+2] + t*t*t*p[i+4],
-                  u*u*u*y0 + 3*u*u*t*p[i+1] + 3*u*t*t*p[i+3] + t*t*t*p[i+5]]);
-      }
-    }
-    return out;
-  }
   function winkelDaten(t){
-    var p = winkelPunkte(t), kurve = winkelKurve(p), back = 999, best = 999, gew = [999, 0];
-    kurve.forEach(function(q){
-      if (Math.abs(q[1] - NASENHOEHE) < best){ best = Math.abs(q[1] - NASENHOEHE); back = q[0]; }
-      if (q[0] < gew[0]) gew = q;
-    });
-    var hinten = OHRLINIE - back;
-    var score = Math.max(0, Math.min(1, (hinten - 115) / (164 - 115)));
-    return {p:p, back:back, gewicht:gew, score:score};
+    var p = winkelPunkte(t), d = pfadAus(p), gew = [999, 0];
+    punkte(d).forEach(function(q){ if (q[1] > 60 && q[0] < gew[0]) gew = q; });
+    var Lh = hintenAufDiag(d);
+    var score = Math.max(0, Math.min(1, (Lh - L_FLACH) / (L_ZIEL - L_FLACH)));
+    return {d:d, Lh:Lh, gewicht:gew, score:score};
   }
 
   function winkelFig(t){
-    var D = winkelDaten(t), id = ++uid;
-    var s = '<svg viewBox="0 20 496 515" role="img" aria-label="Profil mit Erhebungswinkel ' + t + ' Grad">';
+    var D = winkelDaten(t);
+    var s = '<svg viewBox="0 20 496 470" role="img" aria-label="Profil mit Erhebungswinkel ' + t + ' Grad">';
     s += kopf();
-    s += '<g class="haar"><path d="' + winkelPfad(D.p) + '" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5" stroke-linecap="round"/></g>';
-    // Nasenhöhe und Gewichtslinie
-    s += '<line x1="12" y1="' + NASENHOEHE + '" x2="336" y2="' + NASENHOEHE + '" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="2 5"/>';
-    s += txt(214, NASENHOEHE + 18, "Nasenhöhe", {size:12, fill:"var(--muted)"});
-    var gy = D.gewicht[1], gx = D.gewicht[0];
-    s += '<line x1="' + (gx - 10) + '" y1="' + gy + '" x2="' + (gx + 70) + '" y2="' + gy + '" stroke="var(--ink)" stroke-width="3"/>';
-    s += txt(gx + 76, gy + 5, "Gewicht", {size:13});
+    s += '<g class="haar"><path d="' + D.d + '" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5" stroke-linecap="round"/></g>';
+    // Gewicht: hinterster Punkt der Form
+    var gx = D.gewicht[0], gy = D.gewicht[1];
+    s += '<line x1="' + (gx - 12).toFixed(1) + '" y1="' + gy.toFixed(1) + '" x2="' + (gx + 22).toFixed(1) + '" y2="' + gy.toFixed(1) + '" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+    s += txt((gx + 26).toFixed(1), (gy + 18).toFixed(1), "Gewicht", {size:13});
     // Erhebungswinkel: Strähne am Hinterkopf, 0° = natürlicher Fall
     var P = [128, 300], r = t * Math.PI / 180, L = 50, dx = -Math.sin(r), dy = Math.cos(r);
     var E = [P[0] + dx * L, P[1] + dy * L];
@@ -387,18 +410,8 @@ svg text{font-family:var(--f-body)}
     }
     var lr = (t / 2) * Math.PI / 180;
     s += txt((P[0] - Math.sin(lr) * 44 + (t < 20 ? 12 : 0)).toFixed(1), (P[1] + Math.cos(lr) * 44 + 5).toFixed(1), t + "°", {size:14, anchor:"middle"}) + '</g>';
-    // nase (fix)
     s += '<g class="nase"><path d="' + NASE + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>';
-    // Balance
-    var xb = D.back, nx = NASENSPITZE[0];
-    s += '<g class="balance">' +
-      '<line x1="' + OHRLINIE + '" y1="60" x2="' + OHRLINIE + '" y2="486" stroke="var(--g-hilfe)" stroke-width="1.4" stroke-dasharray="7 6"/>' +
-      '<line x1="' + xb.toFixed(1) + '" y1="' + NASENHOEHE + '" x2="' + xb.toFixed(1) + '" y2="486" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
-      '<line x1="' + nx + '" y1="' + NASENSPITZE[1] + '" x2="' + nx + '" y2="486" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
-      '<rect x="' + xb.toFixed(1) + '" y="488" width="' + (OHRLINIE - 2 - xb).toFixed(1) + '" height="14" fill="var(--g-haar-kontur)"/>' +
-      '<rect x="' + (OHRLINIE + 2) + '" y="488" width="' + (nx - OHRLINIE - 2) + '" height="14" fill="var(--g-hilfe)"/>' +
-      txt(((xb + OHRLINIE) / 2).toFixed(1), 524, "hinten", {anchor:"middle", size:14}) +
-      txt((OHRLINIE + nx) / 2, 524, "vorne", {anchor:"middle", size:14}) + '</g>';
+    s += diagonale(D.Lh);
     s += '<g class="hinweis"><line x1="360" y1="232" x2="322" y2="258" stroke="var(--ink)" stroke-width="1.5"/>' +
       txt(364, 224, "Nase", {size:17, fill:"var(--accent)"}) +
       txt(364, 244, "unverändert", {size:17, fill:"var(--accent)"}) + '</g>';
@@ -407,11 +420,11 @@ svg text{font-family:var(--f-body)}
 
   function winkelText(t){
     var D = winkelDaten(t), stufe, text;
-    if (t === 0){ stufe = "0° · kompakt"; text = "Nichts wird angehoben. Das Gewicht sitzt ganz unten an der Kontur. Auf Nasenhöhe bleibt der Hinterkopf flach, die Nase wirkt weiter stark."; }
-    else if (t <= 30){ stufe = t + "° · niedrige Graduierung"; text = "Das Gewicht sitzt noch tief, unterhalb der Nasenhöhe. Der Hinterkopf gewinnt etwas Form, das Gegengewicht ist noch schwach."; }
-    else if (t <= 60){ stufe = t + "° · mittlere Graduierung"; text = "Das Gewicht sitzt etwa am Hinterhauptbein, auf Höhe der Nase. Hinten entsteht ein Gegengewicht, die Nase wirkt ruhiger."; }
-    else if (t < 90){ stufe = t + "° · hohe Graduierung"; text = "Das Gewicht wandert nach oben Richtung Oberkopf. Auf Nasenhöhe nimmt das Gegengewicht wieder ab, der Kopf wirkt länger."; }
-    else { stufe = "90° · sehr hohe Graduierung"; text = "Das Gewicht sitzt hoch am Oberkopf. Auf Nasenhöhe ist der Hinterkopf wieder flach, die Nase bleibt dominant."; }
+    if (t === 0){ stufe = "0° · kompakt"; text = "Nichts wird angehoben. Das Gewicht sitzt ganz unten im Nacken. Auf der Diagonale bleibt der Hinterkopf flach, die Nase wirkt weiter stark."; }
+    else if (t <= 30){ stufe = t + "° · niedrige Graduierung"; text = "Das Gewicht sitzt noch tief, unterhalb der Diagonale. Das Gegengewicht zur Nase ist noch schwach."; }
+    else if (t <= 60){ stufe = t + "° · mittlere Graduierung"; text = "Das Gewicht liegt auf der Verlängerung der Linie Nasenspitze – Ohrspitze. Genau dort entsteht das Gegengewicht, die Nase wirkt ruhiger."; }
+    else if (t < 90){ stufe = t + "° · hohe Graduierung"; text = "Das Gewicht wandert über die Diagonale hinaus Richtung Oberkopf. Der Kopf wirkt nach oben verlängert."; }
+    else { stufe = "90° · sehr hohe Graduierung"; text = "Das Gewicht sitzt oben am Oberkopf. Auf der Diagonale fehlt wieder Volumen, die Nase bleibt dominant."; }
     var wort = D.score < 0.35 ? "Nase wirkt dominant" : D.score < 0.7 ? "Nase wirkt etwas ruhiger" : "Kopf wirkt ausgeglichen";
     return '<h3>' + stufe + '</h3>' +
       '<p>' + text + '</p>' +
@@ -816,7 +829,7 @@ svg text{font-family:var(--f-body)}
     hoch:  {t:"Aufbau zu hoch (nur oben)", d:"Der Kopf wirkt nach oben verlängert. Die Nase bleibt im Profil dominant.", fig:{hair:"hoch"}},
     spitz: {t:"Spitze vorne", d:"Vorne entsteht eine zweite Spitze, zum Beispiel durch einen spitzen, nach vorne gerichteten Pony. Der Blick wird zusätzlich zur Nase gelenkt.", fig:{hair:"B", spitze:true}},
     flach: {t:"Hinten sehr kurz und flach", d:"Zum Beispiel ein hoher Undercut oder Haar streng nach hinten. Hinten fehlt jedes Gegengewicht, das Profil liegt ganz frei.", fig:{hair:"flach"}},
-    gut:   {t:"So passt es", d:"Aufbau etwa am Hinterhauptbein, Nacken schmal, vorne ruhig.", fig:{hair:"B"}, ok:true}
+    gut:   {t:"So passt es", d:"Volumen auf der Verlängerung der Linie Nasenspitze – Ohrspitze, Nacken eng, vorne ruhig.", fig:{hair:"B"}, ok:true}
   };
 
   var FRAGEN = [
@@ -827,8 +840,8 @@ svg text{font-family:var(--f-body)}
      a:["Flacher Hinterkopf","Aufbau am Hinterkopf"],
      r:0, f:"Ohne Gegengewicht hinten bleibt der Blick an der Nase hängen."},
     {q:"Wo sollte der Aufbau am Hinterkopf ungefähr sitzen?",
-     a:["Ganz unten im Nacken","Etwa am Hinterhauptbein, ungefähr auf Höhe der Nase","Nur ganz oben am Scheitel"],
-     r:1, f:"Zu tief wirkt schwer, zu hoch verlängert den Kopf. Das Gegengewicht sollte etwa gegenüber der Nase liegen."},
+     a:["Ganz unten im Nacken","Am oberen Hinterkopf, auf der Verlängerung der Linie Nasenspitze – Ohrspitze","Nur ganz oben am Scheitel"],
+     r:1, f:"Das Volumen gehört diagonal gegenüber der Nase: Linie von der Nasenspitze über die Ohrspitze nach hinten verlängern. Im Nacken wirkt es schwer, ganz oben verlängert es den Kopf."},
     {q:"Richtig oder falsch? „Ein spitzer, nach vorne gerichteter Pony hilft, die Nase auszugleichen.“",
      a:["Richtig","Falsch"],
      r:1, f:"Eine Spitze vorne lenkt den Blick zusätzlich nach vorne. Besser ist eine weiche Vorderpartie."},
@@ -853,19 +866,19 @@ svg text{font-family:var(--f-body)}
     }},
     {step:0, render:function(){
       return card(fig({hair:"A", ohr:st.ohr, label:"Ausgangsform: flacher Hinterkopf"}) +
-        controls(toggle("ohr","Balance zeigen", st.ohr)),
+        controls(toggle("ohr","Diagonale zeigen", st.ohr)),
         '<h2>Ausgangsform</h2>' +
         '<p>Schau dir das Profil an. Der Hinterkopf ist flach, das Haar liegt eng an.</p>' +
-        '<p>Vor der Ohrlinie ist viel los: Stirn, Nase, Kinn. Hinter der Ohrlinie ist wenig Form. Das Gewicht liegt vorne. Deshalb fällt die Nase besonders auf.</p>' +
-        '<p class="note">Die Balken unten zeigen es: Der Kopf ist vorne viel länger als hinten.</p>');
+        '<p>Vorne ist viel los: Stirn, Nase, Kinn. Hinten ist wenig Form. Das Gewicht liegt vorne. Deshalb fällt die Nase besonders auf.</p>' +
+        '<p class="note">Die Diagonale zeigt es: Zieh eine Linie von der Nasenspitze über die Ohrspitze nach hinten. Vorne ist die Strecke lang, hinten kurz.</p>');
     }},
     {step:1, render:function(){
       return card(fig({hair:st.hair, ohr:st.ohr, label:{A:"Zustand A: flacher Hinterkopf", M:"Zwischenstufe: etwas Aufbau", B:"Zustand B: mehr Aufbau am Hinterkopf"}[st.hair]}) +
-        controls(seg("hair",[["A","A · flach"],["M","Zwischenstufe"],["B","B · Aufbau"]], st.hair) + toggle("ohr","Balance", st.ohr)),
+        controls(seg("hair",[["A","A · flach"],["M","Zwischenstufe"],["B","B · Aufbau"]], st.hair) + toggle("ohr","Diagonale", st.ohr)),
         '<h2>Zielwirkung</h2>' +
         '<p>Ziel ist ein Gleichgewicht zwischen vorne und hinten. Wenn der Hinterkopf mehr Rundung bekommt, entsteht ein Gegengewicht zur Nase.</p>' +
         '<p>Die Nase bleibt genau gleich. Sie wirkt aber nicht mehr so stark, weil der Kopf als Ganzes ausgeglichener aussieht.</p>' +
-        '<p class="note">Schalte ein paar Mal zwischen A, Zwischenstufe und B um. Der Balken „vorne“ bleibt gleich lang, der Balken „hinten“ wächst. Die Nase ändert sich nicht.</p>');
+        '<p class="note">Schalte ein paar Mal zwischen A, Zwischenstufe und B um. Die Strecke „vorne“ auf der Diagonale bleibt gleich, die Strecke „hinten“ wächst. Die Nase ändert sich nicht.</p>');
     }},
     {step:2, render:function(){
       
@@ -873,7 +886,7 @@ svg text{font-family:var(--f-body)}
         controls(toggle("zonen","Schnittzonen", st.zonen) + toggle("schaedel","Schädelform", st.schaedel)),
         '<h2>Mögliche Schnittentscheidung</h2>' +
         '<ul>' +
-        '<li><strong>Hinterkopf:</strong> mit Graduation Aufbau schaffen. Die meiste Fülle sitzt ungefähr am Hinterhauptbein, etwa auf der Höhe, auf der vorne die Nase ist.</li>' +
+        '<li><strong>Volumen:</strong> mit Graduation am oberen Hinterkopf aufbauen, genau auf der Verlängerung der Linie Nasenspitze – Ohrspitze. Nicht im Nacken.</li>' +
         '<li><strong>Nacken:</strong> schmal und nah am Kopf. So wirkt der Aufbau darüber deutlicher.</li>' +
         '<li><strong>Oberkopf:</strong> leicht mitführen, damit die Form rund bleibt.</li>' +
         '<li><strong>Vorderpartie:</strong> weich, nicht spitz nach vorne.</li>' +
@@ -887,7 +900,7 @@ svg text{font-family:var(--f-body)}
         '<input type="range" id="winkel" min="0" max="90" step="5" value="' + st.winkel + '"></div>' +
         controls(seg("winkel",[["0","0°"],["20","20°"],["45","45°"],["70","70°"],["90","90°"]], String(st.winkel))),
         '<h2>Ausprobieren: der Winkel macht die Wirkung</h2>' +
-        '<p>Beim Graduieren hebst du die Strähnen am Hinterkopf in einem Winkel an. Der Winkel bestimmt, wo das Gewicht entsteht. Zieh den Regler und beobachte die Gewichtslinie, die Balken und die Wirkung auf die Nase.</p>' +
+        '<p>Beim Graduieren hebst du die Strähnen am Hinterkopf in einem Winkel an. Der Winkel bestimmt, wo das Gewicht entsteht. Zieh den Regler und beobachte, wo das Gewicht entsteht und wie weit die Form hinten auf der Diagonale reicht.</p>' +
         '<div id="winkelText" aria-live="polite">' + winkelText(st.winkel) + '</div>' +
         '<div class="callout accent"><p><strong>Aus dem Unterricht (Seite 14):</strong> Von unten nach oben schneiden – die Frisur bekommt Volumen. Das ist der Large-Effekt beim Schnitt.</p></div>');
     }},
