@@ -161,6 +161,13 @@ svg text{font-family:var(--f-body)}
 .harmonie li:first-child{border-top:0}
 .harmonie li svg{width:40px;height:40px;grid-row:span 2}
 .harmonie .zonen{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-s);color:var(--muted)}
+.mittel{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px 10px;max-width:340px;margin:0 auto}
+.mittel figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.mittel figure svg{width:64px;height:64px}
+.mittel figcaption{font-size:var(--t-s);font-weight:700}
+.mittel-pfeil svg{width:56px;height:24px;display:block}
+.lesen dl.sml{grid-template-columns:5em 1fr}
+@media (max-width:520px){.lesen dl.sml{grid-template-columns:5em 1fr;gap:6px 10px}.lesen dl.sml dd{margin-bottom:0}}
 .tabelle{overflow-x:auto}
 .tabelle table{border-collapse:collapse;width:100%;min-width:480px;font-size:var(--t-s)}
 .tabelle th,.tabelle td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
@@ -523,7 +530,52 @@ svg text{font-family:var(--f-body)}
       }).join("") + '</ul>';
   }
 
-  // ---------- Wissen: Kapitel aus dem Unterrichtsmaterial (Seite 1–10) ----------
+
+  // Ablauf Diagnose – Technik – Ergebnis (Seite 11)
+  function ablaufGrafik(){
+    var box = function(y, titel, text){
+      return '<rect x="10" y="' + y + '" width="272" height="66" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>' +
+        '<text x="30" y="' + (y + 28) + '" font-size="19" font-weight="700" fill="var(--accent)">' + titel + '</text>' +
+        '<text x="30" y="' + (y + 52) + '" font-size="16" fill="var(--ink)">' + text + '</text>';
+    };
+    return '<svg viewBox="0 0 330 262" role="img" aria-label="Diagnose, Technik, Ergebnis" style="max-width:360px">' +
+      box(8, "Diagnose", "5 Minuten") + box(98, "Technik", "Schnitt, Farbe, Frisur, Service") + box(188, "Ergebnis", "Stil, Trend") +
+      pfeil(146, 74, 146, 96, "var(--ink)", 2) + pfeil(146, 164, 146, 186, "var(--ink)", 2) +
+      '<path d="M282,221 L312,221 L312,41 L292,41" fill="none" stroke="var(--g-kontur)" stroke-width="2" stroke-dasharray="5 5"/>' + pfeil(300, 41, 284, 41, "var(--g-kontur)", 2) +
+      '</svg>';
+  }
+
+  // Farb-Barometer (Seite 12)
+  function barometer(){
+    var y = function(n){ return 24 + (10 - n) * 30; }, s = '<svg viewBox="0 0 336 318" style="max-width:420px" role="img" aria-label="Farb-Barometer von 1 bis 10">';
+    for (var n = 10; n >= 1; n--){
+      s += '<text x="40" y="' + (y(n) + 6) + '" text-anchor="end" font-size="18" font-weight="800" fill="var(--ink)" style="font-family:var(--f-display)">' + n + '</text>';
+    }
+    var linie = function(yy, x2){ return '<line x1="26" y1="' + yy + '" x2="' + x2 + '" y2="' + yy + '" stroke="var(--g-kontur)" stroke-width="1.5" stroke-dasharray="6 5"/>'; };
+    s += linie(y(7.5), 300) + linie(y(4.5), 300) + linie(y(2.5), 300);
+    s += '<text x="60" y="' + (y(8) + 6) + '" font-size="15" font-weight="700" fill="var(--ink)">Gesichtsfarbe Europäer, Durchschnitt</text>';
+    s += '<line x1="70" y1="' + (y(7.5) + 4) + '" x2="70" y2="' + (y(4.5) - 4) + '" stroke="var(--ink)" stroke-width="2"/>' + pfeil(70, y(5), 70, y(4.5) - 2, "var(--ink)", 2);
+    s += '<text x="84" y="' + (y(6) + 6) + '" font-size="16" font-weight="800" fill="var(--accent)">LARGE</text>';
+    s += '<text x="84" y="' + (y(4) + 6) + '" font-size="16" font-weight="800" fill="var(--accent)">SMALL</text>';
+    s += '<text x="84" y="' + (y(3) + 6) + '" font-size="15" font-weight="700" fill="var(--ink)">Gesichtsfarbe Südländer</text>';
+    s += '<line x1="316" y1="' + (y(2.5) - 2) + '" x2="316" y2="' + (y(4.5) + 4) + '" stroke="var(--ink)" stroke-width="2"/>' + pfeil(316, y(3.5), 316, y(4.5) + 2, "var(--ink)", 2);
+    return s + '</svg>';
+  }
+
+  // Einfache Linien-Icons (Seite 15)
+  function ikon(art){
+    var st = ' fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"';
+    var d = {
+      mund: '<path d="M8,32 C18,20 27,22 32,27 C37,22 46,20 56,32 C46,46 18,46 8,32 Z"' + st + '/><path d="M8,32 Q32,37 56,32"' + st + '/>',
+      haende: '<path d="M20,56 L20,34 M26,34 L26,12 M32,33 L32,9 M38,34 L38,12 M44,36 L44,18 M20,40 C14,34 10,36 12,42 L22,56"' + st + '/><path d="M20,34 L44,34 L44,48 C44,54 40,58 34,58 L24,58"' + st + '/>',
+      ohr: '<path d="M22,44 C14,36 16,16 32,12 C46,9 54,24 46,34 C40,41 38,44 38,50 C38,57 28,60 24,52"' + st + '/><path d="M28,32 C26,24 34,18 40,24"' + st + '/>',
+      auge: '<path d="M6,32 C18,16 46,16 58,32 C46,48 18,48 6,32 Z"' + st + '/><circle cx="32" cy="32" r="8"' + st + '/><circle cx="32" cy="32" r="2.5" fill="var(--ink)"/>'
+    }[art];
+    return '<svg viewBox="0 0 64 64" role="img" aria-label="' + art + '">' + d + '</svg>';
+  }
+  function ikonPfeil(){ return '<svg viewBox="0 0 48 20" aria-hidden="true">' + pfeil(4, 10, 44, 10, "var(--accent)", 1.6) + '</svg>'; }
+
+  // ---------- Wissen: Kapitel aus dem Unterrichtsmaterial (Seite 1–16) ----------
   var KAPITEL = [
     {t:"Leitfaden für eine Beratung", s:"Seite 1–2", k:"Sieben Schritte vom Beratungsplatz bis zum Ergebnis.", html: function(){ return '' +
       '<p class="lead">Ein fester Ablauf für jede Beratung. Am Ende hat die Kundin selbst entschieden.</p>' +
@@ -668,12 +720,79 @@ svg text{font-family:var(--f-body)}
       '</div></div>' +
       '<p>Das passt zu Seite 4: Bei einer Blondine sind die Haare im Vordergrund, bei einer Brünetten das Gesicht.</p>' +
       '<p class="quelle">Nach: Visagisme Total Look, C. Juillard. Grafik nachgezeichnet.</p>'; }}
+    ,
+    {t:"Der Kunde kauft ein Ergebnis", s:"Seite 11", k:"Diagnose, Technik, Ergebnis. Und: Was ist eine Frisur?", html: function(){ return '' +
+      '<p class="lead">Der Kunde kauft ein Ergebnis in den ersten 5 Minuten.</p>' +
+      '<div class="grafik">' + ablaufGrafik() + '</div>' +
+      '<dl><dt>Diagnose</dt><dd>5 Minuten</dd><dt>Technik</dt><dd>Schnitt, Farbe, Frisur, Service usw.</dd><dt>Ergebnis</dt><dd>Stil, Trend</dd></dl>' +
+      '<p class="note">Der Pfeil in der Vorlage führt vom Ergebnis zurück zur Diagnose: Das Ergebnis wird wieder mit der Diagnose abgeglichen.</p>' +
+      '<h3>Was ist eine Frisur?</h3>' +
+      '<p>Wir erkennen sie durch <strong>Sehen</strong> und <strong>Körpersprache</strong>.</p>' +
+      '<dl>' +
+      '<dt>Form</dt><dd>Kreis, Viereck, Rechteck, Dreieck, Raute</dd>' +
+      '<dt>Volumen</dt><dd>Small, Medium, Large</dd>' +
+      '<dt>Farbe</dt><dd><strong>Small:</strong> Haarfarbe ist dunkler als die Gesichtsfarbe.<br><strong>Medium:</strong> ausgeglichen.<br><strong>Large:</strong> Haarfarbe ist heller als die Gesichtsfarbe.</dd>' +
+      '<dt>Textur</dt><dd><strong>Small:</strong> glatte Haare.<br><strong>Medium:</strong> leichte Bewegung.<br><strong>Large:</strong> starke Bewegung.</dd>' +
+      '<dt>€</dt><dd>Der Preis gehört dazu.</dd>' +
+      '</dl>'; }},
+
+    {t:"Farb-Barometer", s:"Seite 12", k:"Die Gesichtsfarbe als Tonhöhe. Wo Small und Large liegen.", html: function(){ return '' +
+      '<p class="lead">Die Konturen-Haarfarbe im Gesicht beeinflusst die Gesichtsfarbe.</p>' +
+      '<div class="grafik">' + barometer() + '</div>' +
+      '<dl><dt>8</dt><dd>Gesichtsfarbe Europäer, Durchschnitt (8-Bereich)</dd>' +
+      '<dt>7 bis 5</dt><dd>Large</dd>' +
+      '<dt>4 bis 3</dt><dd>Small</dd>' +
+      '<dt>3</dt><dd>Gesichtsfarbe Südländer</dd></dl>' +
+      '<p>Dazu Seite 11: <strong>Small</strong> heißt, die Haarfarbe ist dunkler als die Gesichtsfarbe. <strong>Large</strong> heißt, die Haarfarbe ist heller als die Gesichtsfarbe.</p>'; }},
+
+    {t:"Small, Medium, Large", s:"Seite 13–14", k:"Welchen Effekt Schnitt, Umformung, Farbe, Stylingprodukte und Frisur haben.", html: function(){
+      var zeilen = [
+        ["Schnitt", "Von oben nach unten schneiden: Die Frisur wird schmäler.", "Point- oder Slicetechnik", "Von unten nach oben schneiden: Die Frisur bekommt Volumen."],
+        ["Umformung", "Glätten", "Leichte Umformung", "Starke Umformung"],
+        ["Farbe", "Haarfarbe dunkler als die Gesichtsfarbe", "Ton in Ton", "Haarfarbe heller als die Gesichtsfarbe"],
+        ["Stylingprodukte", "Produkte, die schwer machen: Liss, Gloss, Wet …", "Produkte mit Flexibilität: Matt-Wax …", "Produkte, die extremen Stand machen: Fix-Produkte"],
+        ["Frisur", "Charakter im Gesicht: Das Gesicht wird durch die Frisur mehr hervorgehoben.", "Ausgeglichen, harmonisch", "Charakter in der Frisur, z. B. Hero, Iro"]
+      ];
+      return '<p class="lead">Jedes Mittel hat drei Stufen: Small, Medium und Large.</p>' +
+        '<ol class="ablauf">' + zeilen.map(function(z){
+          return '<li><div><h3>' + z[0] + '</h3><dl class="sml">' +
+            '<dt>Small</dt><dd>' + z[1] + '</dd><dt>Medium</dt><dd>' + z[2] + '</dd><dt>Large</dt><dd>' + z[3] + '</dd></dl></div></li>';
+        }).join("") + '</ol>' +
+        '<div class="callout accent"><p><strong>Zum Pilotfall:</strong> Aufbau am Hinterkopf ist ein Large-Effekt beim Schnitt. Von unten nach oben geschnitten bekommt die Frisur Volumen.</p>' +
+        '<p><button class="btn" type="button" data-act="goPilot">Zum Pilotfall ' + ICON_WEITER + '</button></p></div>'; }},
+
+    {t:"Die Mittel des Coiffeurs und des Kunden", s:"Seite 15", k:"Mund und Hände, Ohr und Auge.", html: function(){ return '' +
+      '<div class="grafik"><div class="mittel">' +
+        '<figure>' + ikon("mund") + '<figcaption>Mund</figcaption></figure>' + '<div class="mittel-pfeil">' + ikonPfeil() + '</div>' +
+        '<figure>' + ikon("haende") + '<figcaption>Hände</figcaption></figure>' +
+        '<figure>' + ikon("ohr") + '<figcaption>Ohr</figcaption></figure>' + '<div class="mittel-pfeil">' + ikonPfeil() + '</div>' +
+        '<figure>' + ikon("auge") + '<figcaption>Auge</figcaption></figure>' +
+      '</div></div>' +
+      '<p>Worte werden zu Gesten, Zuhören wird zu Sehen.</p>' +
+      '<p>Das passt zum Leitfaden: Die Kundin zeigt mit den Händen, wie sie sich frisieren möchte (Gestik). Und eine Frisur erkennen wir durch Sehen und Körpersprache (Seite 11).</p>'; }},
+
+    {t:"Kunden-Beratungsgespräch", s:"Seite 16", k:"Der Gesprächsablauf mit den Fragen zu Pflege und Schnitt, Farbe und Umformung.", html: function(){ return '' +
+      '<ol class="ablauf">' +
+      '<li><div><h3>Informationsmaterial</h3><p>Ausgefüllter Neukundenzettel, Frisurenmappen, Farbkarten.</p></div></li>' +
+      '<li><div><h3>Sitzposition einnehmen</h3><p>Lächeln, Stimmlage, persönliche Begrüßung, eventuell Handschlag, Augenhöhe, Herzseite, Abstand.</p></div></li>' +
+      '<li><div><h3>Fragen zur Frisur</h3><ul><li>Was darf/kann ich für Sie tun?</li><li>Wie sind Sie derzeit mit Ihrer Frisur zufrieden?</li><li>Was wollen Sie auf keinen Fall haben?</li></ul>' +
+        '<ul><li><strong>Den Frisurenwunsch genau abklären, anhand von Bildern.</strong></li><li><strong>Den Kundenwunsch im Detail bestätigen oder Vorschläge dazu machen.</strong></li><li><strong>Den Kunden über die Vorteile aufklären.</strong></li></ul></div></li>' +
+      '<li><div><h3>Fragen je nach Dienstleistung</h3>' +
+        '<p><strong>Pflege und Schnitt</strong></p><ul><li>Wie häufig waschen Sie sich in der Woche die Haare?</li><li>Welche Zeit nehmen Sie sich morgens für Ihre Frisur?</li><li>Welche Produkte nehmen Sie zum Stylen der Haare?</li><li>Wann wurden Ihre Haare zuletzt geschnitten?</li><li>Wie soll die Frisur aussehen?</li></ul>' +
+        '<p><strong>Haar- und Kopfhautanalyse:</strong> In welchem Zustand sind die Haare? Gefärbt, getönt, gewellt, gesund, strapaziert oder stark strapaziert? In welchem Zustand ist die Kopfhaut? Normal, schnell fettend, schuppig oder irritiert? Aufgrund dieser Feststellungen werden Shampoo und Pflege festgelegt.</p>' +
+        '<p><strong>Farbe</strong></p><ul><li>Wie sind Sie derzeit mit der Farbe zufrieden?</li><li>Wie soll Ihre Farbe hinterher aussehen?</li><li>Wie häufig behandeln Sie Ihre Haare farblich zu Hause?</li><li>Wann wurde die letzte Farbveränderung gemacht?</li><li>Welche Pflegeprodukte benutzen Sie zu Hause und wie oft?</li></ul>' +
+        '<p><strong>Umformung</strong></p><ul><li>Welche Erfahrungen haben Sie bisher mit einer Umformung gemacht?</li><li>Wann haben Sie sich zuletzt eine Umformung machen lassen?</li><li>Welche Pflegeprodukte benutzen Sie zu Hause und wie oft?</li></ul></div></li>' +
+      '<li><div><h3>Feststellungen</h3><p>„Diese besprochene Behandlung dauert … und die Dienstleistungen kosten detailliert … Der Gesamtpreis der Dienstleistungen beträgt … und die Produkte kosten … Alles zusammen kostet …“</p>' +
+        '<p>„Sind Sie damit einverstanden?“ Wenn der Kunde bestätigt, kann mit der Dienstleistung begonnen werden. Verweigert der Kunde, frage ich nach dem Grund.</p>' +
+        '<ul><li>Was brauchen Sie unbedingt?</li><li>Wo kann ich einsparen (Zeit? Geld?)</li></ul></div></li>' +
+      '</ol>' +
+      '<div class="callout accent"><p><strong>Jede Behandlung läuft mit Erklärungen ab!</strong></p></div>'; }}
   ];
 
   function renderWissen(){
     if (st.kap < 0){
       return '<div class="screen"><div class="pagehead"><h1>Wissen aus der Beratung</h1>' +
-        '<p class="meta">Die Inhalte aus deinem Unterrichtsmaterial, Seite 1 bis 10.</p></div>' +
+        '<p class="meta">Die Inhalte aus deinem Unterrichtsmaterial, Seite 1 bis 16.</p></div>' +
         '<ol class="kapitel-liste">' + KAPITEL.map(function(k, i){
           return '<li><button type="button" data-act="kap" data-val="' + i + '"><span class="nr">' + (i + 1) + '</span>' +
             '<span><span class="tt">' + k.t + '</span><span class="ks">' + k.k + ' · ' + k.s + '</span></span>' + ICON_WEITER + '</button></li>';
@@ -770,7 +889,8 @@ svg text{font-family:var(--f-body)}
         controls(seg("winkel",[["0","0°"],["20","20°"],["45","45°"],["70","70°"],["90","90°"]], String(st.winkel))),
         '<h2>Ausprobieren: der Winkel macht die Wirkung</h2>' +
         '<p>Beim Graduieren hebst du die Strähnen am Hinterkopf in einem Winkel an. Der Winkel bestimmt, wo das Gewicht entsteht. Zieh den Regler und beobachte die Gewichtslinie, die Balken und die Wirkung auf die Nase.</p>' +
-        '<div id="winkelText" aria-live="polite">' + winkelText(st.winkel) + '</div>');
+        '<div id="winkelText" aria-live="polite">' + winkelText(st.winkel) + '</div>' +
+        '<div class="callout accent"><p><strong>Aus dem Unterricht (Seite 14):</strong> Von unten nach oben schneiden – die Frisur bekommt Volumen. Das ist der Large-Effekt beim Schnitt.</p></div>');
     }},
     {step:3, render:function(){
       return card('<div class="pair">' +
