@@ -197,17 +197,30 @@ svg text{font-family:var(--f-body)}
   var NASE = "M293,227 C306,246 322,266 340,282 C350,290 351,300 342,304 C332,307 318,304 309,307";
   var GESICHT = "M296,132 C299,142 301,152 301,160 C304,182 302,198 299,208 C301,214 297,221 293,227 " +
     NASE.slice(NASE.indexOf("C")) +
-    " C313,313 315,318 312,322 C309,324 307,326 306,327 C310,330 311,336 307,340 C303,344 300,346 301,352 C303,362 306,374 300,386 C292,396 272,396 252,394 C244,396 238,404 238,434";
-  var NACKEN = "M150,372 C151,392 152,414 152,438";
+    " C314,309 319,313 318,318 C317,321 313,323 309,324 C313,327 316,332 313,337 C310,341 305,342 302,344 C299,347 300,351 303,357 C308,367 306,379 296,385 C285,391 268,392 254,391 C244,392 236,400 230,414 L220,438";
+  var NACKEN = "M156,364 L148,376 C150,396 150,418 147,440";
   var KOPFHAUT = "M150,372 L142,352 C118,328 92,298 84,262 C76,226 76,172 98,130 C118,94 162,72 214,74 C258,76 290,104 296,132";
   var ANSATZ = "M296,132 C284,160 270,190 262,200 L258,226 C246,222 232,208 214,210 C200,206 184,212 180,228 C176,260 168,320 150,372";
   var ANSATZ_REV = " C168,320 176,260 180,228 C184,212 200,206 214,210 C232,208 246,222 258,226 L262,200 C270,190 284,160 296,132 Z";
-  var OHR = "M188,222 C205,214 217,230 213,252 C210,272 205,290 195,297 C189,301 184,296 186,289" +
-    " M192,232 C203,229 208,241 204,256 C202,264 197,266 195,262";
-  var AUGE = '<path d="M246,207 Q262,199 278,204" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/>' +
-    '<path d="M254,227 Q263,220 273,226 Q263,232 254,227 Z" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linejoin="round"/>' +
-    '<circle cx="265" cy="226.5" r="2.4" fill="var(--ink)"/>' +
-    '<path d="M306,327 L299,328" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>';
+  var OHR = "M186,224 C199,212 217,220 215,243 C213,262 207,276 199,287 C195,293 190,295 188,290" +
+    " M192,234 C203,229 209,241 205,256 C203,264 198,266 196,260";
+  var AUGE =
+    // Braue, Auge mit Iris und Wimpern, Mundlinie, Ohrstecker
+    '<path d="M244,206 C254,197 272,195 287,201 C273,199 258,201 245,209 Z" fill="var(--ink)"/>' +
+    '<path d="M253,224 C260,216 274,215 283,221" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M256,229 C264,234 274,233 281,226" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round"/>' +
+    '<circle cx="268" cy="224.5" r="5.2" fill="none" stroke="var(--ink)" stroke-width="1.6"/><circle cx="268" cy="224.5" r="2.8" fill="var(--ink)"/>' +
+    '<path d="M281,220 l6,-3 M277,217.5 l4.5,-4.5 M272,216 l2.5,-5" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round"/>' +
+    '<path d="M309,324 Q303,326 297,323" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/>' +
+    '<circle cx="192" cy="289" r="3.6" fill="var(--ink)"/>';
+  function kopf(){
+    return '<g class="kopf" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="' + ANSATZ + '" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="1.5 4.5"/>' +
+      '<path d="' + GESICHT + '" stroke="var(--ink)" stroke-width="2.6"/>' +
+      '<path d="' + NACKEN + '" stroke="var(--ink)" stroke-width="2.6"/>' +
+      '<path d="' + OHR + '" stroke="var(--ink)" stroke-width="2.3"/>' +
+      '</g>' + AUGE;
+  }
   var NASENSPITZE = [348, 294];
   var OHRLINIE = 196;
 
@@ -251,16 +264,13 @@ svg text{font-family:var(--f-body)}
     }
 
     // kopf (fix): Kopfhaut fein gestrichelt, Gesicht/Nacken/Ohr als Linie
-    s += '<g class="kopf" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="' + KOPFHAUT + '" stroke="' + (o.schaedel ? 'var(--ink)' : 'var(--g-kontur)') + '" stroke-width="' + (o.schaedel ? 2 : 1.5) + '" stroke-dasharray="3 4"/>' +
-      '<path d="' + ANSATZ + '" stroke="var(--g-kontur)" stroke-width="1.5" stroke-dasharray="3 4"/>' +
-      '<path d="' + GESICHT + '" stroke="var(--ink)" stroke-width="2.4"/>' +
-      '<path d="' + NACKEN + '" stroke="var(--ink)" stroke-width="2.4"/>' +
-      '<path d="' + OHR + '" stroke="var(--ink)" stroke-width="2.2"/>' +
-      '</g>' + AUGE;
+    s += kopf();
+
+    // schaedel: Kopfform unter dem Haar
+    if (o.schaedel) s += '<path d="' + KOPFHAUT + '" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="4 4" opacity=".8"/>';
 
     // haar (veränderbar): kräftig gestrichelte Außenform
-    s += '<g class="haar" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-dasharray="10 6" stroke-linecap="round">' +
+    s += '<g class="haar" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5" stroke-linecap="round">' +
       '<path d="' + H.o + '"/>' + (o.spitze ? '<path d="' + SPITZE + '"/>' : '') + '</g>';
 
     // nase (fix, immer obenauf)
@@ -355,14 +365,8 @@ svg text{font-family:var(--f-body)}
   function winkelFig(t){
     var D = winkelDaten(t), id = ++uid;
     var s = '<svg viewBox="0 20 496 515" role="img" aria-label="Profil mit Erhebungswinkel ' + t + ' Grad">';
-    s += '<g class="kopf" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="' + KOPFHAUT + '" stroke="var(--g-kontur)" stroke-width="1.5" stroke-dasharray="3 4"/>' +
-      '<path d="' + ANSATZ + '" stroke="var(--g-kontur)" stroke-width="1.5" stroke-dasharray="3 4"/>' +
-      '<path d="' + GESICHT + '" stroke="var(--ink)" stroke-width="2.4"/>' +
-      '<path d="' + NACKEN + '" stroke="var(--ink)" stroke-width="2.4"/>' +
-      '<path d="' + OHR + '" stroke="var(--ink)" stroke-width="2.2"/>' +
-      '</g>' + AUGE;
-    s += '<g class="haar"><path d="' + winkelPfad(D.p) + '" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-dasharray="10 6" stroke-linecap="round"/></g>';
+    s += kopf();
+    s += '<g class="haar"><path d="' + winkelPfad(D.p) + '" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5" stroke-linecap="round"/></g>';
     // Nasenhöhe und Gewichtslinie
     s += '<line x1="12" y1="' + NASENHOEHE + '" x2="336" y2="' + NASENHOEHE + '" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="2 5"/>';
     s += txt(214, NASENHOEHE + 18, "Nasenhöhe", {size:12, fill:"var(--muted)"});
@@ -498,12 +502,7 @@ svg text{font-family:var(--f-body)}
   }
   function profilPfeile(art){
     var s = '<svg viewBox="30 30 420 420" role="img" aria-label="Profil mit Wirkungspfeilen">';
-    s += '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="' + KOPFHAUT + '" stroke="var(--g-kontur)" stroke-width="2" stroke-dasharray="3 5"/>' +
-      '<path d="' + GESICHT + '" stroke="var(--ink)" stroke-width="3.5"/>' +
-      '<path d="' + NACKEN + '" stroke="var(--ink)" stroke-width="3.5"/>' +
-      '<path d="' + OHR + '" stroke="var(--ink)" stroke-width="3"/>' +
-      '<path d="' + HAAR.A.o + '" stroke="var(--ink)" stroke-width="3.5" stroke-dasharray="12 8"/></g>' + AUGE;
+    s += kopf() + '<path d="' + HAAR.A.o + '" fill="none" stroke="var(--ink)" stroke-width="3" stroke-dasharray="9 6" stroke-linecap="round"/>';
     var c = "var(--accent)";
     if (art === "dunkel") s += pfeil(360, 92, 262, 92, c, 5) + pfeil(300, 330, 410, 330, c, 5);
     if (art === "mittel") s += pfeil(410, 240, 410, 50, c, 5) + pfeil(410, 240, 410, 430, c, 5);
