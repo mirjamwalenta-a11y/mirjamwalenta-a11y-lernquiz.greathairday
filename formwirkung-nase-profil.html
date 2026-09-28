@@ -3,95 +3,184 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Formwirkung Nase im Profil</title>
+<title>Beratung &amp; Formwirkung</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
 <style>
-/* V1 Pilotfall „Lange Nase im Profil“ – Stil wie zwischenpruefung.html */
+/* Beratung & Formwirkung – Stil der Lernapp (vgl. zwischenpruefung.html) */
 :root{
-  --bg:#F5F3F7;--surface:#FFFFFF;--ink:#231B2E;--muted:#6B6278;--line:#DDD6E6;
-  --accent:#6D2E7F;--accent-ink:#FFFFFF;--accent-soft:#F1E4F6;
+  --bg:#F5F3F7;--surface:#FFFFFF;--surface-2:#FAF8FC;--ink:#231B2E;--muted:#61586E;--line:#DDD6E6;
+  --accent:#6D2E7F;--accent-ink:#FFFFFF;--accent-soft:#F1E4F6;--accent-hover:#5A2469;
   --good:#2F7D55;--good-soft:#E3F2EA;--bad:#B3362D;--bad-soft:#FBE6E3;
   --g-kopf:#E7E7EA;--g-kontur:#8C8C94;--g-haar:#8A8A92;--g-haar-kontur:#4C4C53;--g-hilfe:#A6A6AE;--g-flaeche:#EDEDF0;
-  --shadow:0 1px 2px rgba(35,27,46,.06),0 4px 14px rgba(35,27,46,.05);
+  --shadow:0 1px 2px rgba(35,27,46,.05),0 6px 18px -6px rgba(35,27,46,.10);
   --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
   --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+  --r:14px;--r-s:10px;
+  --t-xs:.8125rem;--t-s:.9375rem;--t-m:1.0625rem;--t-l:1.25rem;--t-xl:1.5rem;--t-2xl:1.875rem;
+  --ease:cubic-bezier(.16,1,.3,1);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --bg:#16121B;--surface:#201A28;--ink:#EEE8F4;--muted:#A79CB5;--line:#3A3045;
-    --accent:#CFA2E0;--accent-ink:#1C1422;--accent-soft:#3A2A45;
+    --bg:#16121B;--surface:#201A28;--surface-2:#1B1622;--ink:#EEE8F4;--muted:#A99EB7;--line:#3A3045;
+    --accent:#CFA2E0;--accent-ink:#1C1422;--accent-soft:#3A2A45;--accent-hover:#DDB9EA;
     --good:#6CC196;--good-soft:#1D3328;--bad:#EE8177;--bad-soft:#3E1F1C;
     --g-kopf:#3B3B41;--g-kontur:#8E8E97;--g-haar:#6E6E76;--g-haar-kontur:#B4B4BC;--g-hilfe:#74747C;--g-flaeche:#2C2C31;
-    --shadow:none;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 20px -8px rgba(0,0,0,.5);
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#16121B;--surface:#201A28;--ink:#EEE8F4;--muted:#A79CB5;--line:#3A3045;
-  --accent:#CFA2E0;--accent-ink:#1C1422;--accent-soft:#3A2A45;
+  --bg:#16121B;--surface:#201A28;--surface-2:#1B1622;--ink:#EEE8F4;--muted:#A99EB7;--line:#3A3045;
+  --accent:#CFA2E0;--accent-ink:#1C1422;--accent-soft:#3A2A45;--accent-hover:#DDB9EA;
   --good:#6CC196;--good-soft:#1D3328;--bad:#EE8177;--bad-soft:#3E1F1C;
   --g-kopf:#3B3B41;--g-kontur:#8E8E97;--g-haar:#6E6E76;--g-haar-kontur:#B4B4BC;--g-hilfe:#74747C;--g-flaeche:#2C2C31;
-  --shadow:none;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 20px -8px rgba(0,0,0,.5);
 }
+
+/* Grundlagen und Browser-Oberflächen */
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;padding-inline:16px;padding-block:16px 40px}
-.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
-h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
-h1{font-size:1.55rem;font-weight:800}
-h2{font-size:1.3rem;font-weight:700}
-p{margin:0;max-width:62ch}
-.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.badge{font-size:.75rem;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:3px 10px}
-.steps{display:flex;gap:4px;flex-wrap:wrap;list-style:none;margin:0;padding:0}
-.steps li{font-size:.78rem;font-weight:700;padding:4px 9px;border-radius:999px;color:var(--muted);border:1px solid var(--line);background:var(--surface)}
-.steps li.done{color:var(--accent);border-color:var(--accent-soft);background:var(--accent-soft)}
+html{scrollbar-color:var(--g-kontur) var(--bg);-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:var(--t-m);line-height:1.6;caret-color:var(--accent);accent-color:var(--accent)}
+::selection{background:var(--accent-soft);color:var(--ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+a{color:var(--accent);text-underline-offset:.2em}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2;letter-spacing:-.01em}
+h1{font-size:var(--t-2xl);font-weight:800}
+h2{font-size:var(--t-xl);font-weight:700}
+h3{font-size:var(--t-l);font-weight:700}
+p{margin:0;max-width:66ch}
+ul,ol{margin:0}
+strong{font-weight:700}
+
+/* App-Leiste */
+.appbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.appbar-in{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:800;font-size:var(--t-l);letter-spacing:-.01em}
+.tabs{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.tabs button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;font-size:var(--t-s);padding:7px 16px;border-radius:999px;cursor:pointer;min-height:36px;transition:background-color .18s var(--ease),color .18s var(--ease)}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+
+/* Seitenrahmen */
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:flex;flex-direction:column;gap:16px}
+.screen{display:flex;flex-direction:column;gap:16px}
+@media (prefers-reduced-motion: no-preference){
+  .screen{animation:rein .26s var(--ease)}
+  @keyframes rein{from{opacity:.75;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+.pagehead{display:flex;flex-direction:column;gap:6px}
+.pagehead .meta{color:var(--muted);font-size:var(--t-s)}
+.tag{display:inline-block;font-size:var(--t-xs);font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:2px 10px;vertical-align:middle}
+
+/* Lernschritte */
+.steps{display:flex;gap:6px;flex-wrap:wrap;list-style:none;margin:0;padding:0;font-variant-numeric:tabular-nums}
+.steps li{font-size:var(--t-xs);font-weight:700;padding:4px 10px;border-radius:999px;color:var(--muted);border:1px solid var(--line);background:var(--surface)}
+.steps li.done{color:var(--accent);border-color:transparent;background:var(--accent-soft)}
 .steps li.now{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+
+/* Flächen */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px}
+.text{gap:12px}
+.text ul,.text ol{padding-left:1.25em;display:flex;flex-direction:column;gap:6px}
+.text li::marker{color:var(--accent)}
+.note{font-size:var(--t-s);color:var(--muted)}
 svg text{font-family:var(--f-body)}
-.fig svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto}
+.fig svg{display:block;width:100%;max-width:460px;height:auto;margin:0 auto}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pair figure{margin:0;display:flex;flex-direction:column;gap:4px;text-align:center}
-.pair figcaption{font-size:.9rem;font-weight:700}
+.pair figcaption{font-size:var(--t-s);font-weight:700;color:var(--muted)}
+
+/* Bedienelemente */
 .controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;justify-content:center;min-height:44px}
-.btn:hover{border-color:var(--accent)}
-.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-s);padding:10px 16px;font:inherit;font-weight:700;font-size:var(--t-s);cursor:pointer;display:inline-flex;align-items:center;gap:8px;justify-content:center;min-height:44px;transition:background-color .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease),transform .1s}
+.btn:hover{border-color:var(--accent);background:var(--surface-2)}
+.btn:active{transform:translateY(1px)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
 .btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
-.btn[disabled]{opacity:.45;cursor:default}
+.btn[disabled]{opacity:.45;cursor:default;transform:none}
+.btn svg{width:18px;height:18px;flex:none}
 .nav{display:flex;justify-content:space-between;gap:10px}
-.text{display:flex;flex-direction:column;gap:10px}
-.text ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
-.note{font-size:.95rem;color:var(--muted)}
-.errcap{border-left:4px solid var(--bad);background:var(--bad-soft);padding:10px 12px;border-radius:0 10px 10px 0}
-.errcap.ok{border-color:var(--good);background:var(--good-soft)}
+
+/* Rückmeldungen */
+.callout{border:1px solid var(--line);background:var(--surface-2);padding:12px 14px;border-radius:var(--r-s);display:flex;flex-direction:column;gap:4px}
+.callout.bad{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+.callout.good{background:var(--good-soft);border-color:color-mix(in srgb,var(--good) 35%,transparent)}
+.callout.accent{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
 .answers{display:flex;flex-direction:column;gap:8px}
-.answers .btn{justify-content:flex-start;text-align:left;font-weight:400}
-.answers .btn.right{background:var(--good-soft);border-color:var(--good)}
-.answers .btn.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.answers .btn{justify-content:flex-start;text-align:left;font-weight:400;font-size:var(--t-m)}
+.answers .btn.right,.imgchoice .btn.right{background:var(--good-soft);border-color:var(--good)}
+.answers .btn.wrong,.imgchoice .btn.wrong{background:var(--bad-soft);border-color:var(--bad)}
 .imgchoice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.imgchoice .btn{flex-direction:column;padding:8px;font-weight:700}
-.imgchoice .btn.right{background:var(--good-soft);border-color:var(--good)}
-.imgchoice .btn.wrong{background:var(--bad-soft);border-color:var(--bad)}
-.feedback{padding:10px 12px;border-radius:10px;background:var(--accent-soft)}
+.imgchoice .btn{flex-direction:column;padding:8px}
+
+/* Winkel-Labor */
 .range{display:flex;flex-direction:column;gap:6px}
 .range label{font-weight:700}
-.range input{width:100%;accent-color:var(--accent);min-height:32px}
-.winkel-stufe{font-size:1.15rem}
+.range input{width:100%;min-height:32px}
 .meter{display:flex;flex-direction:column;gap:4px}
 .meter-bar{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,var(--g-flaeche),var(--accent-soft));border:1px solid var(--line)}
-.meter-bar span{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);transform:translate(-50%,-50%)}
-.meter-lbl{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
-.merksatz{font-family:var(--f-display);font-size:1.5rem;font-weight:800;line-height:1.3;text-align:center;text-wrap:balance;color:var(--accent);padding:12px 0}
+.meter-bar span{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);transform:translate(-50%,-50%);transition:left .2s var(--ease)}
+.meter-lbl{display:flex;justify-content:space-between;font-size:var(--t-xs);color:var(--muted)}
+.merksatz{font-family:var(--f-display);font-size:var(--t-xl);font-weight:800;line-height:1.3;text-align:center;text-wrap:balance;color:var(--accent);padding:8px 0}
+
+/* Wissen: Kapitelliste */
+.kapitel-liste{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.kapitel-liste li+li{border-top:1px solid var(--line)}
+.kapitel-liste button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:2.2em 1fr auto;align-items:center;gap:12px;width:100%;padding:14px 16px;cursor:pointer;transition:background-color .16s var(--ease)}
+.kapitel-liste button:hover{background:var(--surface-2)}
+.kapitel-liste button:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.kapitel-liste .nr{font-family:var(--f-display);font-weight:800;color:var(--accent);font-size:var(--t-l);font-variant-numeric:tabular-nums}
+.kapitel-liste .tt{font-weight:700;display:block}
+.kapitel-liste .ks{display:block;color:var(--muted);font-size:var(--t-s);line-height:1.45}
+.kapitel-liste svg{width:18px;height:18px;color:var(--muted)}
+
+/* Wissen: Kapitelseite */
+.lesen{display:flex;flex-direction:column;gap:14px}
+.lesen h3{margin-top:10px}
+.lesen .lead{font-size:var(--t-l);line-height:1.5;color:var(--ink)}
+.lesen blockquote{margin:0;padding:4px 0 4px 16px;border-left:1px solid var(--line);font-family:var(--f-display);font-size:var(--t-l);font-weight:500;line-height:1.4}
+.lesen blockquote cite{display:block;font-family:var(--f-body);font-style:normal;font-size:var(--t-s);color:var(--muted);margin-top:4px}
+.lesen dl{margin:0;display:grid;grid-template-columns:minmax(7.5em,max-content) 1fr;gap:8px 16px}
+.lesen dt{font-weight:700}
+.lesen dd{margin:0}
+@media (max-width:520px){.lesen dl{grid-template-columns:1fr;gap:2px}.lesen dd{margin-bottom:8px}}
+.ablauf{list-style:none;padding:0 !important;counter-reset:s;display:flex;flex-direction:column;gap:0 !important}
+.ablauf>li{counter-increment:s;display:grid;grid-template-columns:2.4em 1fr;column-gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.ablauf>li:first-child{border-top:0;padding-top:0}
+.ablauf>li::before{content:counter(s);font-family:var(--f-display);font-weight:800;font-size:var(--t-xl);color:var(--accent);line-height:1.1;font-variant-numeric:tabular-nums}
+.ablauf>li>div{display:flex;flex-direction:column;gap:6px}
+.ablauf h3{margin:0;font-size:var(--t-m)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.harmonie{list-style:none;padding:0 !important;margin:0;display:flex;flex-direction:column;gap:0 !important}
+.harmonie li{display:grid;grid-template-columns:40px 1fr;column-gap:14px;row-gap:6px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.harmonie li:first-child{border-top:0}
+.harmonie li svg{width:40px;height:40px;grid-row:span 2}
+.harmonie .zonen{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-s);color:var(--muted)}
+.tabelle{overflow-x:auto}
+.tabelle table{border-collapse:collapse;width:100%;min-width:480px;font-size:var(--t-s)}
+.tabelle th,.tabelle td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tabelle th{font-size:var(--t-xs);color:var(--muted);font-weight:700}
+.tabelle td svg{width:34px;height:34px;display:block}
+.hell,.dunkel{display:inline-block;font-weight:700;font-size:var(--t-xs);padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+.hell{background:#F4EEDF;color:#3B2F1C}
+.dunkel{background:#3A2C22;color:#F4EEDF;border-color:#3A2C22}
+.quelle{font-size:var(--t-xs);color:var(--muted)}
+.grafik{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-s);padding:12px}
+.grafik svg{display:block;width:100%;height:auto;max-width:560px;margin:0 auto}
+.drei{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.drei figure{margin:0;text-align:center;display:flex;flex-direction:column;gap:4px}
+.drei figcaption{font-size:var(--t-xs);line-height:1.35;color:var(--muted)}
+.drei figcaption strong{color:var(--ink);font-size:var(--t-s)}
 </style>
 </head>
 <body>
-<main class="wrap" id="app" aria-live="polite"></main>
+<header class="appbar"><div class="appbar-in" id="bar"></div></header>
+<main class="wrap" id="app"></main>
 <script>
 (function(){
   // ---------- Lehrgrafik (SVG) ----------
@@ -313,12 +402,292 @@ svg text{font-family:var(--f-body)}
     else if (t < 90){ stufe = t + "° · hohe Graduierung"; text = "Das Gewicht wandert nach oben Richtung Oberkopf. Auf Nasenhöhe nimmt das Gegengewicht wieder ab, der Kopf wirkt länger."; }
     else { stufe = "90° · sehr hohe Graduierung"; text = "Das Gewicht sitzt hoch am Oberkopf. Auf Nasenhöhe ist der Hinterkopf wieder flach, die Nase bleibt dominant."; }
     var wort = D.score < 0.35 ? "Nase wirkt dominant" : D.score < 0.7 ? "Nase wirkt etwas ruhiger" : "Kopf wirkt ausgeglichen";
-    return '<div class="eyebrow">Erhebungswinkel</div><h2 class="winkel-stufe">' + stufe + '</h2>' +
+    return '<h3>' + stufe + '</h3>' +
       '<p>' + text + '</p>' +
       '<div class="meter" role="img" aria-label="Wirkung im Gesicht: ' + wort + '">' +
         '<div class="meter-bar"><span style="left:' + (D.score * 100).toFixed(0) + '%"></span></div>' +
         '<div class="meter-lbl"><span>Nase dominant</span><span>ausgeglichen</span></div></div>' +
       '<p><strong>Wirkung im Gesicht:</strong> ' + wort + '.</p>';
+  }
+
+  // ---------- Wissen: Grafiken ----------
+  var ICON_WEITER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  var ICON_ZURUECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+
+  function pfeil(x1, y1, x2, y2, farbe, breite){
+    var a = Math.atan2(y2 - y1, x2 - x1), k = 11, w = 0.45;
+    var p1 = [x2 - k * Math.cos(a - w), y2 - k * Math.sin(a - w)], p2 = [x2 - k * Math.cos(a + w), y2 - k * Math.sin(a + w)];
+    return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + (x2 - 6 * Math.cos(a)).toFixed(1) + '" y2="' + (y2 - 6 * Math.sin(a)).toFixed(1) + '" stroke="' + farbe + '" stroke-width="' + (breite || 2.5) + '" stroke-linecap="round"/>' +
+      '<path d="M' + x2 + ',' + y2 + ' L' + p1[0].toFixed(1) + ',' + p1[1].toFixed(1) + ' L' + p2[0].toFixed(1) + ',' + p2[1].toFixed(1) + ' Z" fill="' + farbe + '"/>';
+  }
+
+  // Grundsymbole (Seite 8): Energie-Zeichen und Formen
+  function energie(art){
+    var s = '<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="28" cy="32" r="15" fill="none" stroke="var(--ink)" stroke-width="3"/>';
+    if (art === "-") s += '<line x1="21" y1="32" x2="35" y2="32" stroke="var(--ink)" stroke-width="3"/>' + pfeil(18, 42, 6, 54, "var(--ink)", 2.5);
+    if (art === "=") s += '<line x1="21" y1="28" x2="35" y2="28" stroke="var(--ink)" stroke-width="3"/><line x1="21" y1="36" x2="35" y2="36" stroke="var(--ink)" stroke-width="3"/>';
+    if (art === "+") s += '<line x1="21" y1="32" x2="35" y2="32" stroke="var(--ink)" stroke-width="3"/><line x1="28" y1="25" x2="28" y2="39" stroke="var(--ink)" stroke-width="3"/>' + pfeil(39, 21, 52, 8, "var(--ink)", 2.5);
+    return s + '</svg>';
+  }
+  function form(f){
+    var st = ' fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"';
+    var d = {
+      kreis: '<circle cx="30" cy="30" r="18"' + st + '/>',
+      quadrat: '<rect x="13" y="13" width="34" height="34"' + st + '/>',
+      breit: '<rect x="5" y="19" width="50" height="22"' + st + '/>',
+      hoch: '<rect x="19" y="5" width="22" height="50"' + st + '/>',
+      oben: '<path d="M30,10 L50,48 L10,48 Z"' + st + '/>',
+      unten: '<path d="M10,12 L50,12 L30,50 Z"' + st + '/>',
+      raute: '<path d="M30,7 L51,30 L30,53 L9,30 Z"' + st + '/>'
+    }[f];
+    return '<svg viewBox="0 0 60 60" aria-hidden="true">' + d + '</svg>';
+  }
+  function grundsymbole(){
+    var spalten = [
+      {e:"-", t:"fallend", f:[["quadrat","Quadrat"],["breit","Rechteck breit"],["oben","Dreieck, Spitze oben"]]},
+      {e:"=", t:"harmonisch", f:[["raute","Raute"]]},
+      {e:"+", t:"steigend", f:[["kreis","Kreis"],["hoch","Rechteck hoch"],["unten","Dreieck, Spitze unten"]]}
+    ];
+    return '<div class="drei">' + spalten.map(function(sp){
+      return '<figure><div style="max-width:64px;margin:0 auto">' + energie(sp.e) + '</div><figcaption><strong>' + sp.t + '</strong></figcaption>' +
+        sp.f.map(function(x){ return '<div style="max-width:56px;margin:6px auto 0">' + form(x[0]) + '</div><figcaption>' + x[1] + '</figcaption>'; }).join("") +
+        '</figure>';
+    }).join("") + '</div>';
+  }
+
+  // Haus (Seite 4)
+  function haus(){
+    var t = function(x, y, s, a){ return '<text x="' + x + '" y="' + y + '" font-size="15" font-weight="700" fill="var(--ink)"' + (a ? ' text-anchor="' + a + '"' : '') + '>' + s + '</text>'; };
+    return '<svg viewBox="0 0 420 230" role="img" aria-label="Haus-Vergleich: Dach, Fenster, Mauern, Fundament">' +
+      '<path d="M60,100 L150,30 L240,100 Z" fill="var(--accent-soft)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<rect x="78" y="100" width="144" height="92" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>' +
+      '<rect x="98" y="118" width="30" height="26" fill="none" stroke="var(--ink)" stroke-width="2"/><rect x="172" y="118" width="30" height="26" fill="none" stroke="var(--ink)" stroke-width="2"/>' +
+      '<rect x="136" y="150" width="28" height="42" fill="none" stroke="var(--ink)" stroke-width="2"/>' +
+      '<rect x="66" y="192" width="168" height="16" fill="var(--g-haar-kontur)"/>' +
+      '<g stroke="var(--g-kontur)" stroke-width="1.2">' +
+      '<line x1="200" y1="62" x2="262" y2="44"/><line x1="203" y1="131" x2="262" y2="96"/><line x1="222" y1="168" x2="262" y2="150"/><line x1="234" y1="200" x2="262" y2="200"/></g>' +
+      t(268, 48, "Dach") + t(268, 100, "Fenster") + t(268, 154, "Mauern") + t(268, 205, "Fundament") +
+      '</svg>';
+  }
+
+  // Tonhöhen und Profile (Seite 10)
+  var TOENE = {2:"#2B211C",3:"#3B2B22",4:"#4F3A2C",5:"#6A4E38",6:"#86674A",7:"#A3845F",8:"#BFA178",9:"#D6BE95",10:"#E6D4B0",11:"#F1E6CC"};
+  function tonskala(){
+    var s = '<svg viewBox="0 0 520 132" role="img" aria-label="Tonhöhen 2 bis 11 in drei Gruppen">';
+    for (var n = 2; n <= 11; n++){
+      var x = 12 + (n - 2) * 50;
+      s += '<rect x="' + x + '" y="30" width="44" height="44" rx="6" fill="' + TOENE[n] + '" stroke="var(--line)"/>' +
+        '<text x="' + (x + 22) + '" y="98" text-anchor="middle" font-size="16" font-weight="700" fill="var(--ink)">' + n + '</text>';
+    }
+    s += '<line x1="159" y1="18" x2="159" y2="110" stroke="var(--g-kontur)" stroke-width="1.5" stroke-dasharray="4 4"/>' +
+      '<line x1="359" y1="18" x2="359" y2="110" stroke="var(--g-kontur)" stroke-width="1.5" stroke-dasharray="4 4"/>' +
+      '<text x="85" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--muted)">2–4 dunkel</text>' +
+      '<text x="259" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--muted)">5–8 mittel</text>' +
+      '<text x="434" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--muted)">9–11 hell</text>' +
+      '<path d="M234,118 Q209,130 184,118" fill="none" stroke="var(--ink)" stroke-width="2"/>' + pfeil(190, 121, 180, 116, "var(--ink)", 2) +
+      '<path d="M284,118 Q309,130 334,118" fill="none" stroke="var(--ink)" stroke-width="2"/>' + pfeil(328, 121, 338, 116, "var(--ink)", 2) +
+      '</svg>';
+    return s;
+  }
+  function profilPfeile(art){
+    var s = '<svg viewBox="30 30 420 420" role="img" aria-label="Profil mit Wirkungspfeilen">';
+    s += '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="' + KOPFHAUT + '" stroke="var(--g-kontur)" stroke-width="2" stroke-dasharray="3 5"/>' +
+      '<path d="' + GESICHT + '" stroke="var(--ink)" stroke-width="3.5"/>' +
+      '<path d="' + NACKEN + '" stroke="var(--ink)" stroke-width="3.5"/>' +
+      '<path d="' + OHR + '" stroke="var(--ink)" stroke-width="3"/>' +
+      '<path d="' + HAAR.A.o + '" stroke="var(--ink)" stroke-width="3.5" stroke-dasharray="12 8"/></g>' + AUGE;
+    var c = "var(--accent)";
+    if (art === "dunkel") s += pfeil(360, 92, 262, 92, c, 5) + pfeil(300, 330, 410, 330, c, 5);
+    if (art === "mittel") s += pfeil(410, 240, 410, 50, c, 5) + pfeil(410, 240, 410, 430, c, 5);
+    if (art === "hell")   s += pfeil(262, 92, 372, 92, c, 5) + pfeil(420, 330, 318, 330, c, 5);
+    return s + '</svg>';
+  }
+
+  // Harmonie-Formen (Seite 9)
+  function harmonieTabelle(){
+    var H = '<span class="hell">hell</span>', D = '<span class="dunkel">dunkel</span>', G = 'eine globale Farbe';
+    var zeilen = [
+      ["kreis", "Kreis", G, G, G],
+      ["quadrat", "Viereck", G, G, G],
+      ["hoch", "Rechteck hochwärts", H, D, H],
+      ["breit", "Rechteck breitwärts", D, H, D],
+      ["oben", "Dreieck, Spitze nach oben", D + ' (Spitze)', H + ' (breiter Teil)', H + ' (breiter Teil)'],
+      ["unten", "Dreieck, Spitze nach unten", H + ' (breiter Teil)', H + ' (breiter Teil)', D + ' (Spitze)'],
+      ["raute", "Raute", D + ' (Spitze)', H + ' (breiter Teil)', D + ' (Spitze)']
+    ];
+    return '<ul class="harmonie">' + zeilen.map(function(z){
+        return '<li>' + form(z[0]) + '<strong>' + z[1] + '</strong><div class="zonen">' +
+          (z[2] === G ? '<span>Eine globale Farbe, ohne Hell-Dunkel-Aufteilung</span>'
+            : '<span>Oberkopf ' + z[2] + '</span><span>Seiten ' + z[3] + '</span><span>Nacken ' + z[4] + '</span>') + '</div></li>';
+      }).join("") + '</ul>';
+  }
+
+  // ---------- Wissen: Kapitel aus dem Unterrichtsmaterial (Seite 1–10) ----------
+  var KAPITEL = [
+    {t:"Leitfaden für eine Beratung", s:"Seite 1–2", k:"Sieben Schritte vom Beratungsplatz bis zum Ergebnis.", html: function(){ return '' +
+      '<p class="lead">Ein fester Ablauf für jede Beratung. Am Ende hat die Kundin selbst entschieden.</p>' +
+      '<ol class="ablauf">' +
+      '<li><div><h3>Beratungsplatz</h3><p>Frisurenbücher und alle Farbkarten bereitlegen, dazu Clipse in Rot und Grün.</p></div></li>' +
+      '<li><div><h3>Stylingtest</h3><p>Drei Frisuren zeigen. Mit den Rot-Grün-Clipsen markieren: Was gefällt der Kundin? Was gefällt ihr nicht?</p></div></li>' +
+      '<li><div><h3>Farbtest</h3><p>Drei Farben zeigen. Wieder mit den Rot-Grün-Clipsen: Was gefällt, was nicht?</p></div></li>' +
+      '<li><div><h3>Gestik</h3><p>„Zeigen Sie mir, wie Sie sich frisieren möchten.“ Die Kundin zeigt es, ohne Spiegel.</p></div></li>' +
+      '<li><div><h3>Reaktive Gestik</h3><p>Du frisierst der Kundin die Haare in verschiedene Richtungen und fragst, wie sie sich bei jeder Richtung fühlt. Zum Beispiel: „Wie fühlen Sie sich, wenn ich Ihnen die Haare nach vorne frisiere?“</p></div></li>' +
+      '<li><div><h3>Bestätigen</h3><p>Wiederholen, was die Kundin gesagt hat.</p></div></li>' +
+      '<li><div><h3>Vorschläge machen</h3><p>Beraten heißt nicht, ihr zu sagen, wie sie ihre Frisur tragen soll. Beraten heißt, ihr zu helfen, ihren Stil zu finden.</p>' +
+        '<p><strong>Drei Möglichkeiten anbieten:</strong> „Um diese Frisur zu erstellen, haben wir die Möglichkeit mit …“</p>' +
+        '<ul><li>Schnitt und Farbe</li><li>Schnitt und Umformung</li><li>Schnitt und Stylingprodukte</li></ul>' +
+        '<p>„Welche Art ist Ihnen am liebsten?“</p></div></li>' +
+      '</ol>' +
+      '<div class="callout accent"><h3>Ergebnis</h3><p>Die Kundin hat selbst entschieden. Sie kauft ein Ergebnis von uns.</p></div>'; }},
+
+    {t:"Beratung mit Herz", s:"Seite 3", k:"Kommunikation, Kompetenz, Beratung. Welcher Baum bist du?", html: function(){ return '' +
+      '<blockquote>„Um unersetzlich zu sein, muss man immer anders sein.“</blockquote>' +
+      '<p>Bereit für deine Zukunft. Nimm es in die Hand. Wage es, dich neu zu erfinden, verlasse die Komfortzone und werde Wegbereiter für andere.</p>' +
+      '<blockquote>„Wahre Schönheit und Weiblichkeit sind alterslos und nicht künstlich herstellbar.“<cite>Marilyn Monroe</cite></blockquote>' +
+      '<h3>Die wichtigsten Gesichtspunkte einer Beratung</h3>' +
+      '<dl><dt>Kommunikation</dt><dd>Austausch und Übertragung von Informationen</dd>' +
+      '<dt>Kompetenz</dt><dd>Fähigkeit und Fertigkeit, eine Situation zu lösen</dd>' +
+      '<dt>Beratung</dt><dd>Ein strukturiertes Gespräch, eine Kommunikationsform</dd></dl>' +
+      '<h3>Kommunikation</h3>' +
+      '<dl><dt>Zuhören</dt><dd>Warum hören wir oft nicht gut zu?</dd>' +
+      '<dt>Beobachten</dt><dd>Was trägt die Kundin an Kleidung? Welche Formen erkennen wir in Kleidung und Frisur? Welche Farben zeichnen die Person aus?</dd>' +
+      '<dt>Körpersprache</dt><dd>Gestik und Mimik, Gehweise</dd>' +
+      '<dt>Sprachwahl</dt><dd>Neue Worte wählen. Die Wortwahl der Kundin erkennen und aufnehmen. „Weniger reden ist oft mehr.“</dd>' +
+      '<dt>Emotionen</dt><dd>Die Emotionen der Gäste wahrnehmen.</dd></dl>' +
+      '<h3>Welcher Baum bist du?</h3>' +
+      '<dl><dt>Eiche</dt><dd>Perfektionist durch und durch. Kontrolliert den Sitzplatz, bevor sie sich hinsetzt, räumt sofort alles weg. Bei der Kleidung muss alles zusammenpassen und perfekt sitzen.</dd>' +
+      '<dt>Olivenbaum</dt><dd>Sehr gemütlich, rutscht langsam vom Sessel. Die Ruhe in Person, macht sich keinen Stress.</dd>' +
+      '<dt>Weide</dt><dd>Sehr kommunikativ, macht alles gleichzeitig und schnell, ständig in Bewegung. Trägt eher weite Kleidung.</dd></dl>' +
+      '<h3>Drei Gesichtsformen, drei Energien</h3>' +
+      '<div class="grafik"><div class="drei">' +
+        '<figure><div style="max-width:64px;margin:0 auto">' + energie("+") + '</div><figcaption><strong>Steigend</strong><br>steigende Gesichtsform, steigende Energie</figcaption></figure>' +
+        '<figure><div style="max-width:64px;margin:0 auto">' + energie("-") + '</div><figcaption><strong>Fallend</strong><br>fallende Gesichtsform, fallende Energie</figcaption></figure>' +
+        '<figure><div style="max-width:64px;margin:0 auto">' + energie("=") + '</div><figcaption><strong>Harmonisch</strong><br>harmonische Gesichtsform, harmonische Energie</figcaption></figure>' +
+      '</div></div>' +
+      '<div class="callout accent"><p><strong>Beobachten:</strong> Jedes Gesicht ist einzigartig. Um eine Frisur zu gestalten, muss man die Form erkennen.</p></div>'; }},
+
+    {t:"Fundament, Mauern und dann das Dach", s:"Seite 4", k:"Das Gesicht als Haus. Harmonie, Charakter und was eine Frisur im Gesicht bewirkt.", html: function(){ return '' +
+      '<div class="grafik">' + haus() + '</div>' +
+      '<dl><dt>Fundament</dt><dd>Von Mama und Papa (Kinn)</dd><dt>Mauern</dt><dd>Gesichtsform</dd><dt>Dach</dt><dd>Frisur bzw. Volumen</dd><dt>Fenster</dt><dd>Augen</dd></dl>' +
+      '<h3>Kunden wünschen sich</h3><ul><li>Ideen</li><li>Inspirationen</li><li>ein Neues-Ich-Gefühl</li></ul>' +
+      '<h3>Dein Profit</h3><ul><li>Dein persönliches Image</li><li>Kunden werden zu Fans</li><li>Du hebst dich von der breiten Masse ab</li></ul>' +
+      '<h3>Harmonie und Charakter</h3>' +
+      '<p><strong>Harmonie</strong> ist eine Übereinstimmung von Farben (bis 3 Töne Unterschied) und die Einheit einer Vielfalt. Kunden empfinden sie als angenehm.</p>' +
+      '<p><strong>Charakter</strong> ist oft die Dominanz einer Farbe in der Persönlichkeit. Der Kunde hat die Eigenschaften eines Individuums. Charaktertypen zeichnen sich oft durch Farbunterschiede aus.</p>' +
+      '<h3>Einflüsse</h3><ul>' +
+      '<li>Die Kontur hat Einfluss auf das innere Gesicht, sie wirkt auf das Gesicht.</li>' +
+      '<li>Das Mittelteil hat Einfluss auf das Volumen.</li>' +
+      '<li>Kontur dunkler: Gesicht heller.</li><li>Kontur heller: Gesicht dunkler.</li>' +
+      '<li>Bei einer Blondine sind die Haare im Vordergrund, bei einer Brünetten das Gesicht.</li>' +
+      '<li>Ändert sich die Hautfarbe (Sommer), ändert sich auch die Wirkung der Haarfarbe.</li>' +
+      '<li>Eckige Linien harmonieren mit weichen Linien.</li>' +
+      '<li>Asymmetrie streckt das Gesicht.</li>' +
+      '<li>Wenn du die Frisur bewegst, bewegst du etwas im Gesicht.</li>' +
+      '<li>Von einem Apfelbaum fällt keine Birne.</li></ul>' +
+      '<h3>Beratung mit Herz: Checkpoints</h3><ul>' +
+      '<li>Beratung fängt bei dir an (Badezimmer).</li>' +
+      '<li>Die Beratung des Kunden beginnt beim Reinkommen.</li>' +
+      '<li>Wir frisieren Menschen, keine Haare.</li>' +
+      '<li>Beratung und Technik ergeben das Ergebnis (Vertrauen schaffen).</li>' +
+      '<li>Beratung heißt Gesicht lesen.</li>' +
+      '<li>„Sie beraten ist nicht, für sie zu wählen, sondern ihren Stil zu finden.“</li>' +
+      '<li>Jedes Gesicht ist einzigartig.</li></ul>'; }},
+
+    {t:"Kunden locken, Fans suchen Leistung", s:"Seite 5", k:"Beratungsablauf, Pflegetyp oder Stylingtyp, die Sprache der Kunden.", html: function(){ return '' +
+      '<h3>Beratungsablauf</h3><ul><li>Drei Haarfarben, die ihnen gefallen?</li><li>Drei Bilder aussuchen lassen (keine Frisuren) und fragen, was ihnen an den Bildern gefällt.</li></ul>' +
+      '<h3>Beratung am Kunden</h3><ul><li>Wie finden Sie Ihre Haarstruktur?</li><li>Wie finden Sie Ihre Kopfhaut?</li></ul>' +
+      '<p>Wir reden von <strong>Licht und Schatten</strong>, von <strong>Höhen und Tiefen</strong>.</p>' +
+      '<h3>Feststellung: Wie greift sich der Kunde ins Haar?</h3>' +
+      '<dl><dt>Pflegetyp</dt><dd>Greift sanft in die Haare, streichelt sie.</dd><dt>Stylingtyp</dt><dd>Greift kräftig ins Haar und versucht, Volumen hineinzubekommen.</dd></dl>' +
+      '<h3>Aufklären, die Sprache der Kunden wählen, Bedürfnisse wiederholen</h3><ul>' +
+      '<li>„Ich habe eine Lösung für dich!“</li>' +
+      '<li>„Das sind die Produkte, die ich heute brauche, um deine Frisur gemeinsam zu erstellen.“</li>' +
+      '<li>„Ich werde dieses Haarbad verwenden, weil du mehr Volumen am Ansatz haben möchtest …“</li>' +
+      '<li>„Ich habe gesehen, dass du die Ansätze aus dem Gesicht haben möchtest. Da würde ich dir den Ansatzschaum von L’Oréal empfehlen.“</li>' +
+      '<li>„Dieses Produkt kostet 27 €. Für deine Haarlänge kannst du 50-mal waschen.“</li></ul>' +
+      '<p>Unser zweites Gehirn ist unser Bauch. Benutze dein zweites Gehirn!</p>' +
+      '<dl><dt>Technik</dt><dd>Das, was du in deiner Ausbildung lernst.</dd><dt>Kreativität</dt><dd>Das, was man macht, was man noch nie gesehen hat.</dd><dt>Stil</dt><dd>Das, was du trägst. Dein Stil macht deine Persönlichkeit.</dd></dl>' +
+      '<div class="callout accent"><p><strong>Welche Wirkung hat diese Frisur in deinem Gesicht?</strong></p><p><strong>Was passiert in deinem Gesicht, wenn du das machst?</strong></p></div>' +
+      '<p class="note">Zukunft: menschliche Beziehung und Digitalisierung.</p>'; }},
+
+    {t:"Gesichtsmerkmale ausgleichen", s:"Seite 6", k:"Nase, Augen, Ohren, Lippe und Gesichtsformen. Mit welcher Frisur man sie ausgleicht.", html: function(){ return '' +
+      '<dl>' +
+      '<dt>Doppelkinn</dt><dd>Mehr Volumen am Oberkopf.</dd>' +
+      '<dt>Große Nase (Seitenprofil)</dt><dd>Mehr Hinterkopf betonen.<br><button class="btn" type="button" data-act="goPilot" style="margin-top:8px">Im Pilotfall ausprobieren ' + ICON_WEITER + '</button></dd>' +
+      '<dt>Markante Nase</dt><dd>Kann durch eine Frisur mit seitlichem Pony oder voluminösem Haar am Oberkopf kaschiert werden. Auch eine lockige oder wellige Frisur lenkt die Aufmerksamkeit von der Nase ab.</dd>' +
+      '<dt>Hängendes Auge</dt><dd>Eine Frisur mit seitlichem Pony oder seitlichem Scheitel. Dadurch wird das Auge optisch angehoben und der Blick auf das andere Auge gelenkt.</dd>' +
+      '<dt>Abstehende Ohren</dt><dd>Lange Haare, die die Ohren bedecken, oder eine Frisur mit seitlichem Scheitel. Auch ein seitlich gesteckter Zopf oder Volumen am Oberkopf lenkt die Aufmerksamkeit von den Ohren ab.</dd>' +
+      '<dt>Hängende Lippe</dt><dd>Eine Frisur mit seitlichem Pony oder seitlichem Scheitel. Das Haar soll das Gesicht umrahmen und von der Lippe ablenken. Auch lockiges oder welliges Haar kann das Aussehen der Lippe verändern.</dd>' +
+      '<dt>Weiches (rundes) Gesicht</dt><dd>Lange, wellige oder gestufte Haare. Auch ein seitlicher Pony oder ein asymmetrischer Bob lässt das Gesicht schmaler erscheinen. Dunklere Haarfarben betonen die Konturen des Gesichts.</dd>' +
+      '<dt>Harmonisches (ovales) Gesicht</dt><dd>Kann nahezu jede Frisur tragen. Eine lange, glatte Frisur oder ein Pixie-Schnitt betont die natürliche Form. Auch verschiedene Haarfarben bringen das ovale Gesicht gut zur Geltung.</dd>' +
+      '<dt>Abfallendes (dreieckiges) Gesicht</dt><dd>Schmale Stirn, breiterer Kiefer. Ausgleich durch viel Volumen am Oberkopf. Ein seitlicher Pony oder lange, wellige Haare lassen das Gesicht weicher und gleichmäßiger erscheinen.</dd>' +
+      '<dt>Aufsteigendes (dreieckiges) Gesicht</dt><dd>Breitere Stirn, schmalerer Kiefer. Kaschieren mit seitlichem Pony oder seitlichem Scheitel. Lange Haare, die das Gesicht umrahmen, gleichen optisch aus. Eine warme Haarfarbe lässt das Gesicht weicher wirken.</dd>' +
+      '</dl>'; }},
+
+    {t:"Haarfarbe und Wirkung", s:"Seite 6–7", k:"Wie die Haarfarbe Gesichtsform, Teint und Volumen verändert.", html: function(){ return '' +
+      '<p class="lead">Die Haarfarbe kann das Gesicht und das Volumen auf verschiedene Weisen beeinflussen.</p>' +
+      '<dl>' +
+      '<dt>Gesichtsform</dt><dd>Die richtige Haarfarbe kann die Gesichtsform optisch verändern und bestimmte Merkmale betonen oder kaschieren. Eine dunkle Haarfarbe lässt ein rundes Gesicht schlanker wirken, helle Strähnen schaffen zusätzliche Dimension und Kontur.</dd>' +
+      '<dt>Gesichtsfarbe</dt><dd>Die richtige Haarfarbe kann den Teint betonen oder verbessern. Warme Töne wie Kastanienbraun oder Honigblond bringen einen warmen Teint zum Strahlen. Kühle Töne wie Platinblond oder Aschbraun kommen bei einem kühlen Teint besser zur Geltung.</dd>' +
+      '<dt>Volumen</dt><dd>Dunkle Haarfarben reflektieren weniger Licht und lassen das Haar oft dünner erscheinen. Helle Haarfarben reflektieren das Licht und sorgen für mehr Glanz und Fülle. Highlights und Lowlights geben dem Haar mehr Tiefe und Volumen.</dd>' +
+      '</dl>' +
+      '<div class="callout accent"><p><strong>Insgesamt hat die Haarfarbe einen großen Einfluss auf das Gesicht und das Volumen der Haare.</strong> Sie kann das Erscheinungsbild verbessern und individuelle Merkmale betonen.</p></div>' +
+      '<h3>Allgemeines</h3><ul>' +
+      '<li>Sprich mit mir und ich zeig dir deine Frisur.</li>' +
+      '<li>Wir frisieren den Menschen, nicht die Haare.</li>' +
+      '<li>Licht und Schatten im Haar ergeben Volumen oder Gewicht.</li>' +
+      '<li>Alles bis zum Busen hat eine Wirkung auf das Gesicht.</li>' +
+      '<li>Innendekoration deines Gesichts.</li>' +
+      '<li>Das innere Gesicht hat mehr Emotionen.</li>' +
+      '<li>Das äußere Gesicht entscheidet die Energien im Gesicht: steigend, fallend oder harmonisch.</li></ul>' +
+      '<h3>Der Kunde muss einkaufen, nicht du verkaufen!</h3>' +
+      '<p>Warum geht der Verkauf nicht gut? Wegen dem <strong>Preis</strong> oder der <strong>Kommunikation</strong>.</p>' +
+      '<p>Zukunft: menschliche Beziehung und Digitalisierung.</p>' +
+      '<p class="merksatz">T.U.N. = Erfolg</p>'; }},
+
+    {t:"Die 7 Grundsymbole", s:"Seite 8", k:"Sieben Gesichtsformen, sieben Farben, drei Energien.", html: function(){ return '' +
+      '<p class="lead">Sieben Gesichtsformen und sieben Farben lassen sich drei Energien zuordnen: fallend, harmonisch und steigend.</p>' +
+      '<div class="grafik">' + grundsymbole() + '</div>' +
+      '<dl><dt>Fallend</dt><dd>Quadrat, Rechteck breit, Dreieck mit Spitze oben</dd><dt>Harmonisch</dt><dd>Raute</dd><dt>Steigend</dt><dd>Kreis, Rechteck hoch, Dreieck mit Spitze unten</dd></dl>' +
+      '<p class="quelle">Nach: L’Oréal Professionnel, Die 7 Grundsymbole. Symbole nachgezeichnet.</p>'; }},
+
+    {t:"Harmonie-Formen durch Farbe", s:"Seite 9", k:"Wo die Farbe hell oder dunkel gesetzt wird, damit eine Form optisch stärker wirkt.", html: function(){ return '' +
+      '<p class="lead">Die Harmonie-Form wird durch Farbe optisch verstärkt. Die Übersicht zeigt, welcher Bereich hell und welcher dunkel gefärbt wird.</p>' +
+      harmonieTabelle() +
+      '<p class="note">Faustregel: Die Spitze einer Form wird dunkel, der breite Teil hell.</p>'; }},
+
+    {t:"Tonhöhe und Profil", s:"Seite 10", k:"Tonhöhentabelle 2 bis 11 und was dunkle, mittlere und helle Töne im Profil bewirken.", html: function(){ return '' +
+      '<p class="lead">Die Tonhöhentabelle der Coloration teilt die Tonhöhen 2 bis 11 in drei Gruppen. Jede Gruppe wirkt im Profil anders.</p>' +
+      '<div class="grafik">' + tonskala() + '</div>' +
+      '<p class="note">Die Mitte liegt zwischen 6 und 7. Die Bogenpfeile zeigen: 5 und 6 wirken schon zur dunklen Seite hin, 7 und 8 zur hellen.</p>' +
+      '<div class="grafik"><div class="drei">' +
+        '<figure>' + profilPfeile("dunkel") + '<figcaption><strong>2–4 dunkel</strong><br>Haar tritt zurück, Gesicht tritt hervor</figcaption></figure>' +
+        '<figure>' + profilPfeile("mittel") + '<figcaption><strong>5–8 mittel</strong><br>streckt das Profil</figcaption></figure>' +
+        '<figure>' + profilPfeile("hell") + '<figcaption><strong>9–11 hell</strong><br>Haar tritt hervor, Gesicht tritt zurück</figcaption></figure>' +
+      '</div></div>' +
+      '<p>Das passt zu Seite 4: Bei einer Blondine sind die Haare im Vordergrund, bei einer Brünetten das Gesicht.</p>' +
+      '<p class="quelle">Nach: Visagisme Total Look, C. Juillard. Grafik nachgezeichnet.</p>'; }}
+  ];
+
+  function renderWissen(){
+    if (st.kap < 0){
+      return '<div class="screen"><div class="pagehead"><h1>Wissen aus der Beratung</h1>' +
+        '<p class="meta">Die Inhalte aus deinem Unterrichtsmaterial, Seite 1 bis 10.</p></div>' +
+        '<ol class="kapitel-liste">' + KAPITEL.map(function(k, i){
+          return '<li><button type="button" data-act="kap" data-val="' + i + '"><span class="nr">' + (i + 1) + '</span>' +
+            '<span><span class="tt">' + k.t + '</span><span class="ks">' + k.k + ' · ' + k.s + '</span></span>' + ICON_WEITER + '</button></li>';
+        }).join("") + '</ol></div>';
+    }
+    var K = KAPITEL[st.kap], i = st.kap;
+    return '<div class="screen"><div><button class="btn" type="button" data-act="kap" data-val="-1">' + ICON_ZURUECK + 'Alle Kapitel</button></div>' +
+      '<div class="pagehead"><h1>' + K.t + '</h1><p class="meta">Kapitel ' + (i + 1) + ' von ' + KAPITEL.length + ' · ' + K.s + '</p></div>' +
+      '<article class="card lesen">' + K.html() + '</article>' +
+      '<div class="nav">' +
+        '<button class="btn" type="button" data-act="kap" data-val="' + (i - 1) + '"' + (i === 0 ? ' disabled' : '') + '>' + ICON_ZURUECK + 'Zurück</button>' +
+        (i < KAPITEL.length - 1 ? '<button class="btn primary" type="button" data-act="kap" data-val="' + (i + 1) + '">Nächstes Kapitel' + ICON_WEITER + '</button>'
+                                : '<button class="btn primary" type="button" data-act="kap" data-val="-1">Alle Kapitel</button>') +
+      '</div></div>';
   }
 
   // ---------- Inhalte (aus konzept/2d-tool-pilot-nase-im-profil.md) ----------
@@ -351,7 +720,7 @@ svg text{font-family:var(--f-body)}
   ];
 
   // ---------- Zustand ----------
-  var st = {screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
+  var st = {view:"pilot", kap:-1, screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
 
   var SCREENS = [
     {step:-1, render:function(){
@@ -359,9 +728,10 @@ svg text{font-family:var(--f-body)}
           '<figure>' + fig({hair:"A", label:"Vorher: flacher Hinterkopf"}) + '<figcaption>Vorher</figcaption></figure>' +
           '<figure>' + fig({hair:"B", label:"Nachher: Aufbau am Hinterkopf"}) + '<figcaption>Nachher</figcaption></figure>' +
         '</div>',
-        '<h2>Lange Nase im Profil</h2>' +
+        '<h2>Worum es geht</h2>' +
         '<p>Manche Kundinnen und Kunden haben eine lange oder markante Nase. Die Nase können wir nicht verändern. Aber wir können verändern, wie sie im Verhältnis zum ganzen Kopf wirkt.</p>' +
-        '<p>In diesem Beispiel siehst du, wie das im Profil funktioniert. Die Nase bleibt in jedem Bild gleich. Nur die Haarform ändert sich.</p>');
+        '<p>In diesem Beispiel siehst du, wie das im Profil funktioniert. Die Nase bleibt in jedem Bild gleich. Nur die Haarform ändert sich.</p>' +
+        '<div class="callout accent"><p><strong>Aus dem Unterricht:</strong> Große Nase im Seitenprofil – mehr Hinterkopf betonen.</p></div>');
     }},
     {step:0, render:function(){
       return card(fig({hair:"A", ohr:st.ohr, label:"Ausgangsform: flacher Hinterkopf"}) +
@@ -415,7 +785,7 @@ svg text{font-family:var(--f-body)}
       var f = FEHLER[st.fehler];
       return card(fig(Object.assign({label:f.t}, f.fig)) +
         controls(seg("fehler",[["tief","Zu tief"],["hoch","Zu hoch"],["spitz","Spitz vorne"],["flach","Hinten flach"],["gut","So passt es"]], st.fehler)) +
-        '<div class="errcap' + (f.ok ? ' ok' : '') + '"><strong>' + f.t + '</strong><br>' + f.d + '</div>',
+        '<div class="callout ' + (f.ok ? 'good' : 'bad') + '"><strong>' + f.t + '</strong><p>' + f.d + '</p></div>',
         '<h2>Worauf achten: Fehlerbilder</h2>' +
         '<p>Aufbau am Hinterkopf hilft nur, wenn er an der richtigen Stelle sitzt. Schau dir die typischen Fehler nacheinander an.</p>');
     }},
@@ -461,12 +831,11 @@ svg text{font-family:var(--f-body)}
       }).join("") + '</div>';
     }
     if (done){
-      html += '<div class="feedback"><strong>' + (st.picked===F.r ? "Richtig. " : "Nicht ganz. ") + '</strong>' + F.f + '</div>' +
+      html += '<div class="callout ' + (st.picked===F.r ? 'good' : 'bad') + '"><p><strong>' + (st.picked===F.r ? "Richtig. " : "Nicht ganz. ") + '</strong>' + F.f + '</p></div>' +
         '<div class="controls"><button class="btn primary" type="button" data-act="nextQ">' + (st.q < FRAGEN.length-1 ? "Nächste Frage" : "Ergebnis zeigen") + '</button></div>';
     }
     return card('',
-      '<div class="eyebrow">Frage ' + (st.q+1) + ' von ' + FRAGEN.length + '</div>' +
-      '<h2>' + F.q + '</h2>' + html);
+      '<h2>' + F.q + '</h2><p class="note">Frage ' + (st.q+1) + ' von ' + FRAGEN.length + '</p>' + html);
   }
 
   // ---------- Bausteine ----------
@@ -485,7 +854,11 @@ svg text{font-family:var(--f-body)}
     }).join("");
   }
 
-  function render(){
+
+  // ---------- App-Rahmen ----------
+  function neuStart(){ return {view:st.view, kap:st.kap, screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
+
+  function renderPilot(){
     var S = SCREENS[st.screen];
     var steps = '<ol class="steps" aria-label="Lernschritte">' + STEPS.map(function(t,i){
       var c = i < S.step ? "done" : (i === S.step ? "now" : "");
@@ -493,21 +866,33 @@ svg text{font-family:var(--f-body)}
     }).join("") + '</ol>';
     var last = st.screen === SCREENS.length-1;
     var nav = '<div class="nav">' +
-      '<button class="btn" type="button" data-act="prev"' + (st.screen===0?' disabled':'') + '>← Zurück</button>' +
+      '<button class="btn" type="button" data-act="prev"' + (st.screen===0?' disabled':'') + '>' + ICON_ZURUECK + 'Zurück</button>' +
       (last ? '<button class="btn primary" type="button" data-act="restart">Von vorne</button>'
-            : '<button class="btn primary" type="button" data-act="next">' + (st.screen===0 ? "Los geht’s" : "Weiter") + ' →</button>') +
+            : '<button class="btn primary" type="button" data-act="next">' + (st.screen===0 ? "Los geht’s" : "Weiter") + ICON_WEITER + '</button>') +
       '</div>';
-    document.getElementById("app").innerHTML =
-      '<div class="top"><div><div class="eyebrow">Formwirkung · Profil</div><h1>Lange Nase im Profil</h1></div><span class="badge">Testversion V1</span></div>' +
-      steps + S.render() + nav;
+    return '<div class="screen"><div class="pagehead"><h1>Lange Nase im Profil <span class="tag">Pilotfall V1</span></h1></div>' +
+      steps + S.render() + nav + '</div>';
+  }
+
+  function render(){
+    document.getElementById("bar").innerHTML =
+      '<span class="brand">Beratung &amp; Formwirkung</span>' +
+      '<nav class="tabs" aria-label="Bereiche">' +
+        '<button type="button" data-act="view" data-val="pilot"' + (st.view==="pilot" ? ' aria-current="page"' : '') + '>Pilotfall</button>' +
+        '<button type="button" data-act="view" data-val="wissen"' + (st.view==="wissen" ? ' aria-current="page"' : '') + '>Wissen</button>' +
+      '</nav>';
+    document.getElementById("app").innerHTML = st.view === "wissen" ? renderWissen() : renderPilot();
   }
 
   document.addEventListener("click", function(e){
     var b = e.target.closest("[data-act]"); if(!b || b.disabled) return;
     var a = b.dataset.act, moved = false;
+    if (a==="view"){ if (st.view !== b.dataset.val){ st.view = b.dataset.val; moved = true; } }
+    if (a==="kap"){ st.kap = +b.dataset.val; moved = true; }
+    if (a==="goPilot"){ st.view = "pilot"; st.screen = 0; moved = true; }
     if (a==="next"){ st.screen = Math.min(st.screen+1, SCREENS.length-1); moved = true; }
     if (a==="prev"){ st.screen = Math.max(st.screen-1, 0); moved = true; }
-    if (a==="restart"){ st = {screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; moved = true; }
+    if (a==="restart"){ st = neuStart(); moved = true; }
     if (a==="toggle"){ st[b.dataset.key] = !st[b.dataset.key]; }
     if (a==="set"){ st[b.dataset.key] = b.dataset.key === "winkel" ? +b.dataset.val : b.dataset.val; }
     if (a==="pick"){ st.picked = +b.dataset.i; if (st.picked === FRAGEN[st.q].r) st.score++; }
