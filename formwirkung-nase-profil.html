@@ -870,7 +870,7 @@ svg text{font-family:var(--f-body)}
 
   // ---------- Zustand ----------
   var BK_START = {ansicht:"vorne", form:"rund", augen:"mandel", brauen:"gebogen", mund:"voll", frisur:"seitlich", pony:"kein", bart:"kein", mess:true, oval:true, zeichnen:false, farbe:"ink", dicke:4, radieren:false, striche:[], vorher:null, vergleich:null};
-  var st = {ans1:"profil", ans2:"vorne", bk:null, bkAnim:false, bkVon:null, view:"pilot", fall:"nase", kap:-1, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
+  var st = {hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", ans1:"profil", ans2:"vorne", bk:null, bkAnim:false, bkVon:null, view:"pilot", fall:"nase", kap:-1, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
 
   var SCREENS = [
     {step:-1, render:function(){
@@ -895,7 +895,7 @@ svg text{font-family:var(--f-body)}
       var lab1 = {A:"Zustand A: flacher Hinterkopf", M:"Zwischenstufe: etwas Aufbau", B:"Zustand B: mehr Aufbau am Hinterkopf"}[st.hair];
       var bild1 = st.ans1 === "profil" ? fig({hair:st.hair, ohr:st.ohr, label:lab1})
         : kopfAnsicht({form:"oval", augen:"mandel", brauen:"gebogen", mund:"voll", frisur: st.hair === "A" ? "kurz" : "hinterkopf", pony:"kein", bart:"kein"}, st.ans1, {label:lab1});
-      return card('<div class="chips ansichten">' + seg("ans1", [["profil","Profil (Lehrgrafik)"],["hinten","Hinten"],["dreiviertel","Dreiviertel"],["vorne","Vorne"]], st.ans1).replace(/class="btn/g, 'class="chip') + '</div>' + bild1 +
+      return card('<div class="chips ansichten">' + seg("ans1", [["profil","Profil (Lehrgrafik)"],["hinten","Hinten"],["vorne","Vorne"]], st.ans1).replace(/class="btn/g, 'class="chip') + '</div>' + bild1 +
         controls(seg("hair",[["A","A · flach"],["M","Zwischenstufe"],["B","B · Aufbau"]], st.hair) + (st.ans1 === "profil" ? toggle("ohr","Diagonale", st.ohr) : '')),
         '<h2>Zielwirkung</h2>' +
         '<p>Ziel ist ein Gleichgewicht zwischen vorne und hinten. Wenn der Hinterkopf mehr Rundung bekommt, entsteht ein Gegengewicht zur Nase.</p>' +
@@ -1154,7 +1154,7 @@ svg text{font-family:var(--f-body)}
       var lab2 = {A:"Zustand A: gerader, schwerer Pony", M:"Zwischenstufe", B:"Zustand B: weich und schräg geführter Pony"}[st.pony];
       var bild2 = st.ans2 === "vorne" ? augeFig({pony:st.pony, hilfe:st.hilfe, label:lab2})
         : kopfAnsicht({form:"oval", augen:"mandel", brauen:"gebogen", mund:"voll", frisur:"kurz", pony: st.pony === "A" ? "gerade" : "schraeg", bart:"kein"}, st.ans2, {label:lab2});
-      return card('<div class="chips ansichten">' + seg("ans2", [["vorne","Vorne (Lehrgrafik)"],["dreiviertel","Dreiviertel"],["profilr","Profil"]], st.ans2).replace(/class="btn/g, 'class="chip') + '</div>' + bild2 +
+      return card('<div class="chips ansichten">' + seg("ans2", [["vorne","Vorne (Lehrgrafik)"],["profilr","Profil"]], st.ans2).replace(/class="btn/g, 'class="chip') + '</div>' + bild2 +
         controls(seg("pony",[["A","A · gerade"],["M","Zwischenstufe"],["B","B · schräg"]], st.pony) + (st.ans2 === "vorne" ? toggle("hilfe","Hilfslinien", st.hilfe) : '')),
         '<h2>Zielwirkung</h2>' +
         '<p>Die Augenpartie soll offener, leichter und wacher wirken.</p>' +
@@ -1208,11 +1208,170 @@ svg text{font-family:var(--f-body)}
     }}
   ];
 
+
+  // ==================== Fall 3: Hell und Dunkel ====================
+  // Fix: Kopf und Schnittform. Variiert: nur die Verteilung heller und dunkler Flächen.
+  var HD_TON = {hell:"#E9E3D8", hellm:"#CBC3B6", mittel:"#A59D92", dunkelm:"#7B736A", dunkel:"#4B443D", sehrhell:"#F7F4EE", sehrdunkel:"#221E1B"};
+  var HD_WERT = {hell:2, hellm:1, mittel:0, dunkelm:-1, dunkel:-2, sehrhell:2, sehrdunkel:-2};
+  var HD_ZUSTAND = {
+    A:         {oben:"mittel", seiten:"mittel"},
+    M:         {oben:"hellm",  seiten:"dunkelm"},
+    B:         {oben:"hell",   seiten:"dunkel"},
+    umgekehrt: {oben:"dunkel", seiten:"hell"},
+    hart:      {oben:"sehrhell", seiten:"sehrdunkel", hart:true}
+  };
+  var HD_HAAR = "M146,330 C132,250 128,170 160,110 C186,70 216,58 250,58 C284,58 314,70 340,110 C372,170 368,250 354,330 C350,352 344,368 334,378 L166,378 C156,368 150,352 146,330 Z";
+  var HD_GESICHT_FLAECHE = F_GESICHT + " C338,160 300,127 250,127 C200,127 162,160 162,200 Z";
+  var HD_GRENZE = 168;
+
+  function hdFig(o){
+    o = o || {};
+    var Z = HD_ZUSTAND[o.hd || "A"], id = ++uid;
+    var s = '<svg viewBox="86 30 424 450" role="img" aria-label="' + (o.label || "Hell und Dunkel") + '">';
+    s += '<path d="' + F_HALS + '" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/>';
+    s += '<clipPath id="hh' + id + '"><path d="' + HD_HAAR + '"/></clipPath>';
+    s += '<g clip-path="url(#hh' + id + ')">' +
+      '<rect x="0" y="0" width="600" height="' + HD_GRENZE + '" fill="' + HD_TON[Z.oben] + '"/>' +
+      '<rect x="0" y="' + HD_GRENZE + '" width="600" height="400" fill="' + HD_TON[Z.seiten] + '"/>' +
+      (Z.hart ? '' : '<rect x="0" y="' + (HD_GRENZE - 14) + '" width="600" height="28" fill="url(#hv' + id + ')"/>') + '</g>' +
+      '<defs><linearGradient id="hv' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + HD_TON[Z.oben] + '"/><stop offset="1" stop-color="' + HD_TON[Z.seiten] + '"/></linearGradient></defs>';
+    if (Z.hart) s += '<line x1="120" y1="' + HD_GRENZE + '" x2="380" y2="' + HD_GRENZE + '" stroke="var(--ink)" stroke-width="2" clip-path="url(#hh' + id + ')"/>';
+    // Schnittform (fix): Kontur in der Akzentfarbe
+    s += '<path d="' + HD_HAAR + '" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-dasharray="8 5" stroke-linejoin="round"/>';
+    // Gesicht über dem Haar
+    s += '<path d="' + HD_GESICHT_FLAECHE + '" fill="var(--surface)"/>';
+    s += '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="' + F_ANSATZ + '" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="1.5 4.5"/>' +
+      '<path d="' + F_GESICHT + '" stroke="var(--ink)" stroke-width="2.6"/>' +
+      '<path d="' + F_NASE + '" stroke="var(--ink)" stroke-width="2"/>' +
+      '<path d="' + F_MUND + '" stroke="var(--ink)" stroke-width="2"/></g>' + F_BRAUEN;
+    s += '<g fill="none" stroke="var(--ink)" stroke-linejoin="round"><path d="' + AUGE_L + '" stroke-width="2.4"/><path d="M322,250 Q301,235 280,250 Q301,263 322,250 Z" stroke-width="2.4"/></g>' +
+      '<circle cx="201" cy="250" r="3.6" fill="var(--ink)"/><circle cx="301" cy="250" r="3.6" fill="var(--ink)"/>';
+    // Hilfslinien: Zonen und Wirkungspfeile
+    if (o.hilfe){
+      var pf = function(zone, wert){
+        if (!wert) return "";
+        var a = "var(--ink)", out = wert > 0;
+        if (zone === "oben") return out ? pfeil(250, 96, 250, 50, a, 3) : pfeil(250, 50, 250, 94, a, 3);
+        return (out ? pfeil(142, 270, 106, 270, a, 3) + pfeil(358, 270, 394, 270, a, 3) : pfeil(104, 270, 140, 270, a, 3) + pfeil(396, 270, 360, 270, a, 3));
+      };
+      var wo = HD_WERT[Z.oben], ws = HD_WERT[Z.seiten];
+      s += '<g class="hilfe"><line x1="120" y1="' + HD_GRENZE + '" x2="380" y2="' + HD_GRENZE + '" stroke="var(--g-hilfe)" stroke-width="1.4" stroke-dasharray="6 5"/>' +
+        txt(390, HD_GRENZE - 6, "Oberkopf", {size:13, fill:"var(--muted)"}) + txt(390, HD_GRENZE + 18, "Seiten", {size:13, fill:"var(--muted)"}) +
+        pf("oben", wo) + pf("seiten", ws) +
+        (wo || ws ? '' : txt(250, 46, "eine Farbe: nichts tritt hervor", {size:13, anchor:"middle", fill:"var(--muted)"})) + '</g>';
+    }
+    // Hinweis (fix)
+    s += '<g class="hinweis"><line x1="386" y1="120" x2="352" y2="140" stroke="var(--ink)" stroke-width="1.5"/>' +
+      txt(390, 102, "Schnittform", {size:16, fill:"var(--accent)"}) + txt(390, 121, "unverändert", {size:16, fill:"var(--accent)"}) + '</g>';
+    return s + '</svg>';
+  }
+
+  var FEHLER_HD = {
+    umgekehrt: {t:"Umgekehrt gesetzt", d:"Oberkopf dunkel, Seiten hell: Die Seiten treten hervor, das Gesicht wirkt breiter. Das ist keine falsche Technik, aber die umgekehrte Wirkung.", fig:{hd:"umgekehrt", hilfe:true}},
+    hart:      {t:"Zu harter Kontrast", d:"Sehr hell neben sehr dunkel mit harter Kante: Die Form zerfällt in Teile und wirkt unruhig. Harmonie entsteht bei bis zu 3 Tönen Unterschied (Seite 4).", fig:{hd:"hart"}},
+    gut:       {t:"So kann es passen", d:"Oberkopf heller, Seiten dunkler, mit weichem Übergang. Die Form streckt sich nach oben, das Gesicht wirkt schmaler.", fig:{hd:"B", hilfe:true}, ok:true}
+  };
+
+  var FRAGEN_HD = [
+    {q:"Wie wirkt eine helle Fläche im Haar optisch?",
+     a:["Sie tritt hervor.","Sie tritt zurück.","Sie hat keine Wirkung."],
+     r:0, f:"Helle Bereiche treten optisch hervor, dunkle treten zurück."},
+    {q:"Bei welchem Bild wirkt das Gesicht schmaler?", bild:true,
+     a:["Eine Farbe überall","Oberkopf hell, Seiten dunkel"],
+     r:1, f:"Die dunklen Seiten treten zurück, der helle Oberkopf tritt hervor. Die Form streckt sich nach oben."},
+    {q:"Oberkopf dunkel, Seiten hell. Wie wirkt das Gesicht?",
+     a:["Schmaler","Breiter","Unverändert"],
+     r:1, f:"Helle Seiten treten hervor und machen die Form breiter."},
+    {q:"Richtig oder falsch? „Je stärker der Kontrast, desto besser die Wirkung.“",
+     a:["Richtig","Falsch"],
+     r:1, f:"Zu harte Kontraste wirken unruhig. Harmonie entsteht bei bis zu 3 Tönen Unterschied (Seite 4)."},
+    {q:"Bevor du Hell und Dunkel setzt: Was prüfst du?",
+     a:["Nur die Haarlänge.","Ob die Farben zur Gesichtsfarbe passen und wie viel Kontrast die Kundin möchte.","Nichts, die Regel gilt immer."],
+     r:1, f:"Die Konturen-Haarfarbe beeinflusst die Gesichtsfarbe (Seite 12). Kontrast muss zur Person passen."}
+  ];
+
+  var SCREENS_HD = [
+    {step:-1, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + hdFig({hd:"A", label:"Vorher: eine Farbe"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + hdFig({hd:"B", label:"Nachher: Oberkopf hell, Seiten dunkel"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Worum es geht</h2>' +
+        '<p>Derselbe Schnitt kann unterschiedlich wirken, je nachdem wo helle und dunkle Flächen sitzen.</p>' +
+        '<p>In diesem Beispiel bleiben Kopf und Schnittform in jedem Bild gleich. Nur die Verteilung von Hell und Dunkel ändert sich.</p>' +
+        '<div class="callout accent"><p><strong>Aus dem Unterricht:</strong> Kontur dunkler – Gesicht heller. Kontur heller – Gesicht dunkler. (Seite 4)</p></div>');
+    }},
+    {step:0, render:function(){
+      return card(hdFig({hd:"A", hilfe:st.hdHilfe, label:"Ausgangsform: eine Farbe"}) + controls(toggle("hdHilfe","Hilfslinien zeigen", st.hdHilfe)),
+        '<h2>Ausgangsform</h2>' +
+        '<p>Die Haare haben überall dieselbe Farbe. Keine Fläche tritt hervor, keine tritt zurück.</p>' +
+        '<p>Die Form wirkt so, wie der Schnitt sie vorgibt. Farbe verändert hier noch nichts.</p>');
+    }},
+    {step:1, render:function(){
+      return card(hdFig({hd:st.hd, hilfe:st.hdHilfe, label:{A:"Zustand A: eine Farbe", M:"Zwischenstufe: leichter Kontrast", B:"Zustand B: Oberkopf hell, Seiten dunkel"}[st.hd]}) +
+        controls(seg("hd",[["A","A · eine Farbe"],["M","Zwischenstufe"],["B","B · hell-dunkel"]], st.hd) + toggle("hdHilfe","Hilfslinien", st.hdHilfe)),
+        '<h2>Zielwirkung</h2>' +
+        '<p>Die Form soll sich nach oben strecken, das Gesicht soll schmaler wirken.</p>' +
+        '<p>Kopf und Schnitt bleiben genau gleich. Nur die Flächen werden heller oder dunkler.</p>' +
+        '<p class="note">Schalte zwischen A, Zwischenstufe und B um. Die Pfeile zeigen: hell tritt hervor, dunkel tritt zurück.</p>');
+    }},
+    {step:2, render:function(){
+      return card(hdFig({hd:"B", hilfe:true, label:"Mögliche Farbentscheidung"}),
+        '<h2>Mögliche Farbentscheidung</h2>' +
+        '<ul>' +
+        '<li><strong>Oberkopf heller:</strong> Der Bereich tritt hervor, die Form wirkt höher.</li>' +
+        '<li><strong>Seiten dunkler:</strong> Die Seiten treten zurück, das Gesicht wirkt schmaler.</li>' +
+        '<li><strong>Übergang weich:</strong> keine harte Kante zwischen den Flächen.</li>' +
+        '</ul>' +
+        '<p>Das entspricht der Harmonie-Form „Rechteck hochwärts“: Seiten dunkel, Oberkopf und Nacken hell (Seite 9).</p>' +
+        '<p>Das ist eine Möglichkeit, nicht die einzige. Entscheidend ist die Wirkung, die du erreichen willst.</p>');
+    }},
+    {step:3, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + hdFig({hd:"A", hilfe:true, label:"Vorher"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + hdFig({hd:"B", hilfe:true, label:"Nachher"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Warum es wirkt</h2>' +
+        '<p>Helle Flächen reflektieren mehr Licht. Sie treten optisch hervor und wirken größer. Dunkle Flächen reflektieren weniger Licht. Sie treten zurück und wirken kleiner (Seite 7).</p>' +
+        '<p>Das Auge nimmt die hellen Bereiche zuerst wahr. So verändert die Farbe die Form, ohne dass der Schnitt sich ändert.</p>');
+    }},
+    {step:4, render:function(){
+      var f = FEHLER_HD[st.fehlerHd];
+      return card(hdFig(Object.assign({label:f.t}, f.fig)) +
+        controls(seg("fehlerHd",[["umgekehrt","Umgekehrt"],["hart","Zu hart"],["gut","So kann es passen"]], st.fehlerHd)) +
+        '<div class="callout ' + (f.ok ? 'good' : 'bad') + '"><strong>' + f.t + '</strong><p>' + f.d + '</p></div>',
+        '<h2>Worauf achten: Fehlerbilder</h2>' +
+        '<p>Hell und Dunkel wirken immer. Falsch gesetzt oder zu hart, entsteht eine Wirkung, die man nicht wollte.</p>');
+    }},
+    {step:4, render:function(){
+      return card(hdFig({hd:"B", label:"Mögliche Zielform"}),
+        '<h2>Worauf achten: passt es zur Person?</h2>' +
+        '<ul>' +
+        '<li><strong>Gesichtsfarbe:</strong> Die Konturen-Haarfarbe beeinflusst die Gesichtsfarbe (Seite 12).</li>' +
+        '<li><strong>Kontrast:</strong> Harmonie entsteht bei bis zu 3 Tönen Unterschied (Seite 4).</li>' +
+        '<li><strong>Gesichtsform:</strong> Nicht jedes Gesicht soll schmaler wirken. Die Richtung hängt von der Form ab.</li>' +
+        '<li><strong>Wunsch der Kundin oder des Kunden:</strong> Wie viel Kontrast möchte sie oder er tragen?</li>' +
+        '</ul>');
+    }},
+    {step:5, render:renderCheck},
+    {step:6, render:function(){
+      return card('<div class="pair">' +
+          '<figure>' + hdFig({hd:"A", label:"Vorher"}) + '<figcaption>Vorher</figcaption></figure>' +
+          '<figure>' + hdFig({hd:"B", label:"Nachher"}) + '<figcaption>Nachher</figcaption></figure>' +
+        '</div>',
+        '<h2>Merksatz</h2>' +
+        '<p class="merksatz">Helles tritt hervor, Dunkles tritt zurück.</p>');
+    }}
+  ];
+
   var FAELLE = {
     nase: {titel:"Lange Nase im Profil", kurz:"Nase im Profil", screens:SCREENS, fragen:FRAGEN,
            bild:function(i, t){ return fig({hair: i === 0 ? "A" : "B", label:t}); }},
     auge: {titel:"Auge optisch öffnen", kurz:"Auge öffnen", screens:SCREENS_AUGE, fragen:FRAGEN_AUGE,
-           bild:function(i, t){ return augeFig({pony: i === 0 ? "A" : "B", label:t}); }}
+           bild:function(i, t){ return augeFig({pony: i === 0 ? "A" : "B", label:t}); }},
+    hd:   {titel:"Hell und Dunkel", kurz:"Hell-Dunkel", screens:SCREENS_HD, fragen:FRAGEN_HD,
+           bild:function(i, t){ return hdFig({hd: i === 0 ? "A" : "B", label:t}); }}
   };
   function fall(){ return FAELLE[st.fall]; }
 
@@ -1370,6 +1529,7 @@ svg text{font-family:var(--f-body)}
 
   function bkFig(k, o){
     o = o || {};
+    if (st.bk.ansicht === "dreiviertel") st.bk.ansicht = "vorne";
     var ans = st.bk.ansicht || "vorne", innen = "";
     if (ans === "vorne" && k.oval){
       var m = bkMass(k), I = BK_IDEAL || (bkScore(k), BK_IDEAL), rx = m.wC / 2, ry = rx * I.rL, cyO = (m.oben + m.unten) / 2;
@@ -1484,9 +1644,9 @@ svg text{font-family:var(--f-body)}
     return s + (o.innen || '') + '</svg>';
   }
 
-  // ==================== Ansichten im Baukasten: vorne, Dreiviertel, Profil rechts/links, hinten ====================
+  // ==================== Ansichten im Baukasten: vorne, Profil rechts/links, hinten ====================
   // Jede Ansicht ist von Hand im Linienstil gezeichnet. Frisur, Pony und Bart werden je Ansicht eingesetzt.
-  var ANSICHTEN = [["vorne","Vorne"],["dreiviertel","Dreiviertel"],["profilr","Profil rechts"],["profill","Profil links"],["hinten","Hinten"]];
+  var ANSICHTEN = [["vorne","Vorne"],["profilr","Profil rechts"],["profill","Profil links"],["hinten","Hinten"]];
   var BK_MUSTER = function(id, art){
     return art === "stoppeln"
       ? '<pattern id="bm' + id + '" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r=".9" fill="var(--ink)"/></pattern>'
@@ -1586,54 +1746,11 @@ svg text{font-family:var(--f-body)}
     return s + (o.innen || '') + '</svg>';
   }
 
-  // ---------- Dreiviertel (nach rechts gedreht) ----------
-  var D_GESICHT = "M306,150 C310,170 310,190 306,208 C304,216 300,222 298,228 C300,238 304,248 306,258 C308,272 304,290 298,304 C292,322 286,340 278,356 C270,372 258,382 244,384 C226,386 206,376 192,360 C182,348 174,334 168,322";
-  var D_ANSATZ = "M306,150 C290,132 262,124 236,130 C212,138 196,158 190,188 C186,210 182,226 176,238";
-  var D_ANSATZ_REV = " C182,226 186,210 190,188 C196,158 212,138 236,130 C262,124 290,132 306,150 Z";
-  var D_OHR = "M170,228 C152,220 142,244 146,264 C150,282 160,292 172,286 M166,238 C156,238 154,254 158,264";
-  var D_HAAR = {
-    kurz:       "M306,146 C302,100 262,68 208,68 C150,68 100,102 92,160 C86,214 102,262 130,294 C140,304 150,310 160,314 C166,296 170,262 176,238" + D_ANSATZ_REV,
-    oben:       "M306,146 C304,84 262,36 200,36 C138,36 94,86 90,152 C86,212 102,262 130,294 C140,304 150,310 160,314 C166,296 170,262 176,238" + D_ANSATZ_REV,
-    hinterkopf: "M306,146 C302,98 262,64 206,64 C140,64 76,98 66,160 C58,216 84,264 122,296 C136,306 150,312 160,314 C166,296 170,262 176,238" + D_ANSATZ_REV,
-    seitlich:   "M306,146 C302,96 262,60 204,60 C142,60 86,96 78,160 C70,222 86,276 120,306 C138,322 160,328 180,322 C184,300 186,270 188,244 C190,214 196,176 212,150 C236,132 272,130 306,150 Z",
-    bob:        "M306,146 C302,96 262,60 204,60 C140,60 84,98 76,160 C68,224 74,300 96,364 C130,372 170,378 200,382 C188,366 176,346 168,322 C170,290 174,262 176,238" + D_ANSATZ_REV,
-    lang:       "M306,146 C302,96 262,60 204,60 C140,60 84,98 76,160 C66,230 72,330 84,482 L204,482 C198,440 192,400 188,362 C178,348 172,334 168,322 C170,290 174,262 176,238" + D_ANSATZ_REV
-  };
-  var D_PONY = {
-    gerade:  "M306,150 C290,130 258,124 234,132 C212,140 198,160 194,188 C222,198 270,202 304,206 C308,188 309,168 306,150 Z",
-    schraeg: "M306,150 C290,130 258,124 234,132 C212,140 198,160 194,194 C224,190 262,174 292,148 C298,147 302,148 306,150 Z"
-  };
-  var D_BART = {
-    voll:   "M176,300 C186,330 200,356 220,372 C236,386 254,390 270,384 C288,372 298,346 304,316 C298,320 288,322 282,318 C278,334 270,348 256,352 C240,354 226,346 218,332 C208,316 196,300 188,286 Z",
-    kinn:   "M244,354 C258,358 272,354 284,346 C284,364 274,382 258,388 C244,388 236,378 236,366 Z",
-    schnurr:"M250,320 C262,312 280,312 292,320 C282,325 262,326 250,320 Z"
-  };
-  function bkDreiviertel(k, o){
-    var id = ++uid, s = svgKopf("40 20 340 470", o.label, o.attr), kurzH = k.frisur === "kurz" || k.frisur === "oben" || k.frisur === "hinterkopf";
-    s += '<g fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"><path d="M186,352 C186,400 184,450 182,490 M262,382 C264,420 266,456 270,490"/></g>';
-    s += haarPfad(D_HAAR[k.frisur]);
-    if (k.frisur === "bob" || k.frisur === "lang") s += '<path d="' + D_GESICHT + ' C170,290 174,262 176,238' + D_ANSATZ_REV + '" fill="var(--surface)"/>';
-    s +=
-      '<path d="' + D_GESICHT + '" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>';
-    s += '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
-      (kurzH ? '<path d="' + D_ANSATZ + '" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="1.5 4.5"/>' : '') +
-      (kurzH ? '<path d="' + D_OHR + '" stroke="var(--ink)" stroke-width="2.3"/>' : '') +
-      '<path d="M296,228 C302,246 310,266 318,284 C320,290 314,294 306,292 C302,291 298,292 294,294" stroke="var(--ink)" stroke-width="2.2"/>' + '</g>';
-    if (k.pony !== "kein") s += haarPfad(D_PONY[k.pony]);
-    s += braueBei(k.brauen, 232, 212, 1) + braueBei(k.brauen, 290, 211, 0.5);
-    s += augeBei(k.augen, 232, 236, 1, id, "n", 4) + augeBei(k.augen, 290, 235, 0.55, id, "f", 6);
-    s += '<g transform="translate(270,0) scale(0.72,1) translate(-200,0)">' + bkMund(k.mund, 334) + '</g>';
-    if (k.bart === "voll" || k.bart === "stoppeln") s += bartPfad(D_BART.voll + " " + D_BART.schnurr, k.bart, id);
-    if (k.bart === "kinn" || k.bart === "schnurr") s += bartPfad(D_BART[k.bart], k.bart, id);
-    return s + (o.innen || '') + '</svg>';
-  }
-
   function kopfAnsicht(k, ans, o){
     o = o || {};
     o.label = o.label || ("Kopf, Ansicht " + ans);
     if (ans === "profilr" || ans === "profill") return bkProfil(k, ans === "profill", o);
     if (ans === "hinten") return bkHinten(k, o);
-    if (ans === "dreiviertel") return bkDreiviertel(k, o);
     return bkVorne(k, o);
   }
 
@@ -1655,7 +1772,7 @@ svg text{font-family:var(--f-body)}
 
 
   // ---------- App-Rahmen ----------
-  function neuStart(){ return {ans1:"profil", ans2:"vorne", bk:st.bk, bkAnim:false, bkVon:null, view:st.view, fall:st.fall, kap:st.kap, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
+  function neuStart(){ return {hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", ans1:"profil", ans2:"vorne", bk:st.bk, bkAnim:false, bkVon:null, view:st.view, fall:st.fall, kap:st.kap, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
 
   function renderPilot(){
     var SC = fall().screens, S = SC[st.screen];
