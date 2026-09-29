@@ -87,3 +87,27 @@ Lösungen sind immer als **mögliche gestalterische Richtungen** formuliert, nie
 - **Baukasten-Elemente:** Frontgrafik mit fixer Schnittform (Akzentfarbe), Farbzonen Oberkopf / Seiten in Tonstufen, Hilfslinien mit Wirkungspfeilen. Noch offen: Farbzonen als Wahl im freien Baukasten.
 - **Vergleichsansichten:** Vorne als Hauptansicht. Sinnvolle Ergänzung später: hinten (Oberkopf und Nacken).
 - **Fehlerdarstellung:** umgekehrt gesetzt, zu harter Kontrast.
+
+## 6. Abstehende Ohren
+
+| | |
+|---|---|
+| **Beobachtung** | Die Ohren stehen deutlich ab und bilden von vorne die breiteste Stelle. |
+| **Zielwirkung** | Die Ohren sollen weniger auffallen, die Kopfform ruhiger wirken. |
+| **Was bleibt fix** | Ohren (Form und Stellung). |
+| **Was wird variiert** | Länge und Gewicht an den Seiten, wie viel vom Ohr sichtbar ist, Konturführung. |
+| **Lernbotschaft** | Nicht das Ohr verändert sich, sondern wie viel davon sichtbar ist und welche Linie daneben liegt. |
+| **Worauf achten** | Zu kurze Seiten, harte Kanten auf Ohrhöhe, zu wenig Gewicht über dem Ohr. Wirbel und Wunsch beachten. |
+| **Merksatz** | Bedecken beruhigt, freilegen betont. |
+
+- **Baukasten-Elemente:** Frontgrafik aus dem Baukasten (ovale Gesichtsform), abstehende Ohren in Akzentfarbe („Ohren unverändert“, unter dem Haar gestrichelt angedeutet), Seitenpartien: frei / halb bedeckt / weich bedeckt / Länge bis Kinn / Gewicht über dem Ohr, Hilfslinie „breiteste Stelle“.
+- **Vergleichsansichten:** Vorne als Hauptansicht. Sinnvolle Ergänzung später: hinten (Ohren stehen auch von hinten sichtbar ab).
+- **Fehlerdarstellung:** sehr kurze Seiten mit Volumen oben, harte Kante auf Ohrhöhe, zu wenig Länge und Gewicht (Haar steht mit ab).
+
+## Baukasten: einseitige Merkmale
+
+- **Ein Auge anders:** links oder rechts hängend oder kleiner. Ein schräger Pony, der über diesem Auge hoch liegt und zur anderen Seite fällt, verbessert die Balance. Fällt er auf das Auge, wird sie schlechter (wie Fall 2).
+- **Schräger Pony:** tief links oder tief rechts.
+- **Mundwinkel:** links oder rechts abfallend. Der Schnitt ändert ihn nicht, lenkt aber den Blick: Höhe oben und Bart (Schnurr-/Vollbart) mildern, eine Kontur auf Mundhöhe (Bob) betont.
+- Links und rechts sind immer vom Betrachter aus gesehen. Profil rechts zeigt die rechte, Profil links die linke Gesichtshälfte.
+- Die Gewichtung in der Balance ist eine didaktische Annäherung, keine Messung.
