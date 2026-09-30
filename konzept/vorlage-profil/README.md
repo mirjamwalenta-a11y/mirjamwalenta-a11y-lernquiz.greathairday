@@ -1,6 +1,7 @@
 # Neue Profil-Vorlage (Entwurf 6)
 
-Nur Kopf und Gesicht sind neu. Die App (`formwirkung-nase-profil.html`) ist **noch nicht** verändert.
+Nur Kopf und Gesicht sind neu. Eingebaut in die App (`formwirkung-nase-profil.html`): alle Fälle und der
+Baukasten nutzen denselben Frau- und Mann-Kopf (Profil, vorne, hinten), umschaltbar mit „Frau / Mann“.
 
 Entwurf 1 (selbst gezeichnete Köpfe, Strähnen liefen an Stirn und Nacken zusammen) wurde verworfen:
 nicht elegant genug, Frisur wirkte wie ein Helm.
