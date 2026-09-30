@@ -1,11 +1,17 @@
-# Neue Profil-Vorlage (Entwurf 3)
+# Neue Profil-Vorlage (Entwurf 4)
 
 Nur Kopf und Gesicht sind neu. Die App (`formwirkung-nase-profil.html`) ist **noch nicht** verändert.
 
 Entwurf 1 (selbst gezeichnete Köpfe, Strähnen liefen an Stirn und Nacken zusammen) wurde verworfen:
 nicht elegant genug, Frisur wirkte wie ein Helm.
 
-## Entwurf 3 (aktuell)
+## Entwurf 4 (aktuell)
+
+Zusätzlich das Männerprofil, ebenfalls nach gelieferter Vorlage nachgezeichnet. Es liegt auf denselben
+Bezugspunkten wie das Frauenprofil (Schädel, Ohr, Nasenspitze), deshalb passen dieselben Frisurformen.
+Eigener Haaransatz über dem Ohr und kurze Koteletten-Strähnen vor dem Ohr, Form A etwas knapper.
+
+## Entwurf 3
 
 Gesicht aus Entwurf 2 bleibt (freigegeben: „Gesicht ist jetzt super schön“). Frisuren im Stil des
 gelieferten Nachher-Bildes: gezeichnete Strähnen als gefüllte Striche, in der Mitte kräftig und an
@@ -29,9 +35,9 @@ Die zarte Variante aus Entwurf 2 ist in der Vorschau weiter umschaltbar.
 | Datei | Inhalt |
 |---|---|
 | `index.html` | Vorschau mit Umschaltern (Strähnen/Umriss, Markierung) |
-| `profil-frau-vorlage.svg` | Kopf ohne Haar |
-| `profil-frau-haar-A.svg` | Ausgangsform A (flach anliegend) |
-| `profil-frau-haar-B.svg` | Zielwirkung B (Volumen am Hinterkopf, Richtung Diagonale Nase–Ohr) |
+| `profil-frau-vorlage.svg`, `profil-mann-vorlage.svg` | Kopf ohne Haar |
+| `profil-frau-haar-A.svg`, `profil-mann-haar-A.svg` | Ausgangsform A (flach bzw. kurz anliegend) |
+| `profil-frau-haar-B.svg`, `profil-mann-haar-B.svg` | Zielwirkung B (Volumen am Hinterkopf, Richtung Diagonale Nase–Ohr) |
 
 ## Aufbau (Ebenen)
 

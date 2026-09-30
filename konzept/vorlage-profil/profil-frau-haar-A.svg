@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 20 496 470" role="img" aria-label="Profil">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 20 496 470" role="img" aria-label="Profil Frau">
 <defs>
-<radialGradient id="hs-A" gradientUnits="userSpaceOnUse" cx="190" cy="200" r="170">
+<radialGradient id="hs-frau-A" gradientUnits="userSpaceOnUse" cx="190" cy="200" r="170">
 <stop offset="0" stop-color="#1C1C1A" stop-opacity=".10"/>
 <stop offset=".7" stop-color="#1C1C1A" stop-opacity=".03"/>
 <stop offset="1" stop-color="#1C1C1A" stop-opacity="0"/>
 </radialGradient>
-<clipPath id="nc-A">
+<clipPath id="nc-frau-A">
 <path d="M322,200 L380,200 L380,281 L339,281 L322,276 Z"/>
 </clipPath>
 </defs>
