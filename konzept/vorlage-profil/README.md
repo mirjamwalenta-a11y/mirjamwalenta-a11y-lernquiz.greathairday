@@ -1,9 +1,17 @@
-# Neue Profil-Vorlage (Entwurf 2)
+# Neue Profil-Vorlage (Entwurf 3)
 
 Nur Kopf und Gesicht sind neu. Die App (`formwirkung-nase-profil.html`) ist **noch nicht** verändert.
 
 Entwurf 1 (selbst gezeichnete Köpfe, Strähnen liefen an Stirn und Nacken zusammen) wurde verworfen:
 nicht elegant genug, Frisur wirkte wie ein Helm.
+
+## Entwurf 3 (aktuell)
+
+Gesicht aus Entwurf 2 bleibt (freigegeben: „Gesicht ist jetzt super schön“). Frisuren im Stil des
+gelieferten Nachher-Bildes: gezeichnete Strähnen als gefüllte Striche, in der Mitte kräftig und an
+beiden Enden spitz (wie Tusche/Bleistift), versetzt beginnend und endend, die Kontur entsteht aus
+überlappenden Strähnen, im Nacken laufen Spitzen über die Kontur hinaus. Schwarz auf Weiß.
+Die zarte Variante aus Entwurf 2 ist in der Vorschau weiter umschaltbar.
 
 ## Entwurf 2
 

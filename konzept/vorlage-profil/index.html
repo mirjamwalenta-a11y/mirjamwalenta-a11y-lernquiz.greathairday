@@ -33,12 +33,13 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace}
 <body>
 <div class="wrap">
   <header>
-    <h1>Profil-Vorlage, Entwurf 2</h1>
-    <p class="meta">Kopf und Gesicht nach deinem Vorlagebild als saubere Vektorlinie, gespiegelt auf die Blickrichtung der App. Die Frisuren sind neu gezeichnet: weiche Kontur, zarte Strähnen, die am Haaransatz beginnen und nach hinten auslaufen. Nur schwarz-weiß. Die App ist noch unverändert.</p>
+    <h1>Profil-Vorlage, Entwurf 3</h1>
+    <p class="meta">Kopf und Gesicht nach deinem Vorlagebild als saubere Vektorlinie, gespiegelt auf die Blickrichtung der App. Die Frisuren sind im Stil des Nachher-Bildes gezeichnet: Strähnen, die in der Mitte kräftig sind und spitz auslaufen, die Kontur entsteht aus den Strähnen selbst. Nur schwarz-weiß. Die App ist noch unverändert.</p>
   </header>
 
   <section class="card">
     <div class="chips" role="group" aria-label="Haardarstellung"><span>Haar</span>
+      <button class="chip" data-k="stil" data-v="skizze">Gezeichnete Strähnen</button>
       <button class="chip" data-k="stil" data-v="zart">Zarte Strähnen</button>
       <button class="chip" data-k="stil" data-v="umriss">Nur Umriss</button>
     </div>
@@ -129,7 +130,57 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace}
     }
     return s;
   }
-  var st = {stil:"zart", nase:"ja"};
+  // Skizzen-Strähnen: gefüllte Striche, in der Mitte kräftig, an beiden Enden spitz (wie Bleistift/Tusche).
+  function strich(pts, W){
+    var n = pts.length, L = [], R = [];
+    for (var i = 0; i < n; i++){
+      var a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], tx = b[0] - a[0], ty = b[1] - a[1], l = Math.sqrt(tx * tx + ty * ty) || 1;
+      var u = i / (n - 1), w = W * Math.pow(Math.sin(Math.PI * Math.min(1, Math.max(0, u * 0.94 + 0.03))), 0.75);
+      L.push([pts[i][0] - ty / l * w, pts[i][1] + tx / l * w]); R.push([pts[i][0] + ty / l * w, pts[i][1] - tx / l * w]);
+    }
+    return glatt(L) + " L" + glatt(R.reverse()).slice(1) + " Z";
+  }
+  function skizze(kontur, seed){
+    var N = 200, a = abtasten(ANSATZ, N), b = abtasten(kontur, N), r = zufall(seed), s = "";
+    function punkt(k, t){
+      if (k > N){ // über das Ende hinaus: in Kontur-Richtung weiterführen
+        var e = k - N, ta = [b[N][0] - b[N - 6][0], b[N][1] - b[N - 6][1]], tl = Math.sqrt(ta[0] * ta[0] + ta[1] * ta[1]);
+        var p = punkt(N, t); return [p[0] + ta[0] / tl * e * 1.2, p[1] + ta[1] / tl * e * 1.2];
+      }
+      return [a[k][0] + (b[k][0] - a[k][0]) * t, a[k][1] + (b[k][1] - a[k][1]) * t];
+    }
+    function linie(k0, k1, t0, t1, W, deck, welle){
+      var pts = [];
+      for (var k = k0; k <= k1; k += 3){
+        var u = (k - k0) / Math.max(1, k1 - k0), t = t0 + (t1 - t0) * u + Math.sin(k * 0.045 + welle) * 0.012;
+        pts.push(punkt(k, t));
+      }
+      if (pts.length < 4) return "";
+      return '<path d="' + strich(pts, W) + '" fill-opacity="' + deck.toFixed(2) + '"/>';
+    }
+    // Innen: viele Strähnen, versetzt, leicht nach außen laufend
+    for (var j = 0; j < 64; j++){
+      var f = Math.pow(r(), 0.8) * 0.96 + 0.03, k0 = Math.floor(N * (r() * 0.4)), len = Math.floor(N * (0.22 + r() * 0.42));
+      var k1 = Math.min(N - 2, k0 + len), df = (r() - 0.35) * 0.08;
+      s += linie(k0, k1, f, Math.min(1.02, f + df), 0.35 + Math.pow(r(), 1.6) * 0.95, 0.5 + r() * 0.45, r() * 6);
+    }
+    // Kontur aus überlappenden Strähnen
+    [[0, 0.5], [0.3, 0.8], [0.6, 1.0]].forEach(function(z, i){
+      s += linie(Math.floor(N * z[0]), Math.floor(N * z[1]), 0.985 + i * 0.006, 1.0, 1.25, 0.95, i * 2);
+    });
+    // Spitzen im Nacken, laufen über das Ende hinaus
+    for (var q = 0; q < 9; q++){
+      var f2 = 0.55 + r() * 0.47, k2 = Math.floor(N * (0.72 + r() * 0.12));
+      s += linie(k2, N + 6 + Math.floor(r() * 14), f2, f2 + (r() - 0.5) * 0.1, 0.5 + r() * 0.7, 0.6 + r() * 0.4, q);
+    }
+    // Haaransatz vorne: kurze Strähnen, die aus dem Ansatz herauswachsen
+    for (var v = 0; v < 9; v++){
+      var k3 = Math.floor(N * (0.02 + r() * 0.45)), f3 = 0.015 + r() * 0.03;
+      s += linie(k3, Math.min(N - 2, k3 + 18 + Math.floor(r() * 26)), f3, f3 + 0.02, 0.35 + r() * 0.35, 0.45 + r() * 0.35, v);
+    }
+    return s;
+  }
+  var st = {stil:"skizze", nase:"ja"};
   function kopfSvg(haar, o){
     var s = '<svg xmlns="' + NS + '" viewBox="0 20 496 470" role="img" aria-label="Profil">';
     s += '<defs><radialGradient id="hs-' + haar + '" gradientUnits="userSpaceOnUse" cx="190" cy="200" r="170"><stop offset="0" stop-color="#1C1C1A" stop-opacity=".10"/><stop offset=".7" stop-color="#1C1C1A" stop-opacity=".03"/><stop offset="1" stop-color="#1C1C1A" stop-opacity="0"/></radialGradient>' +
@@ -143,14 +194,16 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace}
       var rev = abtasten(ANSATZ, 60).reverse();
       flaeche = k + " L" + rev.map(function(p){ return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" L") + " Z";
       s += '<path d="' + flaeche + '" fill="#fff"/>';
-      if (o.stil === "zart"){
+      if (o.stil === "skizze"){
+        s += '<g fill="#1C1C1A">' + skizze(k, haar === "A" ? 3 : 8) + '</g>';
+      } else if (o.stil === "zart"){
         s += '<path d="' + flaeche + '" fill="url(#hs-' + haar + ')"/>';
         s += '<g fill="none" stroke="#1C1C1A" stroke-linecap="round">' + straehnen(k, haar === "A" ? 5 : 9) + '</g>';
         s += '<path d="' + ANSATZ + '" fill="none" stroke="#1C1C1A" stroke-width=".7" stroke-opacity=".35" stroke-linecap="round"/>';
       } else {
         s += '<path d="' + ANSATZ + '" fill="none" stroke="#1C1C1A" stroke-width="1.1" stroke-dasharray="1.2 4.2" stroke-linecap="round" opacity=".8"/>';
       }
-      s += '<path d="' + k + '" fill="none" stroke="#1C1C1A" stroke-width="2" stroke-linecap="round"/>';
+      if (o.stil !== "skizze") s += '<path d="' + k + '" fill="none" stroke="#1C1C1A" stroke-width="2" stroke-linecap="round"/>';
     }
     s += '</g>';
     // Markierung
