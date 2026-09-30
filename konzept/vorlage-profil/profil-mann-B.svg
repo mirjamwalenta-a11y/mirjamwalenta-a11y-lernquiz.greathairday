@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 20 496 470" role="img" aria-label="Profil Mann">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 20 496 470" role="img" aria-label="Profil Mann, B · Frisur aus deinem Nachher-Bild">
 <defs>
-<radialGradient id="hs-mann-B" gradientUnits="userSpaceOnUse" cx="190" cy="200" r="170">
-<stop offset="0" stop-color="#1C1C1A" stop-opacity=".10"/>
-<stop offset=".7" stop-color="#1C1C1A" stop-opacity=".03"/>
-<stop offset="1" stop-color="#1C1C1A" stop-opacity="0"/>
-</radialGradient>
 <clipPath id="nc-mann-B">
 <path d="M324,206 L380,206 L380,284 L340,284 L324,279 Z"/>
 </clipPath>

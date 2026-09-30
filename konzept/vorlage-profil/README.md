@@ -1,11 +1,27 @@
-# Neue Profil-Vorlage (Entwurf 5)
+# Neue Profil-Vorlage (Entwurf 6)
 
 Nur Kopf und Gesicht sind neu. Die App (`formwirkung-nase-profil.html`) ist **noch nicht** verändert.
 
 Entwurf 1 (selbst gezeichnete Köpfe, Strähnen liefen an Stirn und Nacken zusammen) wurde verworfen:
 nicht elegant genug, Frisur wirkte wie ein Helm.
 
-## Entwurf 5 (aktuell)
+## Entwurf 6 (aktuell)
+
+Alle Frisuren (Frau und Mann) im klaren Linienstil des gelieferten Nachher-Bildes. Eine gemeinsame
+Zeichenregel (`klar()` in `index.html`) passt sich jeder Länge und Form an:
+
+- Jede Frisur wird nur durch **Außenkontur** und **Innenkante** beschrieben (dazu eine geglättete
+  Führungslinie für den Strähnenverlauf).
+- Daraus entstehen automatisch: weiße Haarfläche (deckt die Schädellinie), Strähnen-Gruppen aus 2–3
+  fast parallelen Linien mit leichtem Schwung, die spitz auslaufen, kräftige Kontur, feine Innenkante.
+- Enden Kontur und Innenkante im selben Punkt (kurze Frisuren), läuft die Frisur im Nacken zusammen.
+  Enden sie getrennt (Bob, lang), bilden frei auslaufende Spitzen die Unterkante.
+- Frau: A flach anliegend, B Volumen am Hinterkopf, Bob kinnlang, Lang.
+- Mann: A kurz anliegend (klarer Stil mit eckigem Haaransatz), B = Frisur aus dem Nachher-Bild.
+
+Dateien: `profil-{frau|mann}-vorlage.svg`, `profil-frau-{A|B|bob|lang}.svg`, `profil-mann-{A|B}.svg`.
+
+## Entwurf 5
 
 Männerfrisuren wie im gelieferten Nachher-Bild:
 - **Mann B** ist die Frisur aus dem Nachher-Bild selbst (Tolle vorne, nach hinten gekämmt, kurze
@@ -46,8 +62,9 @@ Die zarte Variante aus Entwurf 2 ist in der Vorschau weiter umschaltbar.
 |---|---|
 | `index.html` | Vorschau mit Umschaltern (Strähnen/Umriss, Markierung) |
 | `profil-frau-vorlage.svg`, `profil-mann-vorlage.svg` | Kopf ohne Haar |
-| `profil-frau-haar-A.svg`, `profil-mann-haar-A.svg` | Ausgangsform A (flach bzw. kurz anliegend) |
-| `profil-frau-haar-B.svg`, `profil-mann-haar-B.svg` | Zielwirkung B (Volumen am Hinterkopf, Richtung Diagonale Nase–Ohr) |
+| `profil-frau-A.svg`, `profil-mann-A.svg` | Ausgangsform A (flach bzw. kurz anliegend) |
+| `profil-frau-B.svg`, `profil-mann-B.svg` | Zielwirkung B |
+| `profil-frau-bob.svg`, `profil-frau-lang.svg` | weitere Längen im selben Stil |
 
 ## Aufbau (Ebenen)
 
