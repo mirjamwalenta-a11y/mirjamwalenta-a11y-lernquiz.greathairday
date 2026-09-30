@@ -11,7 +11,7 @@ for art in ['frau','mann']:
     mi=Image.new('L',(W,H),0); dd=ImageDraw.Draw(mi); dd.polygon(P['aussen'],fill=255)
     if P['gesicht']: dd.polygon(P['gesicht'],fill=0)
     m=np.array(mi.filter(ImageFilter.GaussianBlur(1.5)))/255.0
-    m*=np.clip((250-np.array(im.filter(ImageFilter.GaussianBlur(4))).astype(float))/20,0,1)
+    m*=np.clip((242-np.array(im.filter(ImageFilter.GaussianBlur(2))).astype(float))/14,0,1)
     Image.fromarray((m*255).astype('uint8')).save('hdm-%s.png'%art)
     L=np.array(im.filter(ImageFilter.GaussianBlur(7))).astype(float); D=a-L
     mean=(L*m).sum()/m.sum()
@@ -23,7 +23,8 @@ for art in ['frau','mann']:
       'B':L,
       'A':np.full_like(L,mean),
       'umgekehrt':np.clip(0.5*(2*mean-L)+0.5*(70+(205-70)*sig),20,235),
-      'hart':np.where(ys<g,225,40),
+      # starker Kontrast, Übergang leicht verschwommen und leicht wellig (nicht mit dem Lineal)
+      'hart':225-185/(1+np.exp(-(ys-(g+5*np.sin(np.arange(W)[None,:]/14.0)))/3.2)),
     }
     varianten['M']=(varianten['A']+L)/2
     out[art]={}
