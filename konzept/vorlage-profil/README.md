@@ -1,11 +1,21 @@
-# Neue Profil-Vorlage (Entwurf 4)
+# Neue Profil-Vorlage (Entwurf 5)
 
 Nur Kopf und Gesicht sind neu. Die App (`formwirkung-nase-profil.html`) ist **noch nicht** verändert.
 
 Entwurf 1 (selbst gezeichnete Köpfe, Strähnen liefen an Stirn und Nacken zusammen) wurde verworfen:
 nicht elegant genug, Frisur wirkte wie ein Helm.
 
-## Entwurf 4 (aktuell)
+## Entwurf 5 (aktuell)
+
+Männerfrisuren wie im gelieferten Nachher-Bild:
+- **Mann B** ist die Frisur aus dem Nachher-Bild selbst (Tolle vorne, nach hinten gekämmt, kurze
+  Seiten, eckiger Haaransatz mit Kotelette), als Vektor nachgezeichnet. Der Nachher-Kopf liegt
+  deckungsgleich auf dem Vorher-Kopf.
+- **Mann A** (kurz anliegend) im selben klaren Linienstil: wenige, saubere Strähnen-Gruppen, die spitz
+  auslaufen, kräftige Kontur, Haaransatz mit eckiger Schläfe und Kotelette wie im Vorbild.
+- Frauenprofil unverändert (gezeichnete Strähnen, Entwurf 3).
+
+## Entwurf 4
 
 Zusätzlich das Männerprofil, ebenfalls nach gelieferter Vorlage nachgezeichnet. Es liegt auf denselben
 Bezugspunkten wie das Frauenprofil (Schädel, Ohr, Nasenspitze), deshalb passen dieselben Frisurformen.
