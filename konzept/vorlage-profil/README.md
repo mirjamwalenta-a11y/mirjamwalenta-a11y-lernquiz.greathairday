@@ -7,7 +7,7 @@ nicht elegant genug, Frisur wirkte wie ein Helm.
 
 ## Entwurf 2
 
-- **Kopf und Gesicht:** nach dem von Mirjam gelieferten Vorlagebild als Vektorpfad nachgezeichnet
+- **Kopf und Gesicht:** nach dem gelieferten Vorlagebild als Vektorpfad nachgezeichnet
   (potrace), gespiegelt auf die Blickrichtung der App (Nase nach rechts). Linien als gefüllte Pfade
   (`fill-rule="evenodd"`), dadurch die gleichmäßige, elegante Strichführung des Vorbilds.
 - **Frisuren:** neu gezeichnet für diesen Kopf. Weiße Haarfläche deckt die Schädellinie ab, darüber
