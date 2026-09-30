@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil-Vorlage</title>
+<style>
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--ink:#1C1C1A;--muted:#66665E;--line:#E2DDD5;
+  --accent:#5B7B6F;--accent-soft:#EAF0EE;--accent-ink:#FFFFFF;
+  --f:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#141614;--surface:#1D201E;--ink:#ECEFEA;--muted:#A3AAA4;--line:#333934;--accent:#93BFAE;--accent-soft:#25352F;--accent-ink:#10201A}
+}
+:root[data-theme="dark"]{--bg:#141614;--surface:#1D201E;--ink:#ECEFEA;--muted:#A3AAA4;--line:#333934;--accent:#93BFAE;--accent-soft:#25352F;--accent-ink:#10201A}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:1.0625rem;line-height:1.6}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 16px 56px;display:flex;flex-direction:column;gap:18px}
+h1{font-size:1.875rem;margin:0;line-height:1.2}
+h2{font-size:1.375rem;margin:0}
+p{margin:0;max-width:70ch}
+.meta{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{font-weight:700;align-self:center;margin-right:6px;font-size:.9375rem}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 13px;font:inherit;font-size:.9375rem;font-weight:700;min-height:38px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+figure{margin:0;display:flex;flex-direction:column;gap:6px;align-items:center}
+figure svg{width:100%;max-width:520px;height:auto;display:block}
+figcaption{font-weight:700;color:var(--muted)}
+.papier{background:#fff;border-radius:10px;width:100%;display:flex;justify-content:center}
+.vergleich{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+pre{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:.8125rem;line-height:1.45;max-height:340px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace}
+ol{margin:0;padding-left:1.3em;display:grid;gap:6px}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Neue Profil-Vorlage (Entwurf)</h1>
+    <p class="meta">Nur Kopf und Gesicht sind neu. Die App bleibt unverändert, bis du die Vorlage freigibst. Die Köpfe liegen auf denselben Bezugspunkten wie bisher (Stirnansatz, Nasenspitze, Ohrspitze, Haaransatz, Nacken), deshalb passen alle vorhandenen Frisurenformen weiter darüber.</p>
+  </header>
+
+  <section class="card">
+    <div class="chips" role="group" aria-label="Frisur"><span>Frisur</span>
+      <button class="chip" data-k="haar" data-v="ohne">Ohne Haar (Vorlage)</button>
+      <button class="chip" data-k="haar" data-v="A">A · flach anliegend</button>
+      <button class="chip" data-k="haar" data-v="B">B · Volumen am Hinterkopf</button>
+    </div>
+    <div class="chips" role="group" aria-label="Haardarstellung"><span>Haar</span>
+      <button class="chip" data-k="stil" data-v="zart">Zarte Strähnen</button>
+      <button class="chip" data-k="stil" data-v="umriss">Nur Umriss</button>
+    </div>
+    <div class="chips" role="group" aria-label="Umrisslinie"><span>Umriss</span>
+      <button class="chip" data-k="linie" data-v="fein">Fein, durchgezogen</button>
+      <button class="chip" data-k="linie" data-v="strich">Gestrichelt wie bisher</button>
+    </div>
+    <div class="chips" role="group" aria-label="Markierung"><span>Markierung</span>
+      <button class="chip" data-k="nase" data-v="ja">„Nase unverändert“ zeigen</button>
+      <button class="chip" data-k="nase" data-v="nein">Ohne</button>
+    </div>
+  </section>
+
+  <section class="grid">
+    <figure class="card"><div class="papier" id="frau"></div><figcaption>Profil Frau</figcaption></figure>
+    <figure class="card"><div class="papier" id="mann"></div><figcaption>Profil Mann</figcaption></figure>
+  </section>
+
+  <section class="card">
+    <h2>Vergleich mit der bisherigen Vorlage</h2>
+    <div class="vergleich">
+      <figure><div class="papier" id="alt"></div><figcaption>Bisher</figcaption></figure>
+      <figure><div class="papier" id="neu"></div><figcaption>Neu</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Aufbau der SVG (Ebenen)</h2>
+    <p>Jede Grafik hat dieselben Ebenen. Frisuren werden nur in <code>#haar</code> getauscht, alles andere bleibt fix.</p>
+    <ol>
+      <li><code>&lt;g id="haar"&gt;</code> Haarfläche mit zarten Strähnen und Umriss (austauschbar: Ausgangsform, Zielwirkung, Fehlerbilder)</li>
+      <li><code>&lt;g id="schaedel"&gt;</code> Kopfform ohne Haar (nur in der Vorlage ohne Frisur)</li>
+      <li><code>&lt;g id="kopf"&gt;</code> Haaransatz, Gesichtslinie, Nacken, Ohr, Kieferlinie</li>
+      <li><code>&lt;g id="gesicht"&gt;</code> Augenbraue, Auge, Nasenflügel, Mund</li>
+      <li><code>&lt;g id="markierung"&gt;</code> fixes Merkmal in Akzentfarbe, z. B. „Nase unverändert“</li>
+    </ol>
+    <p>Alle Grafiken nutzen die <code>viewBox="0 20 496 470"</code> der App. Bezugspunkte: Stirnansatz 296,132 · Nasenspitze 348,294 · Ohrspitze 203,216 · Nacken 150,372.</p>
+  </section>
+
+  <section class="card">
+    <h2>SVG-Code der aktuellen Ansicht</h2>
+    <p class="meta">Zeigt die Frau-Variante mit der oben gewählten Frisur. Farben sind feste Grautöne auf Weiß (schwarz-weiß).</p>
+    <pre><code id="code"></code></pre>
+  </section>
+</div>
+
+<script>
+(function(){
+  // ---------- Bezugspunkte und Formen aus der App (unverändert übernommen) ----------
+  var ANSATZ = "M296,132 C284,160 270,190 262,200 L258,226 C246,222 232,208 214,210 C200,206 184,212 180,228 C176,260 168,320 150,372";
+  var ANSATZ_REV = " C168,320 176,260 180,228 C184,212 200,206 214,210 C232,208 246,222 258,226 L262,200 C270,190 284,160 296,132 Z";
+  var KOPFHAUT = "M150,372 L142,352 C118,328 92,298 84,262 C76,226 76,172 98,130 C118,94 162,72 214,74 C258,76 290,104 296,132";
+  var FORM = {
+    A: [296,132, 293,94,258,66,208,66, 156,66,106,90,88,130, 72,166,70,214,76,254, 78,292,98,328,128,352, 138,360,146,366,150,372],
+    B: [296,132, 294,84,254,46,190,44, 124,42,58,62,34,110, 18,146,26,200,52,240, 64,280,94,318,128,350, 138,358,146,366,150,372]
+  };
+  function pfadAus(p){
+    var d = "M" + p[0] + "," + p[1];
+    for (var i = 2; i < p.length; i += 6) d += " C" + p.slice(i, i + 6).join(",");
+    return d;
+  }
+
+  // ---------- Neue Köpfe ----------
+  // Beide Varianten beginnen an der Stirn (296,132), Nasenspitze bei 348,294, Ohrspitze bei 203,216.
+  var KOPF = {
+    frau: {
+      nase: "M296,223 C305,240 322,262 340,281 C349,290 351,299 342,303 C333,306 321,303 313,306",
+      stirn: "M296,132 C300,146 303,161 303,176 C304,191 302,203 298,212 C297,216 296,219 296,223",
+      unten: " C315,309 320,312 322,317 C323,320.5 320,323 314,324.5 C319,327.5 321,333 318,338 C315,342 308,343 304,345.5" +
+             " C301,348.5 301,354 305,361 C311,372 308,384 297,389 C285,395 268,395 254,394 C243,395 235,402 229,415 L220,438",
+      nacken: "M156,364 L148,376 C150,396 150,418 147,440",
+      kiefer: "M254,394 C236,389 215,368 208,336",
+      braue: '<path d="M246,205 C257,196.5 274,195 291,201 C276,199.5 260,201 247.5,207.5 Z" fill="#1C1C1A"/>',
+      auge: '<path d="M253,223.5 C260,215.5 274,214.5 284,220.5" fill="none" stroke="#1C1C1A" stroke-width="2.2" stroke-linecap="round"/>' +
+            '<path d="M257,229 C265,233 275,232.5 282,226.5" fill="none" stroke="#1C1C1A" stroke-width="1.1" stroke-linecap="round" opacity=".75"/>' +
+            '<path d="M265.5,218.4 C263.6,222 263.8,226.8 266.2,230.4" fill="none" stroke="#1C1C1A" stroke-width="1.3" stroke-linecap="round"/>' +
+            '<ellipse cx="268.6" cy="224.6" rx="2.5" ry="3.7" fill="#1C1C1A"/>' +
+            '<path d="M284,220.5 q5,-1.5 8.5,-6 M280,218 q4,-2.5 6,-8.5 M275.5,216.6 q2.5,-3.5 3,-9.5 M270.5,216 q1,-3.6 0.4,-8.6" fill="none" stroke="#1C1C1A" stroke-width="1.15" stroke-linecap="round"/>' +
+            '<path d="M252,218 C258,210.5 272,209 282,213.5" fill="none" stroke="#1C1C1A" stroke-width=".9" stroke-linecap="round" opacity=".45"/>',
+      mund: '<path d="M314,324.5 Q306.5,326.5 299.5,323.5" fill="none" stroke="#1C1C1A" stroke-width="1.5" stroke-linecap="round"/>' +
+            '<path d="M318.5,313.5 C314,315 308,315.5 304,314.5" fill="none" stroke="#1C1C1A" stroke-width=".8" stroke-linecap="round" opacity=".45"/>',
+      nasenfluegel: '<path d="M317,297.5 C321,301.5 327.5,301 330.5,297.5" fill="none" stroke="#1C1C1A" stroke-width="1.3" stroke-linecap="round"/>'
+    },
+    mann: {
+      nase: "M295,225 C306,243 324,265 340,283 C348,292 349,301 340,304 C331,306.5 320,304 313,306.5",
+      stirn: "M296,132 C301,146 304,162 304,178 C305,190 308,198 306,206 C304,213 298,219 295,225",
+      unten: " C313,311 318,315 318.5,320 C318.5,323.5 314.5,325.5 310,326.5 C314,329.5 316,334 313,339 C310,342.5 305,343.5 303,346" +
+             " C300,350 302,357 306,365 C311,377 311,389 301,395 C289,400 270,399 256,398 C246,399 239,404 234,414 C232,419 236,423 232,429 L226,440",
+      nacken: "M156,364 L148,376 C152,398 153,420 151,440",
+      kiefer: "M256,398 C236,393 214,372 206,340",
+      braue: '<path d="M245,206.5 C256,201 275,200 292,203.5 C277,205 260,206.5 246,211 Z" fill="#1C1C1A"/>',
+      auge: '<path d="M254,225 C261,218 274,217.5 283.5,222" fill="none" stroke="#1C1C1A" stroke-width="2.2" stroke-linecap="round"/>' +
+            '<path d="M257.5,229.5 C265,233 275,232.5 281.5,227.5" fill="none" stroke="#1C1C1A" stroke-width="1.1" stroke-linecap="round" opacity=".75"/>' +
+            '<path d="M266,220.4 C264.2,223.4 264.4,227.6 266.6,230.6" fill="none" stroke="#1C1C1A" stroke-width="1.3" stroke-linecap="round"/>' +
+            '<ellipse cx="269" cy="225.6" rx="2.4" ry="3.4" fill="#1C1C1A"/>' +
+            '<path d="M252.5,219.5 C259,212.5 273,211.5 283,216" fill="none" stroke="#1C1C1A" stroke-width="1" stroke-linecap="round" opacity=".55"/>',
+      mund: '<path d="M310,326.5 Q304,327.5 298,325.5" fill="none" stroke="#1C1C1A" stroke-width="1.6" stroke-linecap="round"/>',
+      nasenfluegel: '<path d="M316.5,298.5 C321,302.5 328,302 331,298.5" fill="none" stroke="#1C1C1A" stroke-width="1.3" stroke-linecap="round"/>'
+    }
+  };
+  var OHR = {
+    aussen: "M189,223 C199,208 222,212 222,238 C222,260 213,279 202,292 C197,298 190,298 187.5,291",
+    innen:  "M196,231 C206,224 214,238 211,254 C209,264 204,269 200,263",
+    tragus: "M190,255 C194,253 197,257 195,262"
+  };
+  function gesichtLinie(K){ return K.stirn + K.nase.slice(K.nase.indexOf("C") - 1) + K.unten; }
+
+  // ---------- Zarte Strähnen ----------
+  // Linien laufen zwischen Haaransatz und Außenkontur mit (gleiche Endpunkte Stirn und Nacken),
+  // in kurze Züge unterbrochen und nach außen heller: wirkt wie weich verlaufendes Haar.
+  var mess = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  mess.setAttribute("width", "0"); mess.setAttribute("height", "0"); mess.style.position = "absolute";
+  document.body.appendChild(mess);
+  function abtasten(d, n){
+    var p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", d); mess.appendChild(p);
+    var L = p.getTotalLength(), out = [];
+    for (var i = 0; i <= n; i++){ var q = p.getPointAtLength(L * i / n); out.push([q.x, q.y]); }
+    mess.removeChild(p); return out;
+  }
+  function zufall(seed){ return function(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+  function straehnen(outline, seed){
+    var N = 110, a = abtasten(ANSATZ, N), b = abtasten(outline, N), r = zufall(seed), s = "";
+    var reihen = 34;
+    for (var j = 1; j <= reihen; j++){
+      var f = Math.pow(j / (reihen + 1), 0.8);
+      var i = 2 + Math.floor(r() * 6);
+      while (i < N - 2){
+        var len = 10 + Math.floor(r() * 22), ende = Math.min(N - 1, i + len), pts = [];
+        var wob = (r() - 0.5) * 3;
+        for (var k = i; k <= ende; k++){
+          var t = f + (r() - 0.5) * 0.004 + Math.sin(k * 0.18 + j) * 0.004;
+          pts.push([a[k][0] + (b[k][0] - a[k][0]) * t + wob * 0.3, a[k][1] + (b[k][1] - a[k][1]) * t]);
+        }
+        var d = "M" + pts[0][0].toFixed(1) + "," + pts[0][1].toFixed(1);
+        for (var m = 1; m < pts.length - 1; m += 2) d += " Q" + pts[m][0].toFixed(1) + "," + pts[m][1].toFixed(1) + " " + pts[m + 1][0].toFixed(1) + "," + pts[m + 1][1].toFixed(1);
+        var deck = (0.5 - f * 0.3) * (0.55 + r() * 0.45), w = (0.95 - f * 0.4).toFixed(2);
+        s += '<path d="' + d + '" stroke-opacity="' + deck.toFixed(2) + '" stroke-width="' + w + '"/>';
+        i = ende + 2 + Math.floor(r() * 6);
+      }
+    }
+    return s;
+  }
+
+  // ---------- Zusammensetzen ----------
+  var st = {haar:"B", stil:"zart", linie:"fein", nase:"ja"};
+  function kopfSvg(art, o){
+    var K = KOPF[art], s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 20 496 470" role="img" aria-label="Profil ' + (art === "frau" ? "Frau" : "Mann") + '">';
+    s += '<defs><radialGradient id="hg-' + art + '" cx="0.62" cy="0.62" r="0.75"><stop offset="0" stop-color="#1C1C1A" stop-opacity=".07"/><stop offset="1" stop-color="#1C1C1A" stop-opacity="0"/></radialGradient></defs>';
+    // Ebene: Haar
+    s += '<g id="haar">';
+    if (o.haar !== "ohne"){
+      var aussen = pfadAus(FORM[o.haar]);
+      if (o.stil === "zart"){
+        s += '<path d="' + aussen + ANSATZ_REV + '" fill="url(#hg-' + art + ')"/>';
+        s += '<g fill="none" stroke="#1C1C1A" stroke-linecap="round">' + straehnen(aussen, art === "frau" ? 7 : 11) + '</g>';
+      }
+      s += '<path d="' + aussen + '" fill="none" stroke="#1C1C1A" stroke-linecap="round" ' +
+        (o.linie === "strich" ? 'stroke-width="2.4" stroke-dasharray="8 5"' : 'stroke-width="1.6"') + '/>';
+    }
+    s += '</g>';
+    if (o.haar === "ohne") s += '<g id="schaedel"><path d="' + KOPFHAUT + '" fill="none" stroke="#1C1C1A" stroke-width="1.6" stroke-linecap="round"/></g>';
+    // Ebene: Kopf
+    s += '<g id="kopf" fill="none" stroke="#1C1C1A" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="' + ANSATZ + '" stroke-width="1.1" stroke-dasharray="1.2 4.2" opacity=".8"/>' +
+      '<path d="' + gesichtLinie(K) + '" stroke-width="2.2"/>' +
+      '<path d="' + K.nacken + '" stroke-width="2.2"/>' +
+      '<path d="' + K.kiefer + '" stroke-width="1" opacity=".35"/>' +
+      '<path d="' + OHR.aussen + '" stroke-width="2"/>' +
+      '<path d="' + OHR.innen + '" stroke-width="1.3"/>' +
+      '<path d="' + OHR.tragus + '" stroke-width="1.2"/>' +
+      '</g>';
+    // Ebene: Gesicht
+    s += '<g id="gesicht">' + K.braue + K.auge + K.nasenfluegel + K.mund + '</g>';
+    // Ebene: Markierung
+    s += '<g id="markierung">';
+    if (o.nase === "ja"){
+      s += '<path d="' + K.nase + '" fill="none" stroke="#5B7B6F" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<line x1="366" y1="236" x2="330" y2="262" stroke="#1C1C1A" stroke-width="1.2"/>' +
+        '<text x="370" y="228" font-family="Atkinson Hyperlegible, Segoe UI, system-ui, sans-serif" font-size="16" font-weight="700" fill="#5B7B6F">Nase</text>' +
+        '<text x="370" y="247" font-family="Atkinson Hyperlegible, Segoe UI, system-ui, sans-serif" font-size="16" font-weight="700" fill="#5B7B6F">unverändert</text>';
+    }
+    s += '</g>';
+    return s + '</svg>';
+  }
+
+  // bisherige Vorlage zum Vergleich (aus der App)
+  function altSvg(o){
+    var NASE = "M293,227 C306,246 322,266 340,282 C350,290 351,300 342,304 C332,307 318,304 309,307";
+    var GES = "M296,132 C299,142 301,152 301,160 C304,182 302,198 299,208 C301,214 297,221 293,227 " + NASE.slice(NASE.indexOf("C")) +
+      " C314,309 319,313 318,318 C317,321 313,323 309,324 C313,327 316,332 313,337 C310,341 305,342 302,344 C299,347 300,351 303,357 C308,367 306,379 296,385 C285,391 268,392 254,391 C244,392 236,400 230,414 L220,438";
+    var OHR0 = "M186,224 C199,212 217,220 215,243 C213,262 207,276 199,287 C195,293 190,295 188,290 M192,234 C203,229 209,241 205,256 C203,264 198,266 196,260";
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 20 496 470" role="img" aria-label="Bisherige Vorlage">';
+    if (o.haar !== "ohne") s += '<path d="' + pfadAus(FORM[o.haar]) + '" fill="none" stroke="#1C1C1A" stroke-width="2.4" stroke-dasharray="8 5" stroke-linecap="round"/>';
+    s += '<g fill="none" stroke="#1C1C1A" stroke-linecap="round" stroke-linejoin="round"><path d="' + ANSATZ + '" stroke-width="1.6" stroke-dasharray="1.5 4.5"/>' +
+      '<path d="' + GES + '" stroke-width="2.6"/><path d="M156,364 L148,376 C150,396 150,418 147,440" stroke-width="2.6"/><path d="' + OHR0 + '" stroke-width="2.3"/></g>' +
+      '<path d="M244,206 C254,197 272,195 287,201 C273,199 258,201 245,209 Z" fill="#1C1C1A"/>' +
+      '<path d="M253,224 C260,216 274,215 283,221" fill="none" stroke="#1C1C1A" stroke-width="2.6" stroke-linecap="round"/>' +
+      '<path d="M256,229 C264,234 274,233 281,226" fill="none" stroke="#1C1C1A" stroke-width="1.4" stroke-linecap="round"/>' +
+      '<circle cx="268" cy="224.5" r="5.2" fill="none" stroke="#1C1C1A" stroke-width="1.6"/><circle cx="268" cy="224.5" r="2.8" fill="#1C1C1A"/>' +
+      '<path d="M281,220 l6,-3 M277,217.5 l4.5,-4.5 M272,216 l2.5,-5" stroke="#1C1C1A" stroke-width="1.5" stroke-linecap="round"/>' +
+      '<path d="M309,324 Q303,326 297,323" fill="none" stroke="#1C1C1A" stroke-width="1.8" stroke-linecap="round"/>';
+    if (o.nase === "ja") s += '<path d="' + NASE + '" fill="none" stroke="#5B7B6F" stroke-width="4" stroke-linecap="round"/>';
+    return s + '</svg>';
+  }
+
+  function zeichnen(){
+    document.getElementById("frau").innerHTML = kopfSvg("frau", st);
+    document.getElementById("mann").innerHTML = kopfSvg("mann", st);
+    document.getElementById("alt").innerHTML = altSvg(st);
+    document.getElementById("neu").innerHTML = kopfSvg("frau", st);
+    document.getElementById("code").textContent = kopfSvg("frau", st).replace(/></g, ">\n<");
+    document.querySelectorAll(".chip").forEach(function(b){ b.setAttribute("aria-pressed", String(st[b.dataset.k] === b.dataset.v)); });
+  }
+  document.addEventListener("click", function(e){
+    var b = e.target.closest(".chip"); if (!b) return;
+    st[b.dataset.k] = b.dataset.v; zeichnen();
+  });
+  window.PROFIL_VORLAGE = {kopfSvg:kopfSvg, st:st};
+  zeichnen();
+})();
+</script>
+</body>
+</html>
