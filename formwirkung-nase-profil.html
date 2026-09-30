@@ -1974,9 +1974,10 @@ dl.steck dd{margin:0}
   function lkZufall(seed){ return function(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
   // Strähnen-Gruppen zwischen Führungslinie (Haaransatz) und Kontur
   var LK_STR = {};
-  function lkStraehnen(kontur, feld, seed, gruppen){
-    var ck = kontur + "|" + feld; if (LK_STR[ck]) return LK_STR[ck];
+  function lkStraehnen(kontur, feld, seed, gruppen, kante){
+    var ck = kontur + "|" + feld + "|" + (kante ? 1 : 0); if (LK_STR[ck]) return LK_STR[ck];
     var N = 200, a = lkGleich(feld, N), b = lkGleich(kontur, N), r = lkZufall(seed), s = "";
+    var offen = Math.hypot(a[N][0] - b[N][0], a[N][1] - b[N][1]) > 12;
     function pkt(k, t){ return [a[k][0] + (b[k][0] - a[k][0]) * t, a[k][1] + (b[k][1] - a[k][1]) * t]; }
     function lauf(k0, k1, t0, t1, welle){
       var pts = [];
@@ -1984,20 +1985,32 @@ dl.steck dd{margin:0}
       return pts;
     }
     for (var g = 0; g < gruppen; g++){
-      var f = 0.12 + (g + r() * 0.6) * (0.8 / gruppen), lang = 0.35 + r() * 0.4;
-      var k0 = Math.floor(N * (0.03 + r() * 0.3)), k1 = Math.min(N, k0 + Math.floor(N * lang));
+      var f = 0.12 + (g + r() * 0.6) * (0.8 / gruppen), lang = offen ? 0.5 + r() * 0.4 : 0.35 + r() * 0.4;
+      var k0 = Math.floor(N * (0.03 + r() * (offen ? 0.28 : 0.3))), k1 = Math.min(N, k0 + Math.floor(N * lang));
       var n = 2 + (r() < 0.35 ? 1 : 0), welle = (r() - 0.5) * 0.12;
-      for (var i = 0; i < n; i++) s += lkStrich(lauf(k0 + i * 8, k1 - i * 14, f + i * 0.03, f + i * 0.03 + 0.05, welle), 1.0 - i * 0.22);
+      for (var i = 0; i < n; i++) s += lkStrich(lauf(k0 + i * 8, k1 - i * 14, f + i * 0.03, f + i * 0.03 + (offen ? 0.015 : 0.05), welle), 1.0 - i * 0.22);
     }
-    [0.3, 0.52, 0.74, 0.9].forEach(function(t, i){
-      var k0 = Math.floor(N * (0.5 + r() * 0.12));
-      s += lkStrich(lauf(k0, N - 4 - i * 3, t, t + 0.04, (r() - 0.5) * 0.08), 0.95);
-    });
+    if (!offen){
+      [0.3, 0.52, 0.74, 0.9].forEach(function(t, i){
+        var k0 = Math.floor(N * (0.5 + r() * 0.12));
+        s += lkStrich(lauf(k0, N - 4 - i * 3, t, t + 0.04, (r() - 0.5) * 0.08), 0.95);
+      });
+    } else if (!kante){
+      // freie Spitzen: Strähnen laufen über das Ende hinaus und bilden die Unterkante
+      for (var q = 0; q <= 9; q++){
+        var t = 0.04 + q * 0.1 + (r() - 0.5) * 0.04, pts = lauf(Math.floor(N * (0.72 + r() * 0.12)), N, t, t, 0);
+        var p1 = pkt(N, t), p0 = pkt(N - 8, t), dx = p1[0] - p0[0], dy = p1[1] - p0[1], dl = Math.hypot(dx, dy) || 1, ext = 6 + r() * 12;
+        pts.push([p1[0] + dx / dl * ext * 0.5 + (r() - 0.5) * 3, p1[1] + dy / dl * ext * 0.5]);
+        pts.push([p1[0] + dx / dl * ext + (r() - 0.5) * 5, p1[1] + dy / dl * ext]);
+        s += lkStrich(pts, 0.8 + r() * 0.5);
+      }
+    }
     s += lkStrich(b.filter(function(_, i){ return i % 3 === 0 || i === N; }), 1.55, true);
+    if (kante) s += '<path d="M' + b[N][0].toFixed(1) + ',' + b[N][1].toFixed(1) + ' L' + a[N][0].toFixed(1) + ',' + a[N][1].toFixed(1) + '" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
     return (LK_STR[ck] = s);
   }
   function lkUmkehr(d){ return " L" + lkGleich(d, 70).reverse().map(function(p){ return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" L"); }
-  function lkFlaeche(art, H){ return H.kurz ? H.o + H.zu : H.o + lkUmkehr(LK[art].ansatz) + " Z"; }
+  function lkFlaeche(art, H){ return H.kurz ? H.o + H.zu : H.o + lkUmkehr(H.innen || LK[art].ansatz) + " Z"; }
   function lkTeil(d){ // kleine Haarpartie (Pony, Spitze): Fläche, Kontur, zwei Strähnen
     var p = lkGleich(d, 40);
     return '<path d="' + d + '" fill="var(--surface)"/>' + lkStrich(p, 1.3, true) +
@@ -2005,21 +2018,31 @@ dl.steck dd{margin:0}
   }
   function lkHaarSvg(art, H, o){
     o = o || {};
-    var K = LK[art], feld = H.kurz ? H.feld : K.feld;
+    var K = LK[art], feld = H.feld || K.feld, innen = H.innen || K.ansatz;
     var s = '<g class="haar"><path d="' + lkFlaeche(art, H) + '" fill="var(--surface)"/><g fill="var(--ink)">' +
-      lkStraehnen(H.o, feld, art === "mann" ? 4 : 3, H.kurz ? 6 : 10) + '</g>';
-    if (K.kante && !H.kurz) s += '<path d="' + K.ansatz + '" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
-    else s += '<g fill="var(--ink)">' + lkStrich(lkGleich(H.kurz ? H.feld : K.ansatz, 45), 0.75, true) + '</g>';
+      lkStraehnen(H.o, feld, art === "mann" ? 4 : 3, H.gruppen || (H.kurz ? 6 : 10), H.kante) + '</g>';
+    if (K.kante && !H.kurz && !H.innen) s += '<path d="' + K.ansatz + '" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    else s += '<g fill="var(--ink)">' + lkStrich(lkGleich(H.kurz ? H.feld : innen, 45), 0.75, true) + '</g>';
     if (o.spitze) s += '<g fill="var(--ink)">' + lkTeil(LK_SPITZE) + '</g>';
     if (o.pony) s += '<g fill="var(--ink)">' + lkTeil(LK_PONY) + '</g>';
     return s + '</g>';
   }
-  function lkKopfSvg(art){
-    var K = LK[art];
-    return '<g class="kopf"><path d="' + K.kopf + '" fill="var(--ink)" fill-rule="evenodd"/>' +
-      '<path d="' + K.abdecken + '" fill="var(--surface)"/>' +
+  // Doppelkinn (Fall 3, Frau): Halslinie der Vorlage abdecken, Doppelkinn und Hals neu
+  var LK_DK = {
+    abdecken:"M258,360 L276,362 L262,374 L252,388 L246,402 L240,422 L234,446 L216,446 L222,422 L228,400 L234,384 L240,368 Z",
+    kinn:"M314,365 C320,380 312,396 292,402 C276,406 262,402 252,408 C244,414 238,426 232,446",
+    falte:"M302,371 C294,378 282,381 270,378"
+  };
+  function lkKopfSvg(art, o){
+    o = o || {};
+    var K = LK[art], s = '<g class="kopf"><path d="' + K.kopf + '" fill="var(--ink)" fill-rule="evenodd"/>';
+    if (o.nase !== false) s += '<path d="' + K.abdecken + '" fill="var(--surface)"/>' +
       '<path d="' + K.nase + '" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-      '<path d="' + K.nasenloch + '" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/></g>';
+      '<path d="' + K.nasenloch + '" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/>';
+    if (o.doppelkinn) s += '<path d="' + LK_DK.abdecken + '" fill="var(--surface)"/>' +
+      '<path d="' + LK_DK.kinn + '" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="' + LK_DK.falte + '" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round"/>';
+    return s + '</g>';
   }
   function lkNaseSvg(art){
     return '<path class="nase" d="' + LK[art].nase + '" fill="none" stroke="var(--accent)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>';
@@ -2050,39 +2073,38 @@ dl.steck dd{margin:0}
 
   // ==================== Fall 3: Doppelkinn (Profil) ====================
   // Fix: Kinn- und Halsbereich. Variiert: Höhe am Oberkopf, Längenführung, Volumen um Kiefer und Nacken.
-  var DK_KINN = "M303,357 C308,367 306,379 296,385 C292,398 284,408 272,414 C258,420 246,420 238,428 L230,448";
-  var DK_GESICHT = P_GESICHT.slice(0, P_GESICHT.indexOf(" C308,367")) + " C308,367 306,379 296,385 C292,398 284,408 272,414 C258,420 246,420 238,428 L230,448";
-  var DK_VORNE = " C258,380 256,330 256,290 C256,250 256,220 262,200 C270,176 284,150 296,132 Z";
+  // Frisuren für den neuen Kopf (Frau): Außenkontur, Innenkante (vordere Kante), Führungslinie
+  var DK_INNEN_KURZ = "M324,121 C310,134 298,150 288,164 C268,178 240,186 224,198 C212,214 210,242 212,272 C214,304 222,340 236,368";
+  var DK_FELD_KURZ  = "M324,121 C300,138 276,158 256,176 C236,196 222,226 218,260 C216,298 224,336 236,368";
+  var DK_INNEN_LANG = "M324,121 C308,134 296,148 290,162 C268,168 234,172 212,176 C196,178 186,182 178,188 C162,184 146,192 142,212 C138,240 142,268 152,290 C162,330 170,410 176,482";
+  var DK_FELD_LANG  = "M324,121 C296,134 266,152 244,168 C220,184 196,188 176,194 C156,200 146,222 148,252 C152,310 166,410 174,482";
   var DK_HAAR = {
-    A:      "M296,132 C294,90 256,62 204,62 C144,62 96,92 80,140 C68,190 68,250 74,300 C80,350 96,392 132,410 C172,424 222,422 256,412" + DK_VORNE,
-    M:      "M296,132 C296,82 256,50 200,50 C136,50 88,86 76,138 C66,190 68,244 78,286 C90,326 104,360 118,396 C126,418 128,434 128,446 L200,446 C200,420 204,396 212,370 C224,330 238,286 248,250 C254,226 256,210 262,200 C270,176 284,150 296,132 Z",
-    B:      "M296,132 C298,76 256,38 196,38 C130,38 84,78 72,136 C62,186 66,236 76,272 C88,312 104,346 112,390 C118,430 118,460 116,482 L196,482 C194,450 196,420 204,390 C214,352 234,300 246,256 C252,228 256,210 262,200 C270,176 284,150 296,132 Z",
-    breit:  "M296,132 C294,90 256,62 204,62 C144,62 92,92 74,140 C58,196 54,262 62,318 C70,372 96,414 140,426 C184,436 226,430 258,418" + DK_VORNE,
-    kante:  "M296,132 C294,90 256,62 204,62 C144,62 96,92 80,140 C70,190 72,250 76,300 C78,340 80,370 82,386 L262,386 C258,350 256,300 256,260 C256,230 258,212 262,200 C270,176 284,150 296,132 Z",
-    flach:  pfadAus(FORM.A) + ANSATZ_REV
+    A:     {o:"M324,121 C322,74 272,40 198,40 C122,40 58,78 46,148 C38,198 44,262 66,312 C84,350 112,370 156,376", innen:DK_INNEN_KURZ, feld:DK_FELD_KURZ, gruppen:9},
+    M:     {o:"M324,121 C324,70 274,32 198,32 C120,32 56,72 44,146 C36,200 46,262 56,318 C64,366 64,404 62,432", innen:"M324,121 C308,134 296,148 290,162 C268,168 234,172 212,176 C196,178 186,182 178,188 C162,184 146,192 142,212 C138,240 142,268 152,290 C160,318 166,380 170,432", feld:"M324,121 C296,134 266,152 244,168 C220,184 196,188 176,194 C156,200 146,222 148,252 C152,300 164,380 168,432", gruppen:9},
+    B:     {o:"M324,121 C328,62 280,20 198,20 C116,20 52,64 42,142 C34,204 46,268 56,330 C64,392 64,444 60,482", innen:DK_INNEN_LANG, feld:DK_FELD_LANG, gruppen:10},
+    breit: {o:"M324,121 C322,74 272,40 198,40 C122,40 52,80 38,152 C26,210 24,276 48,326 C70,368 108,388 160,390", innen:DK_INNEN_KURZ, feld:DK_FELD_KURZ, gruppen:9},
+    kante: {o:"M324,121 C322,74 272,40 198,40 C122,40 58,78 46,148 C38,198 40,262 50,318 C54,340 56,356 58,368", innen:DK_INNEN_KURZ, feld:DK_FELD_KURZ, gruppen:9, kante:true},
+    flach: null
   };
+  var DK_KINNHOEHE = 368;
   function dkFig(o){
     o = o || {};
-    var key = o.dk || "A", d = DK_HAAR[key], id = ++uid, kurz = key === "flach";
-    var top = Math.min.apply(null, punkte(d).map(function(p){ return p[1]; }));
-    var s = '<svg viewBox="20 20 400 470" role="img" aria-label="' + (o.label || "Doppelkinn im Profil") + '">';
-    s += '<path d="' + d + '" fill="var(--g-flaeche)" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="' + (key === "kante" ? '8 5' : '8 5') + '" stroke-linejoin="round"/>';
-    if (key === "kante") s += '<line x1="82" y1="386" x2="262" y2="386" stroke="var(--ink)" stroke-width="3"/>';
-    s += '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
-      (kurz ? '<path d="' + ANSATZ + '" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="1.5 4.5"/><path d="' + OHR + '" stroke="var(--ink)" stroke-width="2.3"/><path d="' + NACKEN + '" stroke="var(--ink)" stroke-width="2.6"/>' : '') +
-      '<path d="' + DK_GESICHT + '" stroke="var(--ink)" stroke-width="2.6"/></g>';
-    s += profilBraue("gebogen") + profilAuge("mandel") + '<path d="M309,324 Q303,326 297,323" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/>';
+    var key = o.dk || "A", H = key === "flach" ? lkHaar("frau", "A") : DK_HAAR[key], id = ++uid;
+    var top = Math.min.apply(null, punkte(H.o).map(function(p){ return p[1]; }));
+    var s = '<svg viewBox="20 12 400 478" role="img" aria-label="' + (o.label || "Doppelkinn im Profil") + '">';
+    s += lkKopfSvg("frau", {nase:false, doppelkinn:true}) + lkHaarSvg("frau", H);
     // Kinn und Hals (fix) in der Akzentfarbe
-    s += '<path d="' + DK_KINN + '" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
+    s += '<path d="' + LK_DK.kinn + '" fill="none" stroke="var(--accent)" stroke-width="3.4" stroke-linecap="round"/>';
+    var Y = DK_KINNHOEHE;
     if (o.hilfe){
-      s += '<g class="hilfe">' + pfeil(372, 386, 372, top + 2, "var(--g-haar-kontur)", 3) + pfeil(372, top, 372, 384, "var(--g-haar-kontur)", 3) +
-        '<line x1="300" y1="' + top.toFixed(0) + '" x2="384" y2="' + top.toFixed(0) + '" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
-        '<line x1="300" y1="386" x2="384" y2="386" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
-        txt(380, ((top + 386) / 2).toFixed(0), "Höhe", {size:14}) +
-        (key === "A" || key === "breit" || key === "kante" ? pfeil(100, 440, 240, 440, "var(--accent)", 2.5) + txt(170, 464, "Linie waagrecht", {size:13, anchor:"middle", fill:"var(--accent)"}) : '') +
-        (key === "B" || key === "M" ? pfeil(100, 300, 100, 470, "var(--accent)", 2.5) + txt(92, 292, "Linie senkrecht", {size:13, fill:"var(--accent)"}) : '') + '</g>';
+      s += '<g class="hilfe">' + pfeil(386, Y, 386, top + 2, "var(--g-haar-kontur)", 3) + pfeil(386, top, 386, Y - 2, "var(--g-haar-kontur)", 3) +
+        '<line x1="330" y1="' + top.toFixed(0) + '" x2="398" y2="' + top.toFixed(0) + '" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
+        '<line x1="330" y1="' + Y + '" x2="398" y2="' + Y + '" stroke="var(--g-hilfe)" stroke-width="1.2" stroke-dasharray="3 4"/>' +
+        txt(378, ((top + Y) / 2).toFixed(0), "Höhe", {size:14, anchor:"end"}) +
+        (key === "A" || key === "breit" || key === "kante" ? pfeil(60, 410, 200, 410, "var(--accent)", 2.5) + txt(130, 432, "Linie waagrecht", {size:13, anchor:"middle", fill:"var(--accent)"}) : '') +
+        (key === "B" || key === "M" ? pfeil(36, 300, 36, 470, "var(--accent)", 2.5) + txt(30, 292, "Linie senkrecht", {size:13, fill:"var(--accent)"}) : '') + '</g>';
     }
-    s += '<g class="hinweis"><line x1="300" y1="440" x2="284" y2="414" stroke="var(--ink)" stroke-width="1.5"/>' +
+    s += '<g class="hinweis"><line x1="300" y1="440" x2="286" y2="406" stroke="var(--ink)" stroke-width="1.5"/>' +
       txt(282, 458, "Kinn und Hals", {size:16, fill:"var(--accent)"}) + txt(282, 477, "unverändert", {size:16, fill:"var(--accent)"}) + '</g>';
     return s + '</svg>';
   }
