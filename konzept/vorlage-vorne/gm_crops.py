@@ -4,7 +4,7 @@ im=Image.open('../images/4.jpg').convert('L')
 # fall, art, which: (box, whiteouts)
 C={
  ('nase','mann','A'):((30,398,172,556),[(153,450,172,480)]),
- ('nase','mann','B'):((185,398,306,556),[(294,452,306,480)]),
+ ('nase','mann','B'):((185,398,318,556),[(301,450,318,477)]),
  ('auge','mann','A'):((370,348,508,526),[]),
  ('auge','mann','B'):((536,348,666,526),[]),
  ('auge','frau','A'):((368,670,508,836),[]),
@@ -13,10 +13,10 @@ C={
  ('dk','frau','B'):((204,672,346,838),[(204,698,213,736)]),
  ('dk','mann','A'):((242,952,342,1080),[(242,948,282,961),(300,1062,342,1082)]),
  ('dk','mann','B'):((334,952,452,1080),[(334,948,362,970)]),
- ('rund','mann','A'):((482,956,566,1086),[]),
- ('rund','mann','B'):((561,954,658,1086),[]),
- ('rund','frau','A'):((28,1262,126,1390),[]),
- ('rund','frau','B'):((119,1262,222,1390),[]),
+ ('rund','mann','A'):((482,956,566,1088),[(550,950,566,965),(482,1084,566,1090)]),
+ ('rund','mann','B'):((561,954,658,1088),[(561,950,592,973),(561,1084,658,1090)]),
+ ('rund','frau','A'):((28,1262,126,1390),[(94,1258,126,1283)]),
+ ('rund','frau','B'):((119,1262,222,1390),[(119,1258,152,1283)]),
  ('ohr','frau','A'):((249,1262,342,1390),[]),
  ('ohr','frau','B'):((334,1262,442,1390),[]),
  ('ohr','mann','A'):((478,1264,573,1400),[]),
@@ -58,7 +58,7 @@ for (f,a,w),(box,wo) in C.items():
     W0,H0=c.size; m=int(max(W0,H0)*0.08); W1,H1=W0+2*m,H0+m
     TW=max(W1,int(H1*0.8)); TH=int(TW/0.8)
     if TH<H1: TH=H1; TW=int(TH*0.8)
-    can=Image.new('L',(TW,TH),bgv); can.paste(c,((TW-W0)//2,TH-H0)); c=can.resize((480,600),Image.LANCZOS)
+    can=Image.new('L',(TW,TH+m),bgv); can.paste(c,((TW-W0)//2,(TH+m-H0)//2)); TH=TH+m; c=can.resize((480,600),Image.LANCZOS)
     c.save('gmc-%s-%s-%s.png'%(f,a,w))
     b=io.BytesIO(); c.save(b,'JPEG',quality=82,optimize=True)
     out.setdefault(f,{}).setdefault(a,{})[w]={"src":"data:image/jpeg;base64,"+base64.b64encode(b.getvalue()).decode(),"w":c.size[0],"h":c.size[1]}
