@@ -1,8 +1,11 @@
 import io, base64, json
 from PIL import Image, ImageDraw, ImageFilter
 im=Image.open('../images/4.jpg').convert('L')
+im5=Image.open('../images/5.jpg').convert('L')
 # fall, art, which: (box, whiteouts)
 C={
+ ('nase','frau','A'):((30,398,162,552),[(152,452,162,481),(146,463,152,475)],5),
+ ('nase','frau','B'):((190,398,318,552),[(268,524,318,556),(312,398,318,440),(262,396,318,405)],5),
  ('nase','mann','A'):((30,398,172,556),[(153,450,172,480)]),
  ('nase','mann','B'):((185,398,318,556),[(301,450,318,477)]),
  ('auge','mann','A'):((370,348,508,526),[]),
@@ -23,8 +26,9 @@ C={
  ('ohr','mann','B'):((561,1262,670,1400),[]),
 }
 out={}
-for (f,a,w),(box,wo) in C.items():
-    c=im.copy(); d=ImageDraw.Draw(c)
+for (f,a,w),v in C.items():
+    box,wo=v[0],v[1]
+    c=(im5 if len(v)>2 else im).copy(); d=ImageDraw.Draw(c)
     for r in wo:
         if len(r)==2: d.line(r,fill=238,width=4)
         else: d.rectangle(r,fill=238)
