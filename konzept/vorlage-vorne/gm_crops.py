@@ -3,26 +3,24 @@ from PIL import Image, ImageDraw, ImageFilter
 im=Image.open('../images/4.jpg').convert('L')
 # fall, art, which: (box, whiteouts)
 C={
- ('nase','mann','A'):((35,400,162,552),[(149,452,162,483)]),
- ('nase','mann','B'):((188,400,300,552),[(291,452,300,483)]),
- ('nase','frau','A'):((32,675,166,835),[(140,806,166,836),(158,722,166,745)]),
- ('nase','frau','B'):((208,675,342,835),[]),
- ('auge','mann','A'):((372,350,505,525),[]),
- ('auge','mann','B'):((538,350,664,525),[]),
- ('auge','frau','A'):((370,671,505,835),[]),
- ('auge','frau','B'):((538,671,668,835),[]),
- ('dk','frau','A'):((36,955,128,1078),[(90,1061,128,1080),(100,950,128,966)]),
- ('dk','frau','B'):((126,955,230,1078),[(126,950,150,968),(205,1050,230,1080)]),
- ('dk','mann','A'):((246,955,340,1078),[(246,950,282,961),(292,1061,340,1080)]),
- ('dk','mann','B'):((336,955,446,1078),[(336,950,362,970)]),
- ('rund','mann','A'):((486,962,563,1084),[]),
- ('rund','mann','B'):((558,958,650,1084),[]),
- ('rund','frau','A'):((34,1265,125,1388),[]),
- ('rund','frau','B'):((121,1265,216,1388),[]),
- ('ohr','frau','A'):((250,1265,340,1388),[]),
- ('ohr','frau','B'):((337,1265,436,1388),[]),
- ('ohr','mann','A'):((484,1268,570,1398),[]),
- ('ohr','mann','B'):((565,1265,662,1398),[]),
+ ('nase','mann','A'):((30,398,172,556),[(153,450,172,480)]),
+ ('nase','mann','B'):((185,398,306,556),[(294,452,306,480)]),
+ ('auge','mann','A'):((370,348,508,526),[]),
+ ('auge','mann','B'):((536,348,666,526),[]),
+ ('auge','frau','A'):((368,670,508,836),[]),
+ ('auge','frau','B'):((536,670,670,836),[]),
+ ('dk','frau','A'):((28,672,170,838),[(160,698,170,736),(138,810,170,840)]),
+ ('dk','frau','B'):((204,672,346,838),[(204,698,213,736)]),
+ ('dk','mann','A'):((242,952,342,1080),[(242,948,282,961),(300,1062,342,1082)]),
+ ('dk','mann','B'):((334,952,452,1080),[(334,948,362,970)]),
+ ('rund','mann','A'):((482,956,566,1086),[]),
+ ('rund','mann','B'):((561,954,658,1086),[]),
+ ('rund','frau','A'):((28,1262,126,1390),[]),
+ ('rund','frau','B'):((119,1262,222,1390),[]),
+ ('ohr','frau','A'):((249,1262,342,1390),[]),
+ ('ohr','frau','B'):((334,1262,442,1390),[]),
+ ('ohr','mann','A'):((478,1264,573,1400),[]),
+ ('ohr','mann','B'):((561,1262,670,1400),[]),
 }
 out={}
 for (f,a,w),(box,wo) in C.items():
@@ -45,13 +43,21 @@ for (f,a,w),(box,wo) in C.items():
         keep=~weg
         bg=np.median(A[~fg]) if (~fg).any() else 238
         A=np.where(keep,A,bg)
+        # Reste am Rand (Pfeilspitzen, Panelrand) entfernen
+        rand=np.zeros_like(fg); rand[:4,:]=rand[-3:,:]=rand[:,:4]=rand[:,-4:]=True
+        lab2,n2=ndimage.label(fg&~(lab==k)); 
+        for q in range(1,n2+1):
+            mq=lab2==q
+            if (mq&rand).any(): A=np.where(ndimage.binary_dilation(mq,iterations=2)&~(lab==k),bg,A)
     c=Image.fromarray(A.astype("uint8"))
     c=c.resize((c.size[0]*3,c.size[1]*3),Image.LANCZOS).filter(ImageFilter.UnsharpMask(2,60,2))
     # einheitliches Format 4:5, Kopf unten bündig, Hintergrund wie Vorlage
     import numpy as np
     arr=np.array(c); bgv=int(np.median(arr[arr>200])) if (arr>200).any() else 238
-    W0,H0=c.size; TW=max(W0,int(H0*0.8)); TH=int(TW/0.8)
-    if TH<H0: TH=H0; TW=int(TH*0.8)
+    # Rand rundherum, damit nichts am Bildrand klebt; einheitlich 4:5
+    W0,H0=c.size; m=int(max(W0,H0)*0.08); W1,H1=W0+2*m,H0+m
+    TW=max(W1,int(H1*0.8)); TH=int(TW/0.8)
+    if TH<H1: TH=H1; TW=int(TH*0.8)
     can=Image.new('L',(TW,TH),bgv); can.paste(c,((TW-W0)//2,TH-H0)); c=can.resize((480,600),Image.LANCZOS)
     c.save('gmc-%s-%s-%s.png'%(f,a,w))
     b=io.BytesIO(); c.save(b,'JPEG',quality=82,optimize=True)
