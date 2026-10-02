@@ -113,3 +113,17 @@ Alle 42 Bildbeschreibungen (Reiter „Trainer“ in `beratung-formwirkung.html`,
 von der Ausbilderin einzeln geprüft. Korrigiert: Scheitel bei form-frau-rund, hd-frau-*,
 rund-frau-vorher/-nachher; Länge bei doppelkinn-frau-vorher (länger als kinnlang).
 Bei neuen Bildern: Beschreibung vor dem Einbau ebenso prüfen lassen.
+
+---
+
+## Natürlichere Sätze für die Abwandlung, Test 2026-10-02
+
+Beispielsätze im Skill (Schritt 3 „Tragfähige Variante anbieten"), ausdrücklich nur als Anregung,
+im selben Gespräch nie zweimal dieselbe Wendung. Test mit drei Wunschkonflikten:
+
+- Seiten sehr kurz: „Die Kürze bleibt, nur an den Seiten lasse ich etwas mehr stehen … Kürzer geht beim nächsten Mal immer noch." ✅
+- Kinnbob bei Locken: „Ich würde es etwas anders machen …: Der Mittelscheitel bleibt, die Länge geht ein Stück tiefer …" ✅
+- Pixie bei Herzform: „Ich würde es ein bisschen anders machen: Die Stirn bleibt frei, die Spitzen laufen aber schräg zur Seite …" ✅
+
+Erster Durchlauf nahm dreimal dieselbe Wendung → Regel „nicht reflexartig denselben Satz" ergänzt.
+„… als auf Ihrem Foto" nur noch, wenn wirklich ein Foto erwähnt wurde.

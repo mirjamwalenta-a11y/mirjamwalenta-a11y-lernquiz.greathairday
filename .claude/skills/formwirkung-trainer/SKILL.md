@@ -117,6 +117,15 @@ abgewandelte Lösung empfohlen, tut der Satz nicht so, als würde genau der Wuns
    „Ganz kurze Seiten nehmen seitlich Breite weg, dadurch wirkt alles mehr in die Länge."
    statt „Bei Ihrer Gesichtsform …", „Ihr Gesicht ist sehr lang, deshalb …" oder „Bei Ihrem Kinn …".
 3. **Tragfähige Variante anbieten** – klar sagen, dass es eine Abwandlung ist und was sie anders macht.
+   Natürlich klingen, nicht nach Fachbuch. Konkret sagen, **was bleibt** und **was sich ändert**.
+   Beispiele – sie sind nur Anregungen: Wähle den, der zur Situation passt, oder formuliere frei
+   im selben Ton. Nicht reflexartig immer denselben nehmen; im selben Gespräch nie zweimal dieselbe Wendung.
+   - „Das ist nicht ganz das, was Sie sich vorgestellt haben, kommt aber nah dran: …"
+   - „Ich würde es ein bisschen anders machen: …" (mit „… als auf Ihrem Foto" nur, wenn die Kundin wirklich ein Foto mitgebracht hat)
+   - „Die Kürze bleibt, nur an den Seiten lasse ich etwas mehr stehen."
+   - „Mein Vorschlag wäre eine etwas abgewandelte Version: …"
+   - „Wir können auch mit dieser Variante anfangen. Kürzer geht beim nächsten Mal immer noch."
+   Nicht: „Das ist eine Abwandlung Ihres Wunsches." (steif) oder „Wir machen genau das, nur anders." (unehrlich)
 4. **Entscheidung bei der Kundin/dem Kunden lassen** – „Was meinen Sie?" / „Wir können auch …"
 
 Keine Floskeln wie „perfekt", „traumhaft", keine Versprechen, die der Schnitt nicht halten kann.
