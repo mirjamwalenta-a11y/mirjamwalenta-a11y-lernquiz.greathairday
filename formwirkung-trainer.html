@@ -49,7 +49,7 @@ header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--b
 .mode-pill{margin-left:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:.82rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
 .btn-ghost{flex:none;white-space:nowrap;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;cursor:pointer;font-weight:700;font-size:.88rem}
 .btn-ghost:hover{border-color:var(--accent)}
-@media (max-width:420px){.brand{font-size:1rem}.top .wrap{gap:8px}}
+@media (max-width:420px){.brand{font-size:1rem}.brand .bt{display:none}.top .wrap{gap:8px}}
 
 /* Start */
 .hero{padding:28px 0 8px}
@@ -96,6 +96,11 @@ textarea.case:focus{border-color:var(--accent);outline:none}
 .msg.bot strong{color:var(--accent)}
 .msg.bot blockquote{margin:.4em 0 .6em;padding:6px 12px;border-left:3px solid var(--copper);background:var(--copper-soft);border-radius:0 8px 8px 0}
 .msg.bot hr{border:0;border-top:1px solid var(--line);margin:.8em 0}
+.sketches{display:flex;flex-wrap:wrap;gap:10px;margin:.3em 0 .8em}
+.sketch{margin:0;flex:1 1 130px;max-width:200px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#FBF7F2}
+.sketch svg{display:block;width:100%;height:auto}
+.sketch figcaption{font-size:.85rem;font-weight:700;text-align:center;padding:5px 6px;background:var(--surface-2);color:var(--ink)}
+.hero .sketches{margin-top:18px;max-width:440px}
 
 .composer{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px))}
 .composer .wrap{display:flex;gap:8px;align-items:flex-end}
@@ -113,7 +118,7 @@ textarea.case:focus{border-color:var(--accent);outline:none}
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="brand">Formwirkung<span class="dot">·</span>Trainer</div>
+    <div class="brand">Formwirkung<span class="bt"><span class="dot">·</span>Trainer</span></div>
     <span class="mode-pill" id="modePill" hidden></span>
     <button class="btn-ghost" id="restart" hidden>Neu</button>
   </div>
@@ -124,6 +129,7 @@ textarea.case:focus{border-color:var(--accent);outline:none}
     <div class="hero">
       <h1>Formwirkung erkennen, begründen, beraten.</h1>
       <p>Dein Trainer für Typberatung und Hair Contouring: erst beobachten, dann Wirkung benennen, Ziel festlegen, Schnitt und Farbe ableiten und am Ende so formulieren, dass die Kundin es versteht.</p>
+      <div class="sketches" id="heroSketches"></div>
     </div>
 
     <div class="step-label"><span class="n">1</span>Wie willst du lernen?</div>
@@ -348,11 +354,39 @@ wechsle aber nicht ohne Zustimmung.
 <script>
 (() => {
   const $ = s => document.querySelector(s);
+
+  const SKETCH_RULES = `BILDER: Diese App zeichnet aus einer Bildzeile automatisch eine einfache Skizze (Frontalansicht: Kopf, Gesicht, Hals, Schultern, Frisur). Lehrlinge brauchen Bilder, nutze sie daher großzügig. Eine Bildzeile steht allein in einer eigenen Zeile, zum Beispiel:
+[[BILD titel="Ausgangslage" person=frau gesicht=rund stirn=normal hals=kurz haar=kinnlang schnitt=stumpf struktur=glatt volumen=keins scheitel=mitte pony=nein haarfarbe=mittel farbe=keine zone=kiefer linie=keine]]
+Mögliche Werte (weggelassene Werte = Standard):
+- person: frau | mann
+- gesicht: oval | rund | eckig | herz | lang | dreieck (schmale Stirn, breiter Kiefer) | raute
+- stirn: niedrig | normal | hoch
+- hals: kurz | normal | lang
+- haar (Länge): kurz | kinnlang | schulterlang | lang
+- schnitt: stumpf | gestuft
+- struktur: glatt | wellig | lockig
+- volumen: keins | oben | seitlich | unten
+- scheitel: mitte | seite | keiner
+- pony: nein | gerade | seitlich | curtain
+- haarfarbe: dunkel | mittel | hell | rot | grau
+- farbe (Farbtechnik, mehrere mit Komma): keine | vorne-hell (Face Framing) | oben-hell | spitzen-hell | seiten-dunkel | unten-dunkel
+- zone (markiert eine Zone gestrichelt, mehrere mit Komma): stirn | schlaefe | augen | nase | wangen | kiefer | kinn | hals
+- linie (Pfeil für die Blickrichtung): keine | senkrecht | waagrecht | diagonal
+- bart (nur bei mann): nein | ja
+Wann Bilder:
+- Übung: Zeige bei jedem neuen Fall die Ausgangslage als Bild. Wenn die lernende Person eine Lösung vorschlägt, darfst du ihre Idee als Bild zeigen (titel="Dein Vorschlag") und wenn nötig eine bessere Variante daneben.
+- Analyse: immer ein Bild der Ausgangslage und eins der Empfehlung (titel="Vorschlag"), direkt hintereinander.
+- Prüfen: so oft wie möglich mit Bild, z. B. „Welche Variante wirkt schmaler?" mit 2 oder 3 Bildern nebeneinander (titel="A", "B", "C") oder „Welche Zone wird durch diese Kante betont?". Der titel darf die Lösung nie verraten.
+- Bildzeilen direkt hintereinander erscheinen nebeneinander. Höchstens 3 Bilder pro Nachricht.
+- Nenne die Bildwerte nie im Text. Die Skizze ist schematisch und nur frontal: Profilthemen (z. B. Nase im Profil) beschreibst du in Worten.`;
+
   const RULES = "Du bist der Formwirkung-Trainer in einer Lern-App für Friseur-Lehrlinge und Stylist:innen. "
     + "Halte dich in jeder Antwort strikt an diese Anleitung:\n\n" + $("#rules").textContent.trim()
     + "\n\n---\nFormat in dieser App: Antworte in einfachem Markdown (Absätze, **fett**, Aufzählungen mit '- ', "
     + "Zwischenüberschriften mit '### ', Zitate mit '> ' für Beratungssätze). Keine Tabellen, keine Bilder, keine Links. "
-    + "Halte Antworten kurz genug für ein Handy. Stelle im Trainings- und Prüfmodus am Ende genau eine Frage.";
+    + "Halte Antworten kurz genug für ein Handy. Stelle im Trainings- und Prüfmodus am Ende genau eine Frage.\n"
+    + "Sprache: einfach und in kurzen Sätzen, denn viele Nutzer:innen sind Lehrlinge. Erkläre jeden Fachbegriff beim ersten Vorkommen in wenigen Wörtern.\n\n"
+    + SKETCH_RULES;
 
   const MODES = {
     pruef:   { label: "Prüfen", quick: ["Weiß ich nicht", "Tipp bitte", "Zwischenstand", "Stufe höher"] },
@@ -477,17 +511,207 @@ wechsle aber nicht ohne Zustimmung.
     $("#quick").querySelectorAll("button").forEach(b => b.disabled = v);
   }
 
+  // ---- Skizzen: [[BILD key=wert ...]] -> schematische Frontalansicht (SVG)
+  const SHAPES = {
+    oval:    { f: 30, c: 34, j: 26, cw: 10, cy: 162 },
+    rund:    { f: 33, c: 38, j: 33, cw: 15, cy: 155 },
+    eckig:   { f: 34, c: 35, j: 35, cw: 20, cy: 158 },
+    herz:    { f: 37, c: 34, j: 22, cw: 6,  cy: 162 },
+    lang:    { f: 28, c: 30, j: 26, cw: 11, cy: 176 },
+    dreieck: { f: 26, c: 32, j: 37, cw: 17, cy: 158 },
+    raute:   { f: 25, c: 38, j: 25, cw: 8,  cy: 162 },
+  };
+  const SHAPE_ALIAS = { birne: "dreieck", trapez: "dreieck", quadratisch: "eckig", rechteckig: "eckig", "länglich": "lang", laenglich: "lang", diamant: "raute", herzform: "herz" };
+  const HAIR = {
+    dunkel: ["#3a2a22", "#a0703f", "#1b130f"], mittel: ["#7a5234", "#cfa064", "#432817"],
+    hell: ["#cfa96f", "#f4e2b4", "#8e6a3a"], rot: ["#96401f", "#d9823f", "#571f0d"], grau: ["#a9a39b", "#ebe7e1", "#6c6761"],
+  };
+  const ACC = "#C2410C";
+  let figN = 0;
+  const r1 = n => Math.round(n * 10) / 10;
+
+  function curve(pts, closed, t = 1) {
+    const n = pts.length, P = i => closed ? pts[(i + n) % n] : pts[Math.max(0, Math.min(n - 1, i))];
+    let d = `M${r1(pts[0][0])} ${r1(pts[0][1])}`;
+    for (let i = 0; i < (closed ? n : n - 1); i++) {
+      const p0 = P(i - 1), p1 = P(i), p2 = P(i + 1), p3 = P(i + 2);
+      d += `C${r1(p1[0] + (p2[0] - p0[0]) / 6 * t)} ${r1(p1[1] + (p2[1] - p0[1]) / 6 * t)} ${r1(p2[0] - (p3[0] - p1[0]) / 6 * t)} ${r1(p2[1] - (p3[1] - p1[1]) / 6 * t)} ${r1(p2[0])} ${r1(p2[1])}`;
+    }
+    return d + (closed ? "Z" : "");
+  }
+  const mirror = pts => pts.map(([x, y]) => [200 - x, y]);
+  const sym = (right, bottom = []) => [...right, ...bottom, ...mirror(right).reverse().slice(0, -1)];
+
+  function parseAttrs(s) {
+    const a = {}; let m; const re = /([a-zäöüß]+)\s*=\s*(?:"([^"]*)"|„([^“"]*)[“"]|([^\s\]]+))/gi;
+    while ((m = re.exec(s))) a[m[1].toLowerCase()] = (m[2] ?? m[3] ?? m[4] ?? "").trim();
+    return a;
+  }
+
+  function sketch(a) {
+    const g = k => (a[k] || "").toLowerCase().trim();
+    const list = k => g(k).split(/[,;+]/).map(s => s.trim()).filter(Boolean);
+    const id = "sk" + (++figN);
+    const mann = g("person") === "mann";
+    const S = SHAPES[SHAPE_ALIAS[g("gesicht")] || g("gesicht")] || SHAPES.oval;
+    const { f, c, j, cw, cy } = S;
+    const yT = { hoch: 50, niedrig: 68 }[g("stirn")] ?? 60;
+    const H = cy - yT;
+    const cheekY = yT + H * 0.5, jawY = cy - H * 0.2;
+    const eyeY = yT + H * 0.42, browY = eyeY - 8, noseY = yT + H * 0.68, mouthY = yT + H * 0.83;
+    const neckW = mann ? 19 : 15;
+    const shY = cy + ({ kurz: 14, lang: 42 }[g("hals")] ?? 28);
+    const fk = [[yT - 2, 0], [yT + 4, f * 0.8], [yT + 18, f], [cheekY, c], [jawY, j], [cy - 4, cw], [cy, 0]];
+    const halfW = y => { for (let i = 1; i < fk.length; i++) if (y <= fk[i][0]) { const [y0, w0] = fk[i - 1], [y1, w1] = fk[i]; return w0 + (w1 - w0) * (y - y0) / (y1 - y0); } return 0; };
+
+    const [hc, hl, hd] = HAIR[g("haarfarbe")] || HAIR.mittel;
+    const vol = list("volumen"), struct = g("struktur");
+    const len = ({ kinn: "kinnlang", schulter: "schulterlang", schulterlänge: "schulterlang", mittellang: "schulterlang", pixie: "kurz" })[g("haar")] || g("haar") || (mann ? "kurz" : "schulterlang");
+    const gestuft = /gestuft|stufig|layer/.test(g("schnitt"));
+    const volTop = vol.includes("oben") ? 12 : 0, volSide = vol.includes("seitlich") ? 10 : 0, volBot = vol.includes("unten") ? 10 : 0;
+    const curl = struct === "lockig" ? 6 : struct === "wellig" ? 3 : 0;
+    const headTop = yT - 26 - volTop;
+    const short = len === "kurz";
+    const sideW = (short && mann ? f + 6 : f + 10 + volSide * 0.5) + curl;
+    const lenY = { kurz: mann ? eyeY - 2 : noseY + 2, kinnlang: cy + 3, schulterlang: shY + 16, lang: 238 }[len] ?? cy + 3;
+    const wB = short ? (mann ? f + 4 : f + 7) + curl
+      : len === "kinnlang" ? Math.max(c, j) + 8 + volSide + volBot + curl
+      : c + 14 + volSide + volBot + curl;
+    const midW = c + 9 + volSide + curl;
+
+    // Hinterkopf-Haar
+    const top = [[100, headTop], [100 + sideW * 0.75, headTop + 6], [100 + sideW, yT + 16]];
+    const backR = short ? [...top, [100 + wB, lenY - 6]] : [...top, ...(lenY > cheekY + 12 ? [[100 + midW, cheekY]] : []), [100 + wB, lenY - 10]];
+    const backBottom = gestuft && !short
+      ? [[100 + wB - 5, lenY], [100 + wB * 0.45, lenY + 4], [100, lenY + 5], [100 - wB * 0.45, lenY + 4], [100 - wB + 5, lenY]]
+      : [[100 + wB - 1, lenY], [100, lenY], [100 - wB + 1, lenY]];
+    const back = curve(sym(backR, backBottom), true, 0.85);
+
+    // Seitliche Partien vor dem Gesicht
+    const inset = gestuft ? 6 : 3;
+    const curtain = () => {
+      const endY = gestuft ? lenY - 14 : lenY;
+      const inner = [];
+      for (const y of [yT + 14, eyeY, cheekY, jawY, cy - 4]) if (y < Math.min(endY, cy) - 2) inner.push([100 + halfW(y) - inset, y]);
+      if (endY > cy + 4) { inner.push([100 + neckW + 3, cy + 6]); inner.push([100 + neckW + 4 + (endY - cy) * 0.12, endY - (gestuft ? 6 : 0)]); }
+      else inner.push([100 + halfW(Math.min(endY, cy - 2)) - inset, endY - (gestuft ? 6 : 0)]);
+      const outer = [[100 + wB - (gestuft ? 3 : 1), endY], ...(lenY > cheekY + 12 ? [[100 + midW, cheekY]] : []), [100 + sideW, yT + 16]];
+      return { pts: [...inner, ...outer], inner };
+    };
+    const ct = short ? null : curtain();
+    const curtR = ct?.pts;
+    const curtains = curtR ? [curve(curtR, true, 0.7), curve(mirror(curtR), true, 0.7)] : [];
+
+    // Oberkopf mit Haaransatz / Pony
+    const pony = g("pony");
+    const capOuter = [[100 - sideW, yT + 16], [100 - sideW * 0.75, headTop + 6], [100, headTop], [100 + sideW * 0.75, headTop + 6], [100 + sideW, yT + 16]];
+    const capInner = {
+      gerade: [[100 + f - 1, yT + 18], [100 + f - 2, browY - 3], [100 + f * 0.4, browY - 2], [100 - f * 0.4, browY - 2], [100 - f + 2, browY - 3], [100 - f + 1, yT + 18]],
+      seitlich: [[100 + f - 1, eyeY - 2], [100 + f * 0.5, browY - 1], [100 - f * 0.2, yT + 8], [100 - f * 0.6, yT + 3], [100 - f + 1, yT + 18]],
+      curtain: [[100 + f - 1, eyeY], [100 + f * 0.55, browY], [100 + 6, yT + 8], [100, yT + 3], [100 - 6, yT + 8], [100 - f * 0.55, browY], [100 - f + 1, eyeY]],
+    }[pony] || [[100 + f - 1, yT + 18], [100 + f * 0.75, yT + 4], [100, yT - 1], [100 - f * 0.75, yT + 4], [100 - f + 1, yT + 18]];
+    const cap = curve([...capOuter, ...capInner], true, 0.8);
+
+    // Farbe
+    const farbe = list("farbe");
+    const grad = farbe.includes("spitzen-hell") ? hl : farbe.includes("unten-dunkel") ? hd : null;
+    const hairFill = grad ? `url(#${id}g)` : hc;
+    let colorLayer = "";
+    if (farbe.includes("vorne-hell")) {
+      if (ct) for (const sgn of [1, -1]) for (const off of [3, 8])
+        colorLayer += `<path d="${curve(ct.inner.map(([x, y]) => [100 + sgn * (x - 100 + off), y]), false, 0.8)}" stroke="${hl}" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".95"/>`;
+      for (const off of [3, 8]) colorLayer += `<path d="${curve(capInner.map(([x, y]) => [x, y - off]), false, 0.8)}" stroke="${hl}" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".9"/>`;
+    }
+    if (farbe.includes("oben-hell"))
+      for (const dx of [-0.6, -0.25, 0.1, 0.45]) colorLayer += `<path d="M${r1(100 + dx * 12)} ${r1(headTop + 4)}Q${r1(100 + dx * sideW * 1.3)} ${r1(headTop + 14)} ${r1(100 + dx * sideW * 1.6)} ${r1(yT + 10)}" stroke="${hl}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".9"/>`;
+    if (farbe.includes("seiten-dunkel"))
+      for (const sgn of [1, -1]) colorLayer += `<path d="M${r1(100 + sgn * (sideW - 3))} ${r1(yT + 14)}L${r1(100 + sgn * (midW - 3))} ${r1(Math.min(cheekY, lenY))}L${r1(100 + sgn * (wB - 3))} ${r1(lenY)}" stroke="${hd}" stroke-width="10" fill="none" stroke-linecap="round" opacity=".7"/>`;
+
+    // Struktur (Haarsträhnen-Linien)
+    const part = { mitte: 100, seite: 100 - f * 0.45 }[g("scheitel")] ?? null;
+    let strands = "";
+    const px = part ?? 100;
+    for (const t of [0.35, 0.7]) for (const sgn of [1, -1])
+      strands += `<path d="M${r1(px)} ${r1(headTop + 8)}Q${r1(100 + sgn * sideW * t)} ${r1(headTop + 10)} ${r1(100 + sgn * (sideW - 4) * (t + 0.25))} ${r1(yT + 12)}" stroke="${hd}" stroke-width="1" fill="none" opacity=".35"/>`;
+    if (part !== null) strands += `<path d="M${r1(px)} ${r1(yT + 1)}L${r1(px + (px - 100) * 0.15)} ${r1(headTop + 7)}" stroke="${hd}" stroke-width="1.6" opacity=".8"/>`;
+
+    // Gesicht
+    const facePts = [[100, yT - 2], [100 + f * 0.8, yT + 4], [100 + f, yT + 18], [100 + c, cheekY], [100 + j, jawY], [100 + cw, cy - 4], [100, cy]];
+    const face = curve(sym(facePts.slice(0, -1), [facePts[6]]), true, g("gesicht") === "eckig" || g("gesicht") === "quadratisch" ? 0.55 : 1);
+    const earY = (eyeY + noseY) / 2;
+    const bw = mann ? 2.6 : 1.6;
+    const feats = [1, -1].map(s =>
+      `<ellipse cx="${r1(100 + s * 13)}" cy="${r1(eyeY)}" rx="4.4" ry="2.2" fill="#3b2f2a"/>` +
+      `<path d="M${r1(100 + s * 7)} ${r1(browY + 1)}Q${r1(100 + s * 13)} ${r1(browY - 2.5)} ${r1(100 + s * 19.5)} ${r1(browY + 1)}" stroke="${hd}" stroke-width="${bw}" fill="none" stroke-linecap="round"/>`).join("")
+      + `<path d="M99 ${r1(eyeY + 5)}Q97 ${r1(noseY - 4)} 95 ${r1(noseY)}Q100 ${r1(noseY + 3)} 105 ${r1(noseY)}" stroke="#b07f62" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
+    const beard = mann && g("bart") === "ja"
+      ? `<path d="${curve(sym([[100, mouthY - 7], [100 + 12, mouthY - 5], [100 + j - 2, jawY - 12], [100 + j - 1, jawY], [100 + cw + 3, cy - 2]], [[100, cy + 2]]), true, 0.8)}" fill="${hc}" opacity=".88"/>` : "";
+    const mouth = `<path d="M92 ${r1(mouthY)}Q100 ${r1(mouthY + 3)} 108 ${r1(mouthY)}" stroke="#a2584b" stroke-width="1.7" fill="none" stroke-linecap="round"/>`;
+
+    // Körper
+    const sx = mann ? 6 : 14;
+    const body = `<path d="M${100 - neckW - 2} ${shY}C${100 - neckW - 20} ${shY + 2} ${sx + 16} ${shY + 4} ${sx + 4} ${shY + 20}L${sx - 4} 260L${204 - sx} 260L${196 - sx} ${shY + 20}C${184 - sx} ${shY + 4} ${100 + neckW + 20} ${shY + 2} ${100 + neckW + 2} ${shY}Z" fill="#c4bdd3"/>`;
+    const neck = `<path d="M${100 - neckW} ${cy - 25}L${100 - neckW} ${shY}Q100 ${shY + 12} ${100 + neckW} ${shY}L${100 + neckW} ${cy - 25}Z" fill="#e3b999"/>`;
+    const ears = [1, -1].map(s => `<ellipse cx="${r1(100 + s * (c + 1))}" cy="${r1(earY)}" rx="5" ry="10" fill="#e8c1a2" stroke="#c99a7b" stroke-width="1"/>`).join("");
+
+    // Zonen und Linien
+    const Z = (cx, cyy, rx, ry) => `<ellipse cx="${r1(cx)}" cy="${r1(cyy)}" rx="${r1(rx)}" ry="${r1(ry)}" fill="${ACC}" fill-opacity=".14" stroke="${ACC}" stroke-width="2" stroke-dasharray="4 3"/>`;
+    const both = (fn) => fn(1) + fn(-1);
+    const zones = {
+      stirn: () => Z(100, (yT + browY) / 2 + 1, f * 0.8, (browY - yT) / 2 + 2),
+      schlaefe: () => both(s => Z(100 + s * (f - 3), eyeY - 7, 6, 9)),
+      augen: () => Z(100, eyeY, f * 0.78, 7),
+      nase: () => Z(100, (eyeY + noseY) / 2 + 2, 7, (noseY - eyeY) / 2 + 3),
+      wangen: () => both(s => Z(100 + s * c * 0.62, cheekY + 9, 9, 8)),
+      kiefer: () => both(s => Z(100 + s * (j - 3), jawY + 2, 8, 11)),
+      kinn: () => Z(100, cy - 5, cw + 7, 7),
+      hals: () => Z(100, (cy + shY) / 2 + 2, neckW + 3, (shY - cy) / 2 + 3),
+    };
+    zones["schläfe"] = zones.schlaefe; zones.wange = zones.wangen; zones.kieferwinkel = zones.kiefer;
+    const zoneSvg = list("zone").map(z => zones[z]?.() || "").join("");
+    const arrow = (x1, y1, x2, y2) => `<line x1="${r1(x1)}" y1="${r1(y1)}" x2="${r1(x2)}" y2="${r1(y2)}" stroke="${ACC}" stroke-width="2.4" marker-start="url(#${id}a)" marker-end="url(#${id}a)"/>`;
+    const linie = g("linie");
+    const lineSvg = linie === "senkrecht" ? arrow(100, headTop + 2, 100, cy + 8)
+      : linie === "waagrecht" ? arrow(100 - c - 16, cheekY, 100 + c + 16, cheekY)
+      : linie === "diagonal" ? arrow(100 - c - 6, jawY + 12, 100 + c + 6, yT + 4) : "";
+
+    const filt = curl ? `<filter id="${id}c" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="${curl > 4 ? 0.07 : 0.045}" numOctaves="2" seed="${figN}"/><feDisplacementMap in="SourceGraphic" scale="${curl > 4 ? 7 : 4}"/></filter>` : "";
+    const gradDef = grad ? `<linearGradient id="${id}g" gradientUnits="userSpaceOnUse" x1="0" y1="${r1((yT + lenY) / 2)}" x2="0" y2="${r1(lenY)}"><stop offset="0" stop-color="${hc}"/><stop offset="1" stop-color="${grad}"/></linearGradient>` : "";
+    const clip = `<clipPath id="${id}k"><path d="${back}"/>${curtains.map(d => `<path d="${d}"/>`).join("")}<path d="${cap}"/></clipPath>`;
+    const fl = curl ? ` filter="url(#${id}c)"` : "";
+
+    return `<svg viewBox="0 0 200 250" role="img" aria-label="${esc(a.titel || "Skizze")}">
+<defs>${filt}${gradDef}${clip}<marker id="${id}a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="${ACC}"/></marker></defs>
+<rect width="200" height="250" fill="#FBF7F2"/>
+<g${fl}><path d="${back}" fill="${hairFill}"/></g>
+${body}${neck}
+${ears}<path d="${face}" fill="#f0cfb2" stroke="#c99a7b" stroke-width="1.2"/>${feats}${beard}${mouth}
+<g${fl}>${curtains.map(d => `<path d="${d}" fill="${hairFill}"/>`).join("")}<path d="${cap}" fill="${hc}"/><g clip-path="url(#${id}k)">${strands}${colorLayer}</g></g>
+${zoneSvg}${lineSvg}</svg>`;
+  }
+
+  function figure(attrs) {
+    const a = parseAttrs(attrs);
+    let svg; try { svg = sketch(a); } catch { svg = ""; }
+    return `<figure class="sketch">${svg}${a.titel ? `<figcaption>${esc(a.titel)}</figcaption>` : ""}</figure>`;
+  }
+
   // ---- Mini-Markdown (escaped first, so no HTML from the answer gets through)
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, "$1<em>$2</em>"); }
   function md(src) {
-    const out = []; let list = null, para = [];
+    const imgs = [];
+    src = src.replace(/\[\[\s*BILD\b([^\]]*)\]\]/gi, (_, a) => "\n@@IMG" + (imgs.push(a) - 1) + "@@\n").replace(/\[\[[^\]]*$/, "");
+    const out = []; let list = null, para = [], row = [];
+    const flushI = () => { if (row.length) { out.push('<div class="sketches">' + row.join("") + "</div>"); row = []; } };
     const flushP = () => { if (para.length) { out.push("<p>" + para.map(inline).join("<br>") + "</p>"); para = []; } };
     const flushL = () => { if (list) { out.push(`<${list.t}>` + list.items.map(i => "<li>" + inline(i) + "</li>").join("") + `</${list.t}>`); list = null; } };
     for (const raw of src.split("\n")) {
       const l = raw.trimEnd();
       let m;
       if (!l.trim()) { flushP(); flushL(); continue; }
+      if ((m = l.trim().match(/^@@IMG(\d+)@@$/))) { flushP(); flushL(); row.push(figure(imgs[+m[1]])); continue; }
+      flushI();
       if ((m = l.match(/^#{1,6}\s+(.*)/))) { flushP(); flushL(); out.push("<h3>" + inline(m[1]) + "</h3>"); continue; }
       if (/^(-{3,}|\*{3,})$/.test(l.trim())) { flushP(); flushL(); out.push("<hr>"); continue; }
       if ((m = l.match(/^>\s?(.*)/))) { flushP(); flushL(); out.push("<blockquote>" + inline(m[1]) + "</blockquote>"); continue; }
@@ -495,9 +719,12 @@ wechsle aber nicht ohne Zustimmung.
       if ((m = l.match(/^\s*\d+[.)]\s+(.*)/))) { flushP(); if (list?.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(m[1]); continue; }
       flushL(); para.push(l);
     }
-    flushP(); flushL();
+    flushP(); flushL(); flushI();
     return out.join("");
   }
+  $("#heroSketches").innerHTML =
+    figure('titel="Kante am Kiefer" gesicht=rund haar=kinnlang schnitt=stumpf scheitel=mitte zone=kiefer') +
+    figure('titel="Länge + Face Framing" gesicht=rund haar=schulterlang schnitt=gestuft scheitel=seite farbe=vorne-hell linie=senkrecht');
 })();
 </script>
 </body>
