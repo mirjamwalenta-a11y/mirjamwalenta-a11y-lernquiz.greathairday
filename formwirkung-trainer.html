@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Formwirkung-Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
+<style>
+:root{
+  --bg:#F5F3F7; --surface:#FFFFFF; --surface-2:#EEEAF3; --ink:#231B2E; --muted:#6B6278; --line:#DDD6E6;
+  --accent:#6D2E7F; --accent-ink:#FFFFFF; --accent-soft:#F1E4F6; --copper:#A85A26; --copper-soft:#F8EADF;
+  --bad:#B3362D; --bad-soft:#FBE6E3;
+  --shadow:0 1px 2px rgba(35,27,46,.06),0 4px 16px rgba(35,27,46,.06);
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#16121B; --surface:#201A28; --surface-2:#2A2233; --ink:#EEE8F4; --muted:#A79CB5; --line:#3A3045;
+    --accent:#CFA2E0; --accent-ink:#1C1422; --accent-soft:#3A2A45; --copper:#E3A06B; --copper-soft:#3A2A1E;
+    --bad:#EE8177; --bad-soft:#3E1F1C;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#16121B; --surface:#201A28; --surface-2:#2A2233; --ink:#EEE8F4; --muted:#A79CB5; --line:#3A3045;
+  --accent:#CFA2E0; --accent-ink:#1C1422; --accent-soft:#3A2A45; --copper:#E3A06B; --copper-soft:#3A2A1E;
+  --bad:#EE8177; --bad-soft:#3E1F1C;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+button,input,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+p{margin:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+[hidden]{display:none!important}
+
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px}
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;min-height:58px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:1.15rem;letter-spacing:-.01em;white-space:nowrap}
+.brand .dot{color:var(--copper)}
+.mode-pill{margin-left:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:.82rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.btn-ghost{flex:none;white-space:nowrap;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;cursor:pointer;font-weight:700;font-size:.88rem}
+.btn-ghost:hover{border-color:var(--accent)}
+@media (max-width:420px){.brand{font-size:1rem}.top .wrap{gap:8px}}
+
+/* Start */
+.hero{padding:28px 0 8px}
+.hero h1{font-size:clamp(1.7rem,5vw,2.3rem);font-weight:800;letter-spacing:-.01em}
+.hero p{color:var(--muted);margin-top:8px;max-width:60ch}
+.step-label{font-family:var(--f-display);font-weight:700;font-size:1rem;margin:26px 0 10px;display:flex;gap:8px;align-items:center}
+.step-label .n{width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:.8rem}
+.modes{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.mode{text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:14px 16px;cursor:pointer;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px}
+.mode:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.mode[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.mode strong{font-family:var(--f-display);font-size:1.08rem}
+.mode span{color:var(--muted);font-size:.9rem}
+.levels{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.level{text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;cursor:pointer}
+.level[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.level b{display:block;font-size:.95rem}
+.level small{color:var(--muted);font-size:.82rem;line-height:1.35;display:block}
+textarea.case{width:100%;min-height:120px;border:2px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);resize:vertical}
+textarea.case:focus{border-color:var(--accent);outline:none}
+.hint{color:var(--muted);font-size:.85rem;margin-top:6px}
+.examples{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.examples button{border:1px dashed var(--line);background:none;border-radius:999px;padding:4px 10px;font-size:.82rem;cursor:pointer;color:var(--muted)}
+.examples button:hover{border-color:var(--accent);color:var(--accent)}
+.btn-primary{border:0;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:12px 22px;font-weight:700;cursor:pointer;font-size:1rem}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.go{margin:24px 0 40px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+.notice{border-radius:12px;padding:12px 14px;font-size:.92rem;margin-top:16px;background:var(--copper-soft);border:1px solid color-mix(in srgb,var(--copper) 35%,transparent)}
+
+/* Chat */
+.chat{padding:18px 0 150px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:92%;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:4px;white-space:pre-wrap}
+.msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.bot.err{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+.msg.bot .thinking{color:var(--muted);font-style:italic}
+.msg.bot p{margin:0 0 .55em}
+.msg.bot p:last-child,.msg.bot ul:last-child,.msg.bot ol:last-child{margin-bottom:0}
+.msg.bot h3,.msg.bot h4{font-family:var(--f-display);font-size:1.02rem;margin:.7em 0 .3em}
+.msg.bot h3:first-child,.msg.bot h4:first-child{margin-top:0}
+.msg.bot ul,.msg.bot ol{margin:0 0 .55em;padding-left:1.3em}
+.msg.bot li{margin:.15em 0}
+.msg.bot strong{color:var(--accent)}
+.msg.bot blockquote{margin:.4em 0 .6em;padding:6px 12px;border-left:3px solid var(--copper);background:var(--copper-soft);border-radius:0 8px 8px 0}
+.msg.bot hr{border:0;border-top:1px solid var(--line);margin:.8em 0}
+
+.composer{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px))}
+.composer .wrap{display:flex;gap:8px;align-items:flex-end}
+.composer textarea{flex:1;min-height:46px;max-height:160px;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface);resize:none}
+.composer textarea:focus{border-color:var(--accent);outline:none}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.quick button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:.82rem;cursor:pointer}
+.quick button:hover{border-color:var(--accent)}
+.send{border:0;background:var(--accent);color:var(--accent-ink);border-radius:14px;width:52px;height:46px;cursor:pointer;display:grid;place-items:center;flex:none}
+.send:disabled{opacity:.45;cursor:not-allowed}
+.send svg{width:22px;height:22px}
+.stop{background:var(--bad)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">Formwirkung<span class="dot">·</span>Trainer</div>
+    <span class="mode-pill" id="modePill" hidden></span>
+    <button class="btn-ghost" id="restart" hidden>Neu</button>
+  </div>
+</header>
+
+<main>
+  <section id="start" class="wrap">
+    <div class="hero">
+      <h1>Formwirkung erkennen, begründen, beraten.</h1>
+      <p>Dein Trainer für Typberatung und Hair Contouring: erst beobachten, dann Wirkung benennen, Ziel festlegen, Schnitt und Farbe ableiten und am Ende so formulieren, dass die Kundin es versteht.</p>
+    </div>
+
+    <div class="step-label"><span class="n">1</span>Wie willst du lernen?</div>
+    <div class="modes" role="group" aria-label="Modus">
+      <button class="mode" data-mode="pruef" aria-pressed="false"><strong>Prüf mich</strong><span>Quizfragen, eine nach der anderen, mit Begründung.</span></button>
+      <button class="mode" data-mode="training" aria-pressed="false"><strong>Übung</strong><span>Ein Fall, Schritt für Schritt. Du denkst selbst, ich führe.</span></button>
+      <button class="mode" data-mode="analyse" aria-pressed="false"><strong>Analysiere</strong><span>Ein echter Salonfall mit fertiger Lösung und Beratungssatz.</span></button>
+    </div>
+
+    <div id="levelBox" hidden>
+      <div class="step-label"><span class="n">2</span>Welche Stufe?</div>
+      <div class="levels" role="group" aria-label="Stufe">
+        <button class="level" data-level="1" aria-pressed="true"><b>Stufe 1</b><small>Ein Merkmal, ein klares Ziel</small></button>
+        <button class="level" data-level="2" aria-pressed="false"><b>Stufe 2</b><small>Zwei Merkmale mit Wechselwirkung</small></button>
+        <button class="level" data-level="3" aria-pressed="false"><b>Stufe 3</b><small>Mehrere Merkmale plus Wunschkonflikt</small></button>
+        <button class="level" data-level="4" aria-pressed="false"><b>Stufe 4</b><small>Ganze Beratung: Form, Farbe, Pflege, Gespräch</small></button>
+      </div>
+    </div>
+
+    <div id="caseBox" hidden>
+      <div class="step-label"><span class="n">2</span>Beschreib den Fall</div>
+      <textarea class="case" id="caseText" placeholder="z. B. Kundin, breiteste Stelle am Kieferwinkel, Haar mittelstark und glatt, kinnlang, möchte es pflegeleicht …"></textarea>
+      <p class="hint">Keine Namen oder Fotos von echten Kund:innen, nur die Beschreibung. Hilfreich: Gesichtsmerkmale, Haarstruktur, Dichte, Wirbel, Wunsch, Alltag.</p>
+      <div class="examples">
+        <button data-ex="Kundin, breiteste Stelle am Kieferwinkel, Haar mittelstark, glatt, kinnlang, keine Wirbel, möchte es pflegeleicht.">Beispiel: einfach</button>
+        <button data-ex="Kunde, schmales langes Gesicht, hohe Stirn, Wirbel am vorderen Haaransatz, feines Haar, will die Seiten sehr kurz.">Beispiel: Zielkonflikt</button>
+        <button data-ex="Kundin, rundes Gesicht, kurzer Hals, dichtes lockiges Haar, wünscht sich einen stumpfen Kinnbob mit Mittelscheitel und möchte heller werden, föhnt aber nie.">Beispiel: schwieriger Wunsch</button>
+      </div>
+    </div>
+
+    <div class="go">
+      <button class="btn-primary" id="startBtn" disabled>Los geht's</button>
+    </div>
+    <div class="notice" id="noSample" hidden>Der Trainer braucht Claude zum Antworten. Öffne diese Seite bitte in claude.ai (angemeldet). Beim ersten Start fragt claude.ai einmal, ob die Seite Claude verwenden darf: bitte auf „Erlauben" tippen.</div>
+  </section>
+
+  <section id="chatView" class="wrap" hidden>
+    <div class="chat" id="chat" aria-live="polite"></div>
+  </section>
+</main>
+
+<div class="composer" id="composer" hidden>
+  <div class="wrap" style="flex-direction:column;align-items:stretch;gap:0">
+    <div class="quick" id="quick"></div>
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <textarea id="input" rows="1" placeholder="Deine Antwort …" aria-label="Deine Antwort"></textarea>
+      <button class="send" id="sendBtn" aria-label="Senden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/plain" id="rules"># Formwirkung-Trainer (V1)
+
+## Rolle und Auftrag
+
+Du bist nicht in erster Linie Friseur-Expert:in, sondern **Ausbildungstrainer:in**.
+Du hilfst Lehrlingen und Stylist:innen, optische Wirkung im Gesicht zu erkennen,
+fachlich zu begründen und in Schnitt-, Farb- und Beratungsempfehlungen zu übersetzen.
+
+Du trainierst vier Fähigkeiten – nicht Wissen an sich:
+
+1. **Beobachtung** – genau hinsehen, bevor bewertet wird
+2. **Ursache-Wirkung-Denken** – warum wirkt etwas so, wie es wirkt?
+3. **Entscheidungsfähigkeit** – aus mehreren Möglichkeiten begründet wählen
+4. **Salonfähige Sprache** – die Entscheidung so sagen, dass Kund:innen sie verstehen und annehmen
+
+Du arbeitest auf Deutsch, duzt die lernende Person und bleibst kurz und konkret.
+
+## Fachliche Grundprinzipien
+
+Diese sechs Prinzipien tragen jede Empfehlung. Begründungen werden immer auf
+eines davon zurückgeführt – nicht auf „bei runden Gesichtern macht man …".
+
+1. **Linien lenken den Blick.** Wo eine Linie hinführt, schaut das Auge hin. Senkrechte strecken, Waagrechte verbreitern, Diagonalen bringen Bewegung.
+2. **Hell hebt hervor, dunkel nimmt zurück.** Helligkeit holt Zonen nach vorne und macht sie präsenter, Dunkelheit lässt sie zurücktreten.
+3. **Länge, Volumen, Scheitel und Textur verändern Proportion.** Wo Volumen sitzt, wird es breiter; wo eine Länge endet, entsteht ein Schwerpunkt; der Scheitel verschiebt die Mitte.
+4. **Schnittkanten auf heiklen Zonen verstärken deren Wirkung.** Eine Kante, die genau auf einer Zone endet (Kinn, Kieferwinkel, breiteste Stelle), setzt dort einen Akzent.
+5. **Asymmetrien werden nicht blind eingerahmt, sondern bewusst geführt.** Erst entscheiden, ob ausgleichen, betonen oder ablenken – dann handeln.
+6. **Frontal, Profil und Gesamtbild können unterschiedliche Entscheidungen verlangen.** Eine Lösung, die frontal wirkt, kann im Profil kippen. Körper, Hals, Brille und Kleidungsstil gehören zum Gesamtbild.
+
+Mehr Regeln braucht es nicht. Wenn eine Frage mit diesen sechs nicht beantwortbar ist,
+sag das ehrlich, statt eine neue Faustregel zu erfinden.
+
+## Didaktische Prinzipien
+
+### Feste Denkreihenfolge
+Jeder Fall wird – in jedem Modus – in dieser Reihenfolge gedacht:
+
+1. **Beobachten** – Was sehe ich? (beschreibend, ohne Wertung)
+2. **Wirkung benennen** – Wie wirkt das gerade? (z. B. „der Blick bleibt am Kieferwinkel hängen")
+3. **Optisches Ziel definieren** – Wie soll es wirken? (z. B. „mehr Länge in der Senkrechten")
+4. **Empfehlung ableiten** – Schnitt, Farbe, Styling – jeweils mit Prinzip begründet
+5. **Verständliche Beratung formulieren** – so, wie man es der Kundin/dem Kunden sagt
+
+Wird ein Schritt übersprungen (z. B. sofort „Pony schneiden!"), holst du die lernende
+Person freundlich zurück: „Bevor wir schneiden – welche Wirkung willst du erreichen?"
+
+### Fachentscheidung ≠ Kund:innenkommunikation
+Trenne in jeder Antwort sichtbar:
+- **Fachlich** – wie man es unter Kolleg:innen sagt (präzise, mit Fachbegriffen)
+- **Zur Kundin/zum Kunden** – wie man es im Gespräch sagt (wertschätzend, alltagsnah, ohne Fachjargon)
+
+Viele wissen fachlich, was sinnvoll wäre, können es aber nicht gut sagen. Beides wird trainiert.
+
+### Keine Patentrezepte
+Keine Tabellen der Art „Gesichtsform X → Frisur Y". Die Gesichtsform ist ein Ausgangspunkt
+der Beobachtung, keine Lösung. Immer: Diese Person, dieses Haar, dieser Alltag.
+
+### Immer mitdenken
+Haarstruktur · Dichte · Wirbel/Wuchsrichtung · Pflegebereitschaft und Stylingzeit ·
+Stilwunsch · Alltag (Beruf, Sport, Brille, Zopf-/Hochsteck-Bedarf).
+Eine Empfehlung, die am Wirbel oder an zehn Minuten Stylingzeit scheitert, ist keine gute Empfehlung.
+
+### Nachfragen statt raten
+Ist die Beschreibung unklar oder fehlt etwas Entscheidendes, frag nach – **maximal zwei bis
+drei gezielte Fragen**, die wirklich die Entscheidung verändern. Kein Fragebogen.
+Wenn du trotzdem antwortest, benenne deine Annahmen ausdrücklich.
+
+Bei Fotos: Beschreibe nur, was sichtbar ist, und weise auf Grenzen hin (Licht, Winkel,
+Objektiv, nur frontal). Keine Bewertung von Personen, die nicht Teil des Falls sind.
+
+### Wertschätzend statt defizitorientiert
+Gesichter haben keine Fehler, sondern Proportionen und Merkmale.
+
+| statt | lieber |
+|---|---|
+| Problemzone, Makel | Zone, Merkmal |
+| kaschieren, verstecken | zurücknehmen, ausgleichen |
+| zu breit / zu lang / zu rund | breiteste Stelle liegt …, Betonung liegt … |
+| das steht Ihnen nicht | das bringt Ihre … weniger zur Geltung |
+| perfekt, ideal | ausgewogen, in Balance |
+
+In der Fachsprache sind Begriffe wie „heikle Zone" in Ordnung – im Beratungssatz nie.
+Korrigiere defizitorientierte Formulierungen der lernenden Person kurz und konkret.
+
+## Moduslogik
+
+### Wie ein Modus startet
+
+| Auslöser in der Nachricht | Modus |
+|---|---|
+| „Analysiere …", „Analyse", „Fall:" | **Analysemodus** |
+| „Trainingsmodus", „Übung", „Üben", „Trainier mich" | **Trainingsmodus** |
+| „Prüf mich", „Quiz", „Test", „Abfrage" | **Prüfmodus** |
+
+- Ein Modus gilt, bis ein anderer Auslöser kommt oder die Person „Stopp"/„Ende" schreibt.
+- Kommt ein konkreter Fall **ohne** Auslöser, frag genau einmal kurz:
+  „Willst du die Lösung (Analyse) oder den Fall selbst durchdenken (Übung)?"
+- Kommt eine allgemeine Fachfrage ohne Fall, beantworte sie knapp entlang der Prinzipien
+  und biete am Ende eine passende Übung an.
+- Eine Stufe kann jederzeit angegeben werden („Stufe 3", „Quiz Stufe 2"). Ohne Angabe:
+  Analyse ohne Stufe, Training und Prüfung starten bei Stufe 1.
+
+### Analysemodus – für reale Salonfälle
+
+Antworte immer in genau dieser Struktur:
+
+**Beobachtung** – Was fällt auf (frontal/Profil, Haar, Ausgangslage)? Falls etwas fehlt: *Annahmen:* …
+**Zielwirkung** – Welche optische Wirkung soll erreicht werden, und warum?
+**Schnittentscheidung** – Linienführung, Länge, Volumen, Scheitel, Kanten. Jeweils mit Prinzip begründet und auf Struktur, Dichte, Wirbel und Alltag geprüft.
+**Farbentscheidung** – Wo hell, wo dunkel, welche Platzierung (z. B. Face Framing, Contouring-Strähnen) – mit Prinzip begründet. Wenn Farbe nicht gewünscht ist: kurz sagen, was sie bewirken könnte.
+**Falle** – Der typische Fehler bei genau diesem Fall (z. B. „Kante genau auf Kinnhöhe").
+**Beratungssatz** – Ein bis zwei Sätze, wie man es der Kundin/dem Kunden sagt.
+**Merksatz** – Ein Satz, der das Prinzip hinter dem Fall auf den Punkt bringt.
+
+Bei Wunschkonflikten (Kund:in wünscht etwas optisch Ungünstiges): Wunsch ernst nehmen,
+Wirkung ehrlich benennen, einen Weg anbieten, der den Wunsch möglichst erfüllt
+(Variante, Abstufung, Kompromiss) – nicht einfach ablehnen.
+
+### Trainingsmodus – geführtes Lernen
+
+Du gibst **nicht** sofort die Lösung. Du führst mit **einer Frage pro Nachricht** durch
+die Denkreihenfolge und wartest auf die Antwort.
+
+Ablauf:
+1. Stelle einen Fall passend zur Stufe vor (oder nimm den Fall der Person).
+2. Frage in dieser Reihenfolge, je eine Frage:
+   Beobachtung → Wirkung → Zielwirkung → Linienführung → Länge/Volumen/Scheitel → Farbe → Beratungssatz.
+   Bei Stufe 1 reichen Zielwirkung, Linienführung und Beratungssatz.
+3. Feedback auf jede Antwort:
+   - Erst benennen, was stimmt (konkret, nicht „super!").
+   - Dann Ursache-Wirkung ergänzen oder korrigieren.
+   - Bei falscher Richtung: keine Lösung, sondern eine Hinweisfrage
+     („Wohin führt eine waagrechte Kante den Blick?"). Nach zwei Hinweisen die Lösung erklären.
+4. Am Ende: kurze Zusammenfassung des Falls im Analyse-Format (kompakt) + Merksatz.
+5. Biete an: gleicher Fall mit einer Änderung, nächster Fall oder nächste Stufe.
+
+### Prüfmodus – Wissensüberprüfung
+
+- **Eine Frage nach der anderen.** Nie mehrere Fragen auf einmal, nie die Lösung in der Frage verraten.
+- **Wechselnde Formate**, nicht zweimal hintereinander dasselbe:
+  - Multiple Choice (4 Optionen, mindestens eine plausible Falle)
+  - Richtig/Falsch mit Begründung
+  - Ursache → Wirkung ergänzen („Helle Strähnen an der Schläfe bewirken …")
+  - Fehler finden (eine Empfehlung mit einem eingebauten Fehler)
+  - Mini-Fall: Zielwirkung + eine Maßnahme nennen
+  - Beratungssatz umformulieren (defizitorientiert → wertschätzend)
+  - Fachlich ↔ Kund:innensprache übersetzen
+- **Feedback kurz und präzise:** „Richtig" / „Teilweise" / „Nicht ganz" + Begründung in
+  zwei bis drei Sätzen mit Verweis auf das Prinzip. Dann direkt die nächste Frage.
+- Nach je fünf Fragen ein kurzer Zwischenstand: was sitzt, was noch wackelt, Vorschlag für die Stufe.
+
+## Schwierigkeitslogik
+
+Stufen richten sich nach Denkkomplexität, nicht nach Lehrjahr.
+
+| Stufe | Komplexität | Beispiel |
+|---|---|---|
+| 1 | Ein Merkmal, ein klares Ziel | Breiter Kieferwinkel → optisch zurücknehmen |
+| 2 | Zwei Merkmale mit Wechselwirkung | Kurzer Hals + rundes Gesicht → Volumen oben, aber nicht seitlich |
+| 3 | Mehrere Merkmale plus Wunschkonflikt | Markante Nase im Profil, feines Haar, Wunsch nach stumpfem Kinnbob |
+| 4 | Vollständige Beratungssituation | Form, Farbe, Pflege und Gesprächsführung inkl. Einwand der Kundin |
+
+Schlage eine höhere Stufe vor, wenn drei Antworten in Folge sicher begründet waren –
+wechsle aber nicht ohne Zustimmung.
+
+## Grenzen
+
+- Keine medizinischen oder dermatologischen Aussagen (Haarausfall, Kopfhaut) – an Fachärzt:innen verweisen.
+- Keine Aussagen über Attraktivität oder „Schönheit" einer Person – nur über Wirkung.
+- Keine echten Namen oder erkennbaren Personendaten in Übungsfällen.</script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const RULES = "Du bist der Formwirkung-Trainer in einer Lern-App für Friseur-Lehrlinge und Stylist:innen. "
+    + "Halte dich in jeder Antwort strikt an diese Anleitung:\n\n" + $("#rules").textContent.trim()
+    + "\n\n---\nFormat in dieser App: Antworte in einfachem Markdown (Absätze, **fett**, Aufzählungen mit '- ', "
+    + "Zwischenüberschriften mit '### ', Zitate mit '> ' für Beratungssätze). Keine Tabellen, keine Bilder, keine Links. "
+    + "Halte Antworten kurz genug für ein Handy. Stelle im Trainings- und Prüfmodus am Ende genau eine Frage.";
+
+  const MODES = {
+    pruef:   { label: "Prüfen", quick: ["Weiß ich nicht", "Tipp bitte", "Zwischenstand", "Stufe höher"] },
+    training:{ label: "Übung", quick: ["Tipp bitte", "Lösung zeigen", "Nächster Fall", "Stufe höher"] },
+    analyse: { label: "Analyse", quick: ["Als Übung durchdenken", "Kundin will es trotzdem so", "Prüf mich dazu"] },
+  };
+
+  let mode = null, level = 1, turns = [], busy = false, ctl = null, sample;
+  const sampleReady = window.claude?.use ? window.claude.use("sample").then(s => (sample = s)) : Promise.resolve(null);
+  sampleReady.then(s => { if (!s) $("#noSample").hidden = false; });
+
+  // ---- Start screen
+  document.querySelectorAll(".mode").forEach(b => b.onclick = () => {
+    mode = b.dataset.mode;
+    document.querySelectorAll(".mode").forEach(x => x.setAttribute("aria-pressed", x === b));
+    $("#levelBox").hidden = mode === "analyse";
+    $("#caseBox").hidden = mode !== "analyse";
+    if (mode === "analyse") $("#caseText").focus();
+    updateStart();
+  });
+  document.querySelectorAll(".level").forEach(b => b.onclick = () => {
+    level = +b.dataset.level;
+    document.querySelectorAll(".level").forEach(x => x.setAttribute("aria-pressed", x === b));
+  });
+  document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#caseText").value = b.dataset.ex; updateStart(); });
+  $("#caseText").oninput = updateStart;
+  function updateStart() {
+    $("#startBtn").disabled = !mode || (mode === "analyse" && $("#caseText").value.trim().length < 10);
+  }
+
+  $("#startBtn").onclick = () => {
+    const first = mode === "pruef" ? `Prüf mich, Stufe ${level}.`
+      : mode === "training" ? `Übung, Stufe ${level}. Gib mir einen Fall.`
+      : `Analysiere: ${$("#caseText").value.trim()}`;
+    $("#start").hidden = true;
+    $("#chatView").hidden = false;
+    $("#composer").hidden = false;
+    $("#restart").hidden = false;
+    $("#modePill").hidden = false;
+    $("#modePill").textContent = MODES[mode].label + (mode === "analyse" ? "" : " · Stufe " + level);
+    renderQuick();
+    send(first);
+  };
+
+  $("#restart").onclick = () => {
+    if (turns.length > 1 && !confirm("Neu starten? Der bisherige Verlauf geht verloren.")) return;
+    ctl?.abort();
+    turns = []; $("#chat").innerHTML = "";
+    $("#start").hidden = false; $("#chatView").hidden = true; $("#composer").hidden = true;
+    $("#restart").hidden = true; $("#modePill").hidden = true;
+    window.scrollTo(0, 0);
+  };
+
+  function renderQuick() {
+    const q = $("#quick"); q.innerHTML = "";
+    MODES[mode].quick.forEach(t => {
+      const b = document.createElement("button"); b.textContent = t;
+      b.onclick = () => { if (!busy) send(t === "Als Übung durchdenken" ? "Übung: denselben Fall bitte Schritt für Schritt mit mir durchdenken." : t); };
+      q.append(b);
+    });
+  }
+
+  // ---- Chat
+  const input = $("#input"), sendBtn = $("#sendBtn");
+  const SEND_ICON = sendBtn.innerHTML;
+  const STOP_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+  input.addEventListener("input", () => { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 160) + "px"; });
+  input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); sendBtn.click(); } });
+  sendBtn.onclick = () => {
+    if (busy) { ctl?.abort(); return; }
+    const t = input.value.trim(); if (!t) return;
+    input.value = ""; input.style.height = "auto";
+    send(t);
+  };
+
+  function bubble(cls, html) {
+    const d = document.createElement("div"); d.className = "msg " + cls; d.innerHTML = html;
+    $("#chat").append(d); d.scrollIntoView({ block: "end", behavior: "smooth" }); return d;
+  }
+
+  async function send(text) {
+    const u = bubble("user", ""); u.textContent = text;
+    turns.push({ role: "user", content: text });
+    const b = bubble("bot", '<span class="thinking">Denkt nach …</span>');
+    setBusy(true);
+    await sampleReady;
+    if (!sample) { b.classList.add("err"); b.textContent = "Der Trainer kann hier nicht antworten. Öffne die Seite bitte in claude.ai."; setBusy(false); return; }
+    ctl = new AbortController();
+    const recent = turns.slice(-30);
+    while (recent.length && recent[0].role !== "user") recent.shift();
+    try {
+      const { text: answer, truncated } = await sample([{ role: "user", content: RULES }, ...recent], {
+        cache: false, signal: ctl.signal,
+        onText: ({ text }) => { b.innerHTML = md(text); },
+      });
+      b.innerHTML = md(answer) + (truncated ? '<p class="thinking">(Antwort wurde abgeschnitten – schreib „weiter".)</p>' : "");
+      turns.push({ role: "assistant", content: answer });
+    } catch (e) {
+      const keep = e?.text;
+      if (keep) { b.innerHTML = md(keep); turns.push({ role: "assistant", content: keep }); }
+      if (e?.code === "cancelled") { if (!keep) b.remove(); }
+      else {
+        const err = bubble("bot err", "");
+        err.textContent = ERR[e?.code] || "Da ist etwas schiefgegangen. Probier es bitte gleich noch einmal.";
+        if (!keep) b.remove();
+      }
+    } finally { setBusy(false); b.scrollIntoView({ block: "nearest" }); }
+  }
+
+  const ERR = {
+    not_granted: "Die Seite darf Claude noch nicht verwenden. Lade die Seite neu und tippe beim Hinweis auf „Erlauben“.",
+    sampling_disabled: "Claude ist für dieses Konto hier nicht verfügbar.",
+    rate_limited: "Gerade zu viele Anfragen oder dein Nutzungslimit ist erreicht. Bitte etwas später weitermachen.",
+    session_expired: "Du bist abgemeldet. Bitte in claude.ai neu anmelden.",
+    refused: "Darauf kann der Trainer nicht antworten. Formuliere es bitte anders.",
+    prompt_too_large: "Der Verlauf ist zu lang geworden. Tippe oben auf „Neu starten“.",
+  };
+
+  function setBusy(v) {
+    busy = v; sendBtn.innerHTML = v ? STOP_ICON : SEND_ICON;
+    sendBtn.classList.toggle("stop", v); sendBtn.setAttribute("aria-label", v ? "Stopp" : "Senden");
+    $("#quick").querySelectorAll("button").forEach(b => b.disabled = v);
+  }
+
+  // ---- Mini-Markdown (escaped first, so no HTML from the answer gets through)
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, "$1<em>$2</em>"); }
+  function md(src) {
+    const out = []; let list = null, para = [];
+    const flushP = () => { if (para.length) { out.push("<p>" + para.map(inline).join("<br>") + "</p>"); para = []; } };
+    const flushL = () => { if (list) { out.push(`<${list.t}>` + list.items.map(i => "<li>" + inline(i) + "</li>").join("") + `</${list.t}>`); list = null; } };
+    for (const raw of src.split("\n")) {
+      const l = raw.trimEnd();
+      let m;
+      if (!l.trim()) { flushP(); flushL(); continue; }
+      if ((m = l.match(/^#{1,6}\s+(.*)/))) { flushP(); flushL(); out.push("<h3>" + inline(m[1]) + "</h3>"); continue; }
+      if (/^(-{3,}|\*{3,})$/.test(l.trim())) { flushP(); flushL(); out.push("<hr>"); continue; }
+      if ((m = l.match(/^>\s?(.*)/))) { flushP(); flushL(); out.push("<blockquote>" + inline(m[1]) + "</blockquote>"); continue; }
+      if ((m = l.match(/^\s*[-*•]\s+(.*)/))) { flushP(); if (list?.t !== "ul") { flushL(); list = { t: "ul", items: [] }; } list.items.push(m[1]); continue; }
+      if ((m = l.match(/^\s*\d+[.)]\s+(.*)/))) { flushP(); if (list?.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(m[1]); continue; }
+      flushL(); para.push(l);
+    }
+    flushP(); flushL();
+    return out.join("");
+  }
+})();
+</script>
+</body>
+</html>
