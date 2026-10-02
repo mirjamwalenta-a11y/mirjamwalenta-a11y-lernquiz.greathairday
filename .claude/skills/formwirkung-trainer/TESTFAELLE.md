@@ -72,3 +72,20 @@ Warnzeichen für „nur hübsch erklärt":
 Notizen nach dem Test (was ändern für V2):
 
 -
+
+---
+
+## V2-Nachschärfung – Test mit Fall 2 (Zielkonflikt), 2026-10-02
+
+Getestet mit einer frischen Claude-Instanz, die nur den V2-Skill als Anleitung bekam.
+
+| Prüfkriterium | Ergebnis |
+|---|---|
+| Trainingsmodus: „Lösung zeigen" liefert nur den aktuellen Schritt | ✅ Schritt 1 und 2 je einzeln gelöst, danach „Weiter mit dem nächsten Schritt?", keine Komplettanalyse |
+| Annahmen klar markiert | ✅ Getrennt in *Sicher* / *Angenommen*, Empfehlung als „vorläufige Richtung" gekennzeichnet, dazu „Kippt die Richtung: …" |
+| Wichtigster Hebel explizit | ✅ „Der wichtigste Hebel in diesem Fall ist die Seitenlänge …" mit Begründung |
+| Farbe nur ergänzend | ✅ Ein Satz, als „ergänzend" und „nachgeordnet" markiert |
+| Beratungssatz menschlich, klar, ehrlich | ✅ Wunsch anerkannt, Wirkung erklärt, Abwandlung offen benannt, Entscheidung beim Kunden („oder lieber noch kürzer?") |
+
+Beobachtung für V3: Der Beratungssatz nennt „Bei Ihrer Gesichtsform …" – ist noch leicht
+merkmalsbezogen formuliert; eventuell auf Wirkung umformulieren („Das nimmt seitlich Breite weg …").
