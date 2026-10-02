@@ -89,3 +89,18 @@ Getestet mit einer frischen Claude-Instanz, die nur den V2-Skill als Anleitung b
 
 Beobachtung für V3: Der Beratungssatz nennt „Bei Ihrer Gesichtsform …" – ist noch leicht
 merkmalsbezogen formuliert; eventuell auf Wirkung umformulieren („Das nimmt seitlich Breite weg …").
+
+---
+
+## V3 – Beratungssatz auf Wirkung statt Merkmal, Test 2026-10-02
+
+Regel: Im Beratungssatz ist der Schnitt/die Maßnahme das Subjekt, nicht das Merkmal der Person.
+Gesichtsform und Merkmale kommen nicht als Begründung vor.
+
+- Fall 2 (Zielkonflikt): „Ganz kurze Seiten nehmen aber seitlich Breite weg, dadurch wirkt alles
+  mehr in die Länge." ✅ (vorher: „Bei Ihrer Gesichtsform nimmt es aber Breite weg")
+- Fall 3 (Kinnbob-Wunsch): „Eine stumpfe Kante genau auf Kinnhöhe setzt dort einen Akzent. Mit
+  dichten Locken, die an der Luft trocknen, wird der Schnitt seitlich sehr voll …" ✅
+  Kein „rundes Gesicht", „kurzer Hals" im Satz an die Kundin.
+
+Beobachtung: „Das ist eine Abwandlung Ihres Wunsches" ist ehrlich, klingt aber noch etwas steif.
