@@ -104,3 +104,12 @@ Gesichtsform und Merkmale kommen nicht als Begründung vor.
   Kein „rundes Gesicht", „kurzer Hals" im Satz an die Kundin.
 
 Beobachtung: „Das ist eine Abwandlung Ihres Wunsches" ist ehrlich, klingt aber noch etwas steif.
+
+---
+
+## Bildbeschreibungen der Lernseite – fachlich geprüft, 2026-10-02
+
+Alle 42 Bildbeschreibungen (`formwirkung-trainer.html`, Prüfseite `bilder-pruefen.html`) wurden
+von der Ausbilderin einzeln geprüft. Korrigiert: Scheitel bei form-frau-rund, hd-frau-*,
+rund-frau-vorher/-nachher; Länge bei doppelkinn-frau-vorher (länger als kinnlang).
+Bei neuen Bildern: Beschreibung vor dem Einbau ebenso prüfen lassen.
