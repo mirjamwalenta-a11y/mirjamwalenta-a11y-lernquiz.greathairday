@@ -136,7 +136,8 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
 
 @media (max-width:520px){
   .brand small{display:none}
-  .top nav button{padding:8px 9px;font-size:.85rem}
+  .top nav button{padding:8px 10px}
+  .top nav .long{display:none}
   .card{padding:16px}
   .options{grid-template-columns:1fr}
 }
@@ -156,7 +157,7 @@ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
     </button>
     <nav aria-label="Bereiche">
       <button data-nav="start" aria-current="page">Guide</button>
-      <button data-nav="team">Für das Team</button>
+      <button data-nav="team"><span class="long">Für das </span>Team</button>
     </nav>
   </div>
 </header>
