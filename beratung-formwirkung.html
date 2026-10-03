@@ -238,6 +238,7 @@ dl.steck dd{margin:0}
 .sb-uebersicht li{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-s);font-size:var(--t-s)}
 .sb-uebersicht li.done{border-color:color-mix(in srgb,var(--accent) 35%,transparent);background:var(--accent-soft)}
 .sb-uebersicht .sb-ebene{margin-bottom:6px}
+.sb-korr{font-size:var(--t-xs);font-weight:700;color:var(--bad);background:var(--bad-soft);border-radius:999px;padding:1px 8px;margin-left:4px}
 @media (min-width:760px){.sb-grid .sb-fig{grid-row:span 2;position:sticky;top:calc(var(--bar-h,64px) + 8px)}}
 @media (prefers-reduced-motion: no-preference){.sim-in{animation:simIn .9s var(--ease)}@keyframes simIn{from{opacity:0}to{opacity:1}}}
 .tabelle{overflow-x:auto}
@@ -2116,10 +2117,10 @@ wechsle aber nicht ohne Zustimmung.
     }
   };
 
-  function sbNeu(){ return {modul:0, fertig:0, antw:{}, geprueft:false}; }
+  function sbNeu(){ return {modul:0, fertig:0, antw:{}, geprueft:false, fehler:{}}; }
   function sbSpeichern(){ try { localStorage.setItem("sb-v1", JSON.stringify(st.sb)); } catch(e){} }
   function sbLaden(){
-    try { var d = JSON.parse(localStorage.getItem("sb-v1") || "null"); if (d && d.antw && typeof d.modul === "number" && d.modul >= 0 && d.modul <= SB_MODULE.length) return d; } catch(e){}
+    try { var d = JSON.parse(localStorage.getItem("sb-v1") || "null"); if (d && d.antw && typeof d.modul === "number" && d.modul >= 0 && d.modul <= SB_MODULE.length){ d.fehler = d.fehler || {}; return d; } } catch(e){}
     return sbNeu();
   }
   function sbOk(m){ return SB_MODULE[m].fragen.every(function(f){ return st.sb.antw[f.key] === SB_FALL.loesung[f.key]; }); }
@@ -2143,15 +2144,29 @@ wechsle aber nicht ohne Zustimmung.
     for (var i = 1; i < P.length; i++) if (y <= P[i][0]){ var a = P[i-1], b = P[i], t = (y - a[0]) / (b[0] - a[0]); return a[1] + t * (b[1] - a[1]); }
     return P[P.length-1][1];
   }
+  // Zielbild: derselbe Lehrkopf wie in den Fällen, gespiegelt (Hinterkopf rechts wie in der Schnittzeichnung).
+  // Haarform aus dem Winkel-Labor bei niedriger Graduierung: Gewicht tief, Nacken schmal.
+  var SB_ZIEL_ZONEN = {oben:[50,150], mitte:[150,240], unten:[240,312]};
+  function sbZiel(o){
+    o = o || {};
+    var s = '<svg viewBox="120 20 425 500" role="img" aria-label="' + (o.label || "Zielbild") + '">' +
+      '<g transform="translate(496,0) scale(-1,1)">' + lkKopfSvg("frau") + lkHaarSvg("frau", {o:pfadAus(lkWinkelForm("frau", 25))}) + '</g>';
+    if (o.zonen){
+      ["oben","mitte","unten"].forEach(function(z){
+        var y = SB_ZIEL_ZONEN[z], on = o.zone === z;
+        s += '<rect x="372" y="' + y[0] + '" width="164" height="' + (y[1] - y[0]) + '" rx="12" fill="' + (on ? 'var(--accent)' : 'transparent') + '" fill-opacity="' + (on ? '.2' : '0') + '"' +
+             (o.zonenKey ? ' data-act="sbwahl" data-key="' + o.zonenKey + '" data-val="' + z + '" style="cursor:pointer"' : '') + '/>';
+      });
+      s += '<path d="M392,150 L536,150 M392,240 L536,240" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 6"/>';
+      s += '<g font-size="17" font-weight="700" fill="var(--accent)" text-anchor="end" pointer-events="none"><text x="534" y="72">oben</text><text x="534" y="172">mitte</text><text x="534" y="304">unten</text></g>';
+    }
+    return s + '</svg>';
+  }
   function sbFig(o){
     o = o || {};
     var s = '<svg viewBox="0 0 250 250" role="img" aria-label="' + (o.label || "Kopf im Profil") + '">';
     s += '<path d="' + SB_KOPF + ' Z" fill="var(--g-kopf)"/><path d="' + SB_KOPF + '" fill="none" stroke="var(--g-kontur)" stroke-width="2" stroke-linejoin="round"/>';
     s += '<ellipse cx="128" cy="120" rx="9" ry="14" fill="none" stroke="var(--g-kontur)" stroke-width="1.5"/>';
-    if (o.ziel){ // Zielbild: graduierter Bob mit Fülle im Nacken, waagrechte Kontur
-      s += '<path d="M62,78 C60,36 110,14 154,22 C198,30 220,72 214,120 C211,146 218,160 207,172 C197,179 184,184 177,200 C171,192 168,184 166,176 L104,176 C104,150 96,116 70,98 Z" fill="var(--g-haar)" fill-opacity=".55" stroke="var(--g-haar-kontur)" stroke-width="2" stroke-linejoin="round"/>';
-      s += '<path d="M112,40 C150,34 190,60 200,110 M104,58 C140,60 176,90 186,140 M110,100 C140,110 166,138 172,172" fill="none" stroke="var(--g-haar-kontur)" stroke-width="1" opacity=".55"/>';
-    }
     if (o.zonen){
       ["oben","mitte","unten"].forEach(function(z){
         var y = SB_ZONEN[z], on = o.zone === z;
@@ -2206,7 +2221,7 @@ wechsle aber nicht ohne Zustimmung.
     var A = st.sb.antw;
     function zeile(m, keys){
       var done = st.sb.fertig > m;
-      return '<li class="' + (done ? 'done' : '') + '"><strong>' + (m + 1) + ' · ' + SB_MODULE[m].titel + '</strong>' +
+      return '<li class="' + (done ? 'done' : '') + '"><strong>' + (m + 1) + ' · ' + SB_MODULE[m].titel + (done && st.sb.fehler[m] ? ' <span class="sb-korr">korrigiert</span>' : '') + '</strong>' +
         (done ? '<span>' + keys.map(function(k){ return sbLabel(k, A[k]); }).join(" · ") + '</span>' : '<span class="note">noch offen</span>') + '</li>';
     }
     return '<div class="sb-uebersicht"><p class="sb-ebene">Ebene 1 · Schnittentscheidung denken</p><ol>' +
@@ -2231,12 +2246,14 @@ wechsle aber nicht ohne Zustimmung.
       var z = SB_ZEICHNUNG[A.zeichnung];
       bildTitel = "Deine Zeichnung";
       bild = sbFig(Object.assign({zonen:true, zonenKey:"glinie", zone:A.glinie, g:A.glinie, label:"Deine Schnittzeichnung"}, z || {}));
-    } else { bildTitel = "Zielbild"; bild = sbFig({ziel:true, zonen:m === 1, zonenKey:m === 1 ? "gewicht" : null, zone:m === 1 ? A.gewicht : null, label:"Zielbild graduierter Bob mit Fülle im Nacken, Profil"}); }
+    } else { bildTitel = "Zielbild"; bild = sbZiel({zonen:m === 1, zonenKey:m === 1 ? "gewicht" : null, zone:m === 1 ? A.gewicht : null, label:"Zielbild graduierter Bob mit Fülle im Nacken, Profil"}); }
 
     var aufgabe;
     if (ende){
       aufgabe = '<h2>Fall abgeschlossen</h2>' +
         '<div class="callout good"><p><strong>Deine Begründung:</strong></p>' + sbSatz() + '</div>' +
+        '<p><strong>Beim ersten Versuch richtig: ' + (SB_MODULE.length - Object.keys(S.fehler).length) + ' von ' + SB_MODULE.length + ' Modulen.</strong>' +
+          (Object.keys(S.fehler).length ? ' Schau dir die korrigierten Module noch einmal an. Du kannst sie oben antippen.' : '') + '</p>' +
         sbUebersicht() +
         '<p class="note">Erst Wirkung, dann Technik, dann Zeichnung: So gehst du bei jedem Schnitt vor.</p>' +
         '<div class="controls" style="justify-content:flex-start"><button class="btn primary" type="button" data-act="sbneu">Nochmal von vorne</button></div>';
@@ -2249,13 +2266,13 @@ wechsle aber nicht ohne Zustimmung.
         (m === 3 ? '<div class="callout"><p><strong>Symbole:</strong> dünne Linie = Abteilung · Strahl mit Gradzahl = Elevation · rote Strähne = Leitsträhne (Pfeil nach oben = mitwandernd, Schloss = feststehend) · dicke grüne Linie „G“ = Gewichtslinie · gestrichelt = Schnittlinie</p></div>' : '') +
         (m === 4 ? sbSatz() : '') +
         M.fragen.map(function(f){ return sbFrage(m, f); }).join("") +
-        (ok ? '<div class="callout good"><p><strong>Richtig.</strong> ' + SB_FALL.warum[m] + '</p></div>' : '') +
+        (ok ? '<div class="callout good"><p><strong>Richtig.</strong> ' + SB_FALL.warum[m] + '</p>' + (S.fehler[m] ? '<p class="note">Hier hattest du beim ersten Versuch einen Fehler. Jetzt steht die richtige Lösung da.</p>' : '') + '</div>' : '') +
         (fehler.length ? '<div class="callout bad">' + fehler.map(function(f){
             var t = A[f.key] != null && SB_FALL.fb[f.key] ? SB_FALL.fb[f.key][A[f.key]] : null;
             return '<p><strong>' + f.frage + ':</strong> ' + (t || "Wähl hier noch eine Antwort.") + '</p>';
-          }).join("") + '<p class="note">Ändere deine Antwort und prüf noch einmal.</p></div>' : '') +
+          }).join("") + '<p class="note">Du kannst deine Antwort ändern und noch einmal prüfen. Wenn du weitergehst, wird die richtige Lösung übernommen.</p></div>' : '') +
         '<div class="controls" style="justify-content:flex-start">' +
-          (ok ? '<button class="btn primary" type="button" data-act="sbweiter">' + (m === SB_MODULE.length - 1 ? 'Fall abschließen' : 'Weiter zu Modul ' + (m + 2)) + ICON_WEITER + '</button>'
+          (gp ? '<button class="btn primary" type="button" data-act="sbweiter">' + (m === SB_MODULE.length - 1 ? 'Fall abschließen' : 'Weiter zu Modul ' + (m + 2)) + ICON_WEITER + '</button>'
               : '<button class="btn primary" type="button" data-act="sbpruef"' + (sbKomplett(m) ? '' : ' disabled') + '>Prüfen</button>') +
         '</div>';
     }
@@ -3505,7 +3522,9 @@ wechsle aber nicht ohne Zustimmung.
       if (sbm >= 0){ st.sb.antw[b.dataset.key] = b.dataset.val; st.sb.modul = sbm; st.sb.geprueft = false; if (st.sb.fertig > sbm) st.sb.fertig = sbm; sbSpeichern(); }
     }
     if (a==="sbpruef"){ st.sb.geprueft = true; sbSpeichern(); }
-    if (a==="sbweiter"){ st.sb.fertig = Math.max(st.sb.fertig, st.sb.modul + 1); st.sb.modul++; st.sb.geprueft = st.sb.fertig > st.sb.modul; sbSpeichern(); moved = true; }
+    if (a==="sbweiter"){
+      if (!sbOk(st.sb.modul)){ st.sb.fehler[st.sb.modul] = true; SB_MODULE[st.sb.modul].fragen.forEach(function(f){ st.sb.antw[f.key] = SB_FALL.loesung[f.key]; }); }
+      st.sb.fertig = Math.max(st.sb.fertig, st.sb.modul + 1); st.sb.modul++; st.sb.geprueft = st.sb.fertig > st.sb.modul; sbSpeichern(); moved = true; }
     if (a==="sbmodul"){ st.sb.modul = +b.dataset.val; st.sb.geprueft = st.sb.fertig > st.sb.modul; sbSpeichern(); moved = true; }
     if (a==="sbneu"){ st.sb = sbNeu(); sbSpeichern(); moved = true; }
     if (a!=="bksim" && a!=="bk") st.bkAnim = false;
