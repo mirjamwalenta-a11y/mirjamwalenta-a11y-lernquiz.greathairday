@@ -2144,21 +2144,20 @@ wechsle aber nicht ohne Zustimmung.
     for (var i = 1; i < P.length; i++) if (y <= P[i][0]){ var a = P[i-1], b = P[i], t = (y - a[0]) / (b[0] - a[0]); return a[1] + t * (b[1] - a[1]); }
     return P[P.length-1][1];
   }
-  // Zielbild: derselbe Lehrkopf wie in den Fällen, gespiegelt (Hinterkopf rechts wie in der Schnittzeichnung).
-  // Haarform aus dem Winkel-Labor bei niedriger Graduierung: Gewicht tief, Nacken schmal.
-  var SB_ZIEL_ZONEN = {oben:[50,150], mitte:[150,240], unten:[240,312]};
+  // Zielbild: Nachher-Foto aus dem Fall „Doppelkinn“ (Bob im Halbprofil), gespiegelt: Hinterkopf rechts wie in der Schnittzeichnung.
+  var SB_ZIEL_ZONEN = {oben:[95,205], mitte:[205,320], unten:[320,470]};
   function sbZiel(o){
     o = o || {};
-    var s = '<svg viewBox="120 20 425 500" role="img" aria-label="' + (o.label || "Zielbild") + '">' +
-      '<g transform="translate(496,0) scale(-1,1)">' + lkKopfSvg("frau") + lkHaarSvg("frau", {o:pfadAus(lkWinkelForm("frau", 25))}) + '</g>';
+    var s = '<svg viewBox="55 60 425 450" role="img" aria-label="' + (o.label || "Zielbild") + '" style="background:#fff;border-radius:12px">' +
+      '<image href="' + VL_BILDER.dk.frau.B.src + '" x="0" y="0" width="480" height="600" transform="translate(480,0) scale(-1,1)"/>';
     if (o.zonen){
       ["oben","mitte","unten"].forEach(function(z){
         var y = SB_ZIEL_ZONEN[z], on = o.zone === z;
-        s += '<rect x="372" y="' + y[0] + '" width="164" height="' + (y[1] - y[0]) + '" rx="12" fill="' + (on ? 'var(--accent)' : 'transparent') + '" fill-opacity="' + (on ? '.2' : '0') + '"' +
+        s += '<rect x="250" y="' + y[0] + '" width="226" height="' + (y[1] - y[0]) + '" rx="12" fill="' + (on ? '#5B7B6F' : 'transparent') + '" fill-opacity="' + (on ? '.3' : '0') + '"' +
              (o.zonenKey ? ' data-act="sbwahl" data-key="' + o.zonenKey + '" data-val="' + z + '" style="cursor:pointer"' : '') + '/>';
       });
-      s += '<path d="M392,150 L536,150 M392,240 L536,240" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 6"/>';
-      s += '<g font-size="17" font-weight="700" fill="var(--accent)" text-anchor="end" pointer-events="none"><text x="534" y="72">oben</text><text x="534" y="172">mitte</text><text x="534" y="304">unten</text></g>';
+      s += '<path d="M270,205 L476,205 M270,320 L476,320" stroke="#5B7B6F" stroke-width="2.5" stroke-dasharray="7 6"/>';
+      s += '<g font-size="20" font-weight="700" fill="#4A665B" stroke="#fff" stroke-width="5" paint-order="stroke" text-anchor="end" pointer-events="none"><text x="472" y="124">oben</text><text x="472" y="234">mitte</text><text x="472" y="460">unten</text></g>';
     }
     return s + '</svg>';
   }
