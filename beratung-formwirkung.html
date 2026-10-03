@@ -2061,7 +2061,7 @@ wechsle aber nicht ohne Zustimmung.
      info:"Die richtige Zeichnung zeigt genau deinen Haupthebel und deine Begleitentscheidungen aus Modul 3.",
      fragen:[
       {key:"zeichnung", frage:"Welche Zeichnung zeigt deine Entscheidung?", bild:true, opts:[["1","Zeichnung 1"],["2","Zeichnung 2"],["3","Zeichnung 3"]]},
-      {key:"glinie", frage:"Setz die Gewichtslinie „G“ auf den Kopf.", opts:[["oben","Obere Zone"],["mitte","Mittlere Zone"],["unten","Untere Zone"],["kontur","An der Kontur"]]}]},
+      {key:"glinie", frage:"Wo liegt die Gewichtslinie „G“? Setz sie auf den Kopf.", opts:[["oben","Obere Zone"],["mitte","Mittlere Zone"],["unten","Untere Zone"],["kontur","An der Kontur"],["keine","Keine Gewichtslinie"]]}]},
     {titel:"Kurz begründen", leit:"Warum ist diese Entscheidung passend?",
      info:"Die Begründung ist Pflicht. Der Fall ist erst mit einem stimmigen Satz abgeschlossen.",
      fragen:[
@@ -2123,7 +2123,8 @@ wechsle aber nicht ohne Zustimmung.
       glinie:{
         oben:"Schau auf deine Antwort in Modul 2: Gewichtslinie in der unteren Zone. Deine Zeichnung muss das genauso zeigen.",
         mitte:"In der mittleren Zone liegt die Gewichtslinie zu hoch. Schau auf deine Antwort in Modul 2: untere Zone.",
-        kontur:"An der Kontur liegt das Gewicht bei kompakt. Schau auf deine Antwort in Modul 2: Gewichtslinie in der unteren Zone."},
+        kontur:"An der Kontur liegt das Gewicht bei kompakt. Schau auf deine Antwort in Modul 2: Gewichtslinie in der unteren Zone.",
+        keine:"Keine Gewichtslinie gibt es nur bei gestuft. Bei graduiert liegt sie über der Kontur, hier in der unteren Zone."},
       wirkung:{
         kompakt:"Gewicht an der Kontur und eine geschlossene Oberfläche entstehen bei 0°. Dein Haupthebel ist niedrige Graduierung. Was baut der auf?",
         gestuft:"Dein Haupthebel passt, aber deine Begründung beschreibt die gestufte Zielform. Was erzeugt eine niedrige Graduierung wirklich?"}
@@ -2177,13 +2178,69 @@ wechsle aber nicht ohne Zustimmung.
       glinie:{
         oben:"Eine Gewichtslinie in der oberen Zone gibt es bei kompakt nicht. Schau auf deine Antwort in Modul 2: Das Gewicht liegt an der Kontur.",
         mitte:"Eine Gewichtslinie in der mittleren Zone gibt es bei kompakt nicht. Schau auf deine Antwort in Modul 2: Das Gewicht liegt an der Kontur.",
-        unten:"Eine Gewichtslinie in der unteren Zone gehört zu graduiert. Schau auf deine Antwort in Modul 2: Das Gewicht liegt an der Kontur."},
+        unten:"Eine Gewichtslinie in der unteren Zone gehört zu graduiert. Schau auf deine Antwort in Modul 2: Das Gewicht liegt an der Kontur.",
+        keine:"Bei kompakt sammelt sich das Gewicht an der Kontur. Setz „G“ an die Kontur."},
       wirkung:{
         graduiert:"Eine Gewichtslinie über der Kontur entsteht erst mit Anheben. Dein Haupthebel ist 0°. Was macht der mit dem Gewicht?",
         gestuft:"Gestuft entsteht ab 90°. Dein Haupthebel ist 0°: Das Gewicht bleibt an der Kontur, die Form geschlossen."}
     }
   };
-  var SB_FALL_REIHE = ["graduiert", "kompakt"];
+  SB_FAELLE.gestuft = {
+    kurz:"Gestufte Form",
+    ziel:{bild:["nase","frau","B"], zonen:{oben:[95,200], mitte:[200,300], unten:[300,400], kontur:[400,470]}, abdecken:[426,252,26,34]},
+    zeichnungen:{"1":{el:90, leit:"mit", abt:"senkrecht"}, "2":{el:45, leit:"mit"}, "3":{el:90, leit:"mit"}},
+    loesungsZeichnung:{el:90, leit:"mit", abt:"senkrecht"},
+    titel:"Gestufte Form, kurz",
+    auftrag:"Die Kundin wünscht einen kurzen, leichten Schnitt, der überall locker wirkt. Übersetze ihren Wunsch in Zielform, Kontur und Gewicht. So soll der Schnitt am Ende aussehen:",
+    loesung:{silhouette:"gestuft", kontur:"vorlang", gewicht:"verteilt", formverhalten:"aufgeloest", elevation:"90", abteilung:"senkrecht", leit:"mit", zeichnung:"1", glinie:"keine", wirkung:"gestuft"},
+    warum:[
+      "Zielform gestuft: Das Gewicht ist verteilt, es gibt keine Gewichtslinie. Die Kontur ist im Nacken kurz und wird nach vorne länger.",
+      "„Überall locker“ heißt: Das Gewicht ist verteilt, und die Form ist überall aufgelöst.",
+      "Haupthebel 90°: Jede Partie steht im rechten Winkel vom Kopf ab und wird gleich lang geschnitten. So sammelt sich nirgends Gewicht. Senkrechte Abteilungen folgen der Kopfform von oben nach unten. Die mitwandernde Leitsträhne trägt dieselbe Länge über den ganzen Kopf.",
+      "Senkrechte Abteilung, Strahlen in 90°, mitwandernde rote Leitsträhne und keine Gewichtslinie: Die Zeichnung zeigt genau deine Entscheidungen aus Modul 2 und 3.",
+      "Haupthebel, Gewicht und Zielform passen zusammen. Du kannst jetzt erklären, warum du so schneidest."
+    ],
+    fb:{
+      silhouette:{
+        kompakt:"Kompakt hieße: Das Gewicht liegt an der Kontur, die Form ist geschlossen. Schau aufs Zielbild: Nirgends sammelt sich das Gewicht.",
+        graduiert:"Graduiert hieße: Das Gewicht liegt als Gewichtslinie über der Kontur. Im Zielbild gibt es keine Gewichtslinie, das Gewicht ist verteilt."},
+      kontur:{
+        waagrecht:"Schau auf die Kontur: Im Nacken ist sie kurz, nach vorne wird sie länger.",
+        vorkurz:"Genau umgekehrt: Im Nacken ist die Kontur kurz, nach vorne wird sie länger."},
+      gewicht:{
+        kontur:"An der Kontur liegt das Gewicht bei kompakt. Hier ist das Gewicht verteilt.",
+        unten:"Eine Gewichtslinie in der unteren Zone gehört zur graduierten Zielform. In Modul 1 hast du gestuft erkannt: Das Gewicht ist verteilt.",
+        mitte:"Eine Gewichtslinie in der mittleren Zone gehört zur graduierten Zielform. In Modul 1 hast du gestuft erkannt: Das Gewicht ist verteilt.",
+        oben:"Eine Gewichtslinie in der oberen Zone gehört zur graduierten Zielform. In Modul 1 hast du gestuft erkannt: Das Gewicht ist verteilt."},
+      formverhalten:{
+        geschlossen:"Überall geschlossen gehört zur kompakten Zielform. Gestuft ist überall aufgelöst.",
+        unten_aufgeloest:"Oberhalb geschlossen, unterhalb aufgelöst gehört zu graduiert. Bei gestuft gibt es keine Gewichtslinie, die Form ist überall aufgelöst.",
+        oben_aufgeloest:"Bei gestuft ist die Form überall aufgelöst, auch unten."},
+      elevation:{
+        "0":"0° hält das Gewicht an der Kontur, die Form bleibt geschlossen. Für gestuft brauchst du 90°.",
+        niedrig:"Niedrige Graduierung baut eine Gewichtslinie auf. Für gestuft soll sich nirgends Gewicht sammeln, also 90°.",
+        hoch:"Auch hohe Graduierung baut noch eine Gewichtslinie auf. Erst bei 90° ist das Gewicht verteilt.",
+        ueber90:"Über 90° werden die oberen Längen kürzer als die unteren. Im Zielbild sind die oberen Längen nicht kürzer: 90° verteilt das Gewicht gleichmäßig."},
+      abteilung:{
+        waagrecht:"Waagrechte Abteilungen bauen beim Anheben eine Gewichtslinie auf. Für eine gleichmäßig aufgelöste Form teilst du senkrecht ab.",
+        diagvor:"Diagonale Abteilungen steuern vor allem die Kontur. Damit die Länge bei 90° überall der Kopfform folgt, teilst du senkrecht ab.",
+        diagrueck:"Diagonale Abteilungen steuern vor allem die Kontur. Damit die Länge bei 90° überall der Kopfform folgt, teilst du senkrecht ab."},
+      leit:{
+        fest:"Mit feststehender Leitsträhne werden die Längen weg von der Leitsträhne immer länger, und es sammelt sich Gewicht. Für gestuft wandert die Leitsträhne mit."},
+      zeichnung:{
+        "2":"In Zeichnung 2 stehen die Strähnen in 45° vom Kopf weg. Das ist Graduierung. Dein Haupthebel aus Modul 3 ist 90°.",
+        "3":"Zeichnung 3 hat 90°, aber waagrechte Abteilungslinien. In Modul 3 hast du senkrecht entschieden."},
+      glinie:{
+        oben:"Eine Gewichtslinie gehört zu graduiert. Schau auf deine Antwort in Modul 2: Bei gestuft ist das Gewicht verteilt, es gibt keine Gewichtslinie.",
+        mitte:"Eine Gewichtslinie gehört zu graduiert. Schau auf deine Antwort in Modul 2: Bei gestuft ist das Gewicht verteilt, es gibt keine Gewichtslinie.",
+        unten:"Eine Gewichtslinie gehört zu graduiert. Schau auf deine Antwort in Modul 2: Bei gestuft ist das Gewicht verteilt, es gibt keine Gewichtslinie.",
+        kontur:"Gewicht an der Kontur gehört zu kompakt. Bei gestuft gibt es keine Gewichtslinie."},
+      wirkung:{
+        kompakt:"Gewicht an der Kontur und eine geschlossene Oberfläche entstehen bei 0°. Dein Haupthebel ist 90°.",
+        graduiert:"Eine Gewichtslinie entsteht nur unter 90°. Dein Haupthebel ist 90°. Was passiert dann mit dem Gewicht?"}
+    }
+  };
+  var SB_FALL_REIHE = ["graduiert", "kompakt", "gestuft"];
   function sbF(){ return SB_FAELLE[(st.sbAlle && st.sbAlle.aktiv) || "graduiert"]; }
 
   function sbNeu(){ return {modul:0, fertig:0, antw:{}, geprueft:false, fehler:{}}; }
@@ -2231,6 +2288,7 @@ wechsle aber nicht ohne Zustimmung.
     var Z = sbF().ziel, B = VL_BILDER[Z.bild[0]][Z.bild[1]][Z.bild[2]], zonen = Z.zonen;
     var s = '<svg viewBox="55 60 425 450" role="img" aria-label="' + (o.label || "Zielbild") + '" style="background:#fff;border-radius:12px">' +
       '<image href="' + B.src + '" x="0" y="0" width="480" height="600" transform="translate(480,0) scale(-1,1)"/>';
+    if (Z.abdecken) s += '<rect x="' + Z.abdecken[0] + '" y="' + Z.abdecken[1] + '" width="' + Z.abdecken[2] + '" height="' + Z.abdecken[3] + '" fill="#f2f2f2"/>'; // Schriftrest im Originalfoto
     if (o.zonen){
       var namen = {oben:"oben", mitte:"mitte", unten:"unten", kontur:"Kontur"};
       ["oben","mitte","unten","kontur"].forEach(function(z){
@@ -2263,10 +2321,11 @@ wechsle aber nicht ohne Zustimmung.
       ys.forEach(function(y, i){
         var x = sbHinten(y), ex = x + L * Math.sin(rad), ey = y + L * Math.cos(rad), rot = i === 0;
         if (o.leit === "fest"){ if (o.el === 0) ey = gy0; else { ex = gx0; ey = gy0; } }
-        s += '<path d="M' + (x - 34).toFixed(1) + ',' + y + ' L' + x.toFixed(1) + ',' + y + '" stroke="var(--g-kontur)" stroke-width="1.2"/>';
+        if (o.abt !== "senkrecht") s += '<path d="M' + (x - 34).toFixed(1) + ',' + y + ' L' + x.toFixed(1) + ',' + y + '" stroke="var(--g-kontur)" stroke-width="1.2"/>';
         s += '<path d="M' + x.toFixed(1) + ',' + y + ' L' + ex.toFixed(1) + ',' + ey.toFixed(1) + '" stroke="' + (rot ? 'var(--bad)' : 'var(--ink)') + '" stroke-width="' + (rot ? 3 : 2) + '" stroke-linecap="round"/>';
         ends.push([ex, ey]);
       });
+      if (o.abt === "senkrecht") s += '<path d="M' + [140, 152, 164, 176, 188, 196].map(function(y){ return (sbHinten(y) - 14).toFixed(1) + ',' + y; }).join(" L") + '" fill="none" stroke="var(--g-kontur)" stroke-width="1.6"/>';
       s += '<path d="M' + ends.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(" L") + '" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/>';
       var x0 = sbHinten(150);
       s += '<path d="M' + x0.toFixed(1) + ',150 L' + x0.toFixed(1) + ',182" stroke="var(--g-hilfe)" stroke-width="1" stroke-dasharray="2 3"/>';
@@ -2275,7 +2334,7 @@ wechsle aber nicht ohne Zustimmung.
       if (o.leit === "mit") s += '<path d="M' + lx + ',' + (ly + 8) + ' L' + lx + ',' + (ly - 10) + ' M' + (lx - 5) + ',' + (ly - 4) + ' L' + lx + ',' + (ly - 10) + ' L' + (lx + 5) + ',' + (ly - 4) + '" fill="none" stroke="var(--bad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
       if (o.leit === "fest") s += '<rect x="' + (lx - 6) + '" y="' + (ly - 2) + '" width="12" height="10" rx="2" fill="var(--bad)"/><path d="M' + (lx - 4) + ',' + (ly - 2) + ' L' + (lx - 4) + ',' + (ly - 6) + ' A4,4 0 0 1 ' + (lx + 4) + ',' + (ly - 6) + ' L' + (lx + 4) + ',' + (ly - 2) + '" fill="none" stroke="var(--bad)" stroke-width="2"/>';
     }
-    if (o.g){
+    if (o.g && SB_G_Y[o.g] != null){
       var gy = SB_G_Y[o.g], gx = sbHinten(gy);
       s += '<path d="M' + (gx - 44).toFixed(1) + ',' + gy + ' L' + (gx + (o.g === "kontur" ? 24 : 6)).toFixed(1) + ',' + gy + '" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>';
       s += '<text x="' + (gx - 58).toFixed(1) + '" y="' + (gy + 5) + '" font-size="15" font-weight="700" fill="var(--accent)">G</text>';

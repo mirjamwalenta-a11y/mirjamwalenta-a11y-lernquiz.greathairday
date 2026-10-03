@@ -16,8 +16,9 @@ Alle Modultexte, Antwortoptionen und Feedbacks verwenden nur diese Begriffe: **Z
 |---|---|---|---|---|---|---|---|---|---|
 | 1 Graduierter Bob mit Fülle im Nacken | Nachher-Foto „Doppelkinn“ | graduiert | waagrecht | Gewichtslinie in der unteren Zone | oberhalb geschlossen, unterhalb aufgelöst | niedrige Graduierung (ca. 45°) | waagrecht | mitwandernd | untere Zone |
 | 2 Kompakter Bob, kinnlang | Vorher-Foto „Nase im Profil“ | kompakt | waagrecht | an der Kontur | überall geschlossen | 0° | waagrecht | feststehend | an der Kontur |
+| 3 Gestufte Form, kurz | Nachher-Foto „Nase im Profil“ | gestuft | nach vorne länger | verteilt | überall aufgelöst | 90° | senkrecht | mitwandernd | keine Gewichtslinie |
 
-Fall 2 ist der Gegenfall zu Fall 1: Dieselben Fragen führen über dieselben Begriffe zur anderen Grundform.
+Die drei Fälle decken die drei Grundformen ab: Dieselben Fragen führen über dieselben Begriffe zu kompakt, graduiert oder gestuft.
 
 > Die Abschnitte 2 bis 5 unten sind die erste Fassung des Konzepts. Verbindlich für Antwortoptionen und Feedbacktexte ist die App (`beratung-formwirkung.html`, `SB_MODULE` und `SB_FALL`), die dem Sprachraster folgt.
 
