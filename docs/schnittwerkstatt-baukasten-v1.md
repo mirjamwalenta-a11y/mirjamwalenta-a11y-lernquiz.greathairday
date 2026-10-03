@@ -1,5 +1,17 @@
 # Schnittwerkstatt – Baukasten V1
 
+## Festes Sprachraster
+
+Alle Modultexte, Antwortoptionen und Feedbacks verwenden nur diese Begriffe: **Zielform · Kontur · Gewicht · Gewichtslinie · geschlossen · aufgelöst · Haupthebel**. Kundensprache wie „Fülle im Nacken“ steht nur im Auftrag und wird im Feedback ausdrücklich übersetzt („Fülle im Nacken“ heißt: Gewichtslinie in der unteren Zone).
+
+| Zielform | Gewicht | Gewichtslinie | Formverhalten | Haupthebel |
+|---|---|---|---|---|
+| Kompakt | an der Kontur | keine über der Kontur | überall geschlossen | 0° |
+| Graduiert | über der Kontur | ja, Lage je nach Elevation | oberhalb geschlossen, unterhalb aufgelöst | 1–89° |
+| Gestuft | verteilt | keine | überall aufgelöst | 90° und mehr |
+
+> Die Abschnitte 2 bis 5 unten sind die erste Fassung des Konzepts. Verbindlich für Antwortoptionen und Feedbacktexte ist die App (`beratung-formwirkung.html`, `SB_MODULE` und `SB_FALL`), die dem Sprachraster folgt.
+
 Zwei Ebenen:
 
 - **Ebene 1: Schnittentscheidung denken:** Module 1–3
@@ -34,8 +46,8 @@ Ein rein technischer Baukasten fragt nach Winkeln und Abteilungen, bevor der Leh
 
 ---
 
-### Modul 2 – Gewicht und Bewegung entscheiden
-**Leitfrage:** Wo soll Gewicht bleiben und wo soll Bewegung entstehen?
+### Modul 2 – Gewicht und Formverhalten entscheiden
+**Leitfrage:** Wo liegt das Gewicht, und wo ist die Form geschlossen oder aufgelöst?
 
 **Ziel:** Der Lehrling legt fest, in welcher Zone die Form schwer bleibt und wo sie aufbricht.
 

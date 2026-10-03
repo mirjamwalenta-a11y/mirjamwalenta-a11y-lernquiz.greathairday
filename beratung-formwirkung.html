@@ -2034,93 +2034,99 @@ wechsle aber nicht ohne Zustimmung.
 
   // ==================== Schnitt-Baukasten V1: erst Schnittentscheidung denken, dann Schnittzeichnung ableiten ====================
   // Ebene 1 = Module 1–3, Ebene 2 = Module 4–5. Ein Modul öffnet sich erst, wenn das vorherige richtig geprüft ist.
+  // Festes Sprachraster: Zielform · Kontur · Gewicht · Gewichtslinie · geschlossen · aufgelöst · Haupthebel.
+  // Die drei Grundformen sind über dieselben Begriffe getrennt:
+  //   kompakt   = Gewicht an der Kontur, Oberfläche geschlossen, Haupthebel 0°
+  //   graduiert = Gewichtslinie über der Kontur, oberhalb geschlossen, unterhalb aufgelöst, Haupthebel 1–89°
+  //   gestuft   = Gewicht verteilt, keine Gewichtslinie, Oberfläche aufgelöst, Haupthebel 90° und mehr
   var SB_MODULE = [
     {titel:"Zielform erkennen", leit:"Was soll am Ende sichtbar entstehen?",
      info:"Schau nur auf das Zielbild. Technik kommt erst in Modul 3.",
      fragen:[
-      {key:"silhouette", frage:"Welche Silhouette siehst du?", opts:[["kompakt","Kompakt: geschlossene Form, Gewicht ganz unten an der Kontur"],["graduiert","Graduiert: Gewicht sitzt als sichtbare Kante, darunter schmaler"],["gestuft","Gestuft: aufgelöste Form, Gewicht verteilt"]]},
+      {key:"silhouette", frage:"Welche Zielform siehst du?", opts:[["kompakt","Kompakt: Das Gewicht liegt an der Kontur"],["graduiert","Graduiert: Das Gewicht liegt als Gewichtslinie über der Kontur"],["gestuft","Gestuft: Das Gewicht ist verteilt, es gibt keine Gewichtslinie"]]},
       {key:"kontur", frage:"Wie verläuft die Kontur?", opts:[["waagrecht","Waagrecht"],["vorlang","Nach vorne länger"],["vorkurz","Nach vorne kürzer"]]}]},
-    {titel:"Gewicht und Bewegung entscheiden", leit:"Wo soll Gewicht bleiben und wo soll Bewegung entstehen?",
+    {titel:"Gewicht und Formverhalten entscheiden", leit:"Wo liegt das Gewicht, und wo ist die Form geschlossen oder aufgelöst?",
      info:"Du kannst die Zone auch direkt am Kopf antippen.",
      fragen:[
-      {key:"gewicht", frage:"Wo sitzt das Gewicht?", opts:[["unten","Untere Zone (Nacken / unterer Hinterkopf)"],["mitte","Mittlere Zone (Hinterkopf)"],["oben","Obere Zone (Oberkopf)"],["kontur","Gleichmäßig an der Kontur"]]},
-      {key:"bewegung", frage:"Wo entsteht Bewegung?", opts:[["nirgends","Nirgends, die Oberfläche bleibt geschlossen"],["unter","Unterhalb der Gewichtslinie"],["ueber","Oberhalb der Gewichtslinie"],["ganz","In der ganzen Form"]]}]},
-    {titel:"Haupthebel wählen", leit:"Welche technische Grundentscheidung erzeugt diese Form am stärksten?",
-     info:"Jetzt kommt die Technik als Ursache für die Form aus Modul 1 und 2. Fingerhaltung, Pointen und Slicen sind noch nicht dabei.",
+      {key:"gewicht", frage:"Wo liegt das Gewicht?", opts:[["kontur","An der Kontur"],["unten","Als Gewichtslinie in der unteren Zone (Nacken / unterer Hinterkopf)"],["mitte","Als Gewichtslinie in der mittleren Zone (Hinterkopf)"],["oben","Als Gewichtslinie in der oberen Zone (Oberkopf)"],["verteilt","Verteilt, keine Gewichtslinie"]]},
+      {key:"formverhalten", frage:"Wie verhält sich die Form?", opts:[["geschlossen","Überall geschlossen"],["unten_aufgeloest","Oberhalb der Gewichtslinie geschlossen, unterhalb aufgelöst"],["oben_aufgeloest","Oberhalb der Gewichtslinie aufgelöst, unterhalb geschlossen"],["aufgeloest","Überall aufgelöst"]]}]},
+    {titel:"Haupthebel wählen", leit:"Welche technische Grundentscheidung erzeugt diese Zielform am stärksten?",
+     info:"Jetzt kommt die Technik als Ursache für Gewicht und Formverhalten aus Modul 1 und 2. Fingerhaltung, Pointen und Slicen sind noch nicht dabei.",
      fragen:[
-      {key:"elevation", frage:"Haupthebel: Elevation", opts:[["0","0° (kein Anheben)"],["niedrig","Niedrig graduiert (ca. 1–45°)"],["hoch","Hoch graduiert (ca. 46–89°)"],["90","90° (gleichmäßig gestuft)"],["ueber90","Über 90° (zunehmend gestuft)"]]},
-      {key:"abteilung", frage:"Begleitentscheidung: Abteilungsrichtung", opts:[["waagrecht","Waagrecht"],["diagvor","Diagonal-vorwärts (nach vorne länger)"],["diagrueck","Diagonal-rückwärts (nach vorne kürzer)"],["senkrecht","Senkrecht"]]},
+      {key:"elevation", frage:"Haupthebel: Elevation", opts:[["0","0° (kompakt)"],["niedrig","Niedrig graduiert (ca. 1–45°)"],["hoch","Hoch graduiert (ca. 46–89°)"],["90","90° (gleichmäßig gestuft)"],["ueber90","Über 90° (zunehmend gestuft)"]]},
+      {key:"abteilung", frage:"Begleitentscheidung: Abteilungsrichtung", opts:[["waagrecht","Waagrecht"],["diagvor","Diagonal-vorwärts (Kontur nach vorne länger)"],["diagrueck","Diagonal-rückwärts (Kontur nach vorne kürzer)"],["senkrecht","Senkrecht"]]},
       {key:"leit", frage:"Begleitentscheidung: Leitsträhne", opts:[["fest","Feststehend"],["mit","Mitwandernd"]]}]},
     {titel:"In Schnittzeichnung übersetzen", leit:"Wie sieht diese Entscheidung in der Zeichnung aus?",
-     info:"Die richtige Zeichnung zeigt genau deine Entscheidungen aus Modul 3.",
+     info:"Die richtige Zeichnung zeigt genau deinen Haupthebel und deine Begleitentscheidungen aus Modul 3.",
      fragen:[
       {key:"zeichnung", frage:"Welche Zeichnung zeigt deine Entscheidung?", bild:true, opts:[["1","Zeichnung 1"],["2","Zeichnung 2"],["3","Zeichnung 3"]]},
       {key:"glinie", frage:"Setz die Gewichtslinie „G“ auf den Kopf.", opts:[["oben","Obere Zone"],["mitte","Mittlere Zone"],["unten","Untere Zone"]]}]},
     {titel:"Kurz begründen", leit:"Warum ist diese Entscheidung passend?",
      info:"Die Begründung ist Pflicht. Der Fall ist erst mit einem stimmigen Satz abgeschlossen.",
      fragen:[
-      {key:"wirkung", frage:"Welche Wirkung entsteht?", opts:[["kontur","eine geschlossene, schwere Kontur"],["kante","eine sichtbare Gewichtskante mit schmalem Ansatz darunter"],["aufgeloest","eine aufgelöste, bewegte Form"]]}]}
+      {key:"wirkung", frage:"Welche Zielform entsteht?", opts:[["kompakt","Gewicht an der Kontur, Oberfläche geschlossen"],["graduiert","eine Gewichtslinie über der Kontur, oberhalb geschlossen, unterhalb aufgelöst"],["gestuft","Gewicht verteilt, Oberfläche aufgelöst"]]}]}
   ];
   // Varianten der Schnittzeichnung in Modul 4: el = Elevation in Grad, leit = Leitsträhne
   var SB_ZEICHNUNG = {"1":{el:90, leit:"mit"}, "2":{el:45, leit:"mit"}, "3":{el:45, leit:"fest"}};
   var SB_SATZ = {
-    elevation:{"0":"0°", niedrig:"niedriger Graduierung (ca. 45°)", hoch:"hoher Graduierung", "90":"90°", ueber90:"über 90°"},
+    elevation:{"0":"0°", niedrig:"niedrige Graduierung (ca. 45°)", hoch:"hohe Graduierung", "90":"90°", ueber90:"über 90°"},
     leit:{mit:"mitwandernder Leitsträhne", fest:"feststehender Leitsträhne"},
-    gewicht:{unten:"im Nacken", mitte:"am Hinterkopf", oben:"am Oberkopf", kontur:"gleichmäßig an der Kontur"}
+    gewicht:{kontur:"an der Kontur", unten:"als Gewichtslinie in der unteren Zone", mitte:"als Gewichtslinie in der mittleren Zone", oben:"als Gewichtslinie in der oberen Zone", verteilt:"verteilt"}
   };
   var SB_FALL = {
     titel:"Graduierter Bob mit Fülle im Nacken",
-    auftrag:"Die Kundin wünscht einen graduierten Bob mit Fülle im Nacken. So soll er am Ende aussehen:",
-    loesung:{silhouette:"graduiert", kontur:"waagrecht", gewicht:"unten", bewegung:"unter", elevation:"niedrig", abteilung:"waagrecht", leit:"mit", zeichnung:"2", glinie:"unten", wirkung:"kante"},
+    auftrag:"Die Kundin wünscht einen graduierten Bob mit Fülle im Nacken. Übersetze ihren Wunsch in Zielform, Kontur und Gewicht. So soll der Bob am Ende aussehen:",
+    loesung:{silhouette:"graduiert", kontur:"waagrecht", gewicht:"unten", formverhalten:"unten_aufgeloest", elevation:"niedrig", abteilung:"waagrecht", leit:"mit", zeichnung:"2", glinie:"unten", wirkung:"graduiert"},
     warum:[
-      "Die Form hat eine sichtbare Gewichtskante und läuft darunter schmal aus. Die Kontur bleibt ruhig und waagrecht.",
-      "Die Fülle soll tief sitzen. Unter der Kante liegen kurze, aktive Enden eng am Nacken, darüber bleibt die Oberfläche geschlossen.",
-      "Eine niedrige Elevation baut Gewicht auf und hält die Gewichtslinie tief. Waagrechte Abteilungen ergeben eine waagrechte Kante. Die mitwandernde Leitsträhne sorgt dafür, dass die Graduierung gleichmäßig nach oben aufgebaut wird.",
-      "Waagrechte Abteilungen, 45°-Strahl, mitwandernde rote Leitsträhne und „G“ knapp über dem Nacken: Die Zeichnung zeigt genau deine Entscheidungen aus Modul 3.",
-      "Technik, Zone und Wirkung passen zusammen. Du kannst jetzt erklären, warum du so schneidest."
+      "Zielform graduiert: Das Gewicht liegt als Gewichtslinie über der Kontur. Die Kontur verläuft waagrecht.",
+      "„Fülle im Nacken“ heißt: Die Gewichtslinie liegt in der unteren Zone. Oberhalb der Gewichtslinie ist die Form geschlossen, unterhalb aufgelöst.",
+      "Haupthebel niedrige Graduierung: Sie baut eine Gewichtslinie auf und hält sie in der unteren Zone. Waagrechte Abteilungen ergeben eine waagrechte Kontur und Gewichtslinie. Die mitwandernde Leitsträhne baut die Graduierung gleichmäßig nach oben auf.",
+      "Waagrechte Abteilungen, Strahl in 45°, mitwandernde rote Leitsträhne und die Gewichtslinie „G“ in der unteren Zone: Die Zeichnung zeigt genau deine Entscheidungen aus Modul 2 und 3.",
+      "Haupthebel, Gewichtslinie und Zielform passen zusammen. Du kannst jetzt erklären, warum du so schneidest."
     ],
     fb:{
       silhouette:{
-        kompakt:"Kompakt hieße: Das Gewicht liegt ganz unten an der Kontur, die Form bleibt bis zu den Spitzen geschlossen. Schau aufs Zielbild: Unter der Fülle wird der Nacken schmal. Das ist eine Kante.",
-        gestuft:"Gestuft wäre aufgelöst, das Gewicht wäre verteilt. Im Zielbild bleibt aber sichtbar Masse an einer Stelle stehen."},
+        kompakt:"Kompakt hieße: Das Gewicht liegt an der Kontur, und darüber gibt es keine Gewichtslinie. Gefragt ist ein graduierter Bob, also ein Gewicht, das über der Kontur liegt.",
+        gestuft:"Gestuft hieße: Das Gewicht ist verteilt, und es gibt keine Gewichtslinie. Hier soll das Gewicht an einer Stelle bleiben."},
       kontur:{
-        vorlang:"Schau auf die Unterkante an der Seite: Sie läuft waagrecht und wird nach vorne nicht länger.",
-        vorkurz:"Schau auf die Unterkante an der Seite: Sie läuft waagrecht und wird nach vorne nicht kürzer."},
+        vorlang:"Schau auf die Kontur an der Seite: Sie verläuft waagrecht und wird nach vorne nicht länger.",
+        vorkurz:"Schau auf die Kontur an der Seite: Sie verläuft waagrecht und wird nach vorne nicht kürzer."},
       gewicht:{
-        mitte:"Am Hinterkopf säße die Fülle zu hoch. Gefragt ist Fülle im Nacken, also tiefer.",
-        oben:"Volumen am Oberkopf ist eine andere Form. Hier soll die Fülle unten bleiben.",
-        kontur:"Gleichmäßig an der Kontur heißt kompakt, ohne Kante. Hier baut sich das Gewicht als Kante auf, und darunter wird es schmal."},
-      bewegung:{
-        nirgends:"Ganz geschlossen wäre kompakt. Unter der Kante liegen kurze, aktive Enden am Nacken. Dort entsteht Bewegung.",
-        ueber:"Oberhalb der Kante bleibt die Form ruhig und geschlossen. Die kurzen, aktiven Enden sitzen darunter.",
-        ganz:"Fülle heißt hier: Da bleibt Masse stehen. Bewegung gibt es nur unter der Kante, darüber bleibt die Form ruhig."},
+        kontur:"Liegt das Gewicht an der Kontur, ist die Zielform kompakt. In Modul 1 hast du graduiert erkannt, also liegt eine Gewichtslinie über der Kontur.",
+        mitte:"In der mittleren Zone liegt die Gewichtslinie zu hoch. „Fülle im Nacken“ heißt: Gewichtslinie in der unteren Zone.",
+        oben:"In der oberen Zone wäre das Gewicht am Oberkopf. „Fülle im Nacken“ heißt: Gewichtslinie in der unteren Zone.",
+        verteilt:"Verteiltes Gewicht ohne Gewichtslinie gehört zur gestuften Zielform. In Modul 1 hast du graduiert erkannt."},
+      formverhalten:{
+        geschlossen:"Überall geschlossen gehört zur kompakten Zielform. Bei graduiert ist die Form unterhalb der Gewichtslinie aufgelöst.",
+        oben_aufgeloest:"Genau umgekehrt: Bei graduiert ist die Form oberhalb der Gewichtslinie geschlossen und unterhalb aufgelöst.",
+        aufgeloest:"Überall aufgelöst gehört zur gestuften Zielform. Bei graduiert bleibt die Form oberhalb der Gewichtslinie geschlossen."},
       elevation:{
-        "0":"0° ergibt einen kompakten Bob. Du willst aber eine Kante, unter der der Nacken schmal wird. Dafür musst du leicht anheben.",
-        hoch:"Je höher du anhebst, desto höher rutscht die Fülle. Soll sie im Nacken bleiben, musst du tief bleiben, also ungefähr 45°.",
-        "90":"90° verteilt das Gewicht gleichmäßig, und dann gibt es keine Kante. Für Fülle im Nacken musst du Gewicht aufbauen. Das schafft eine niedrige Elevation.",
-        ueber90:"Über 90° werden die oberen Längen kürzer als die unteren, und die Form löst sich auf. Für Fülle im Nacken brauchst du das Gegenteil: Gewicht aufbauen und tief bleiben."},
+        "0":"0° ist der Haupthebel für kompakt: Das Gewicht bleibt an der Kontur. Für eine Gewichtslinie über der Kontur musst du leicht anheben.",
+        hoch:"Je höher du anhebst, desto höher rutscht die Gewichtslinie. Soll sie in der unteren Zone liegen, bleib tief, also ungefähr 45°.",
+        "90":"90° verteilt das Gewicht gleichmäßig, dann gibt es keine Gewichtslinie und die Form ist aufgelöst. Für graduiert brauchst du eine niedrige Elevation.",
+        ueber90:"Über 90° werden die oberen Längen kürzer als die unteren, die Form ist aufgelöst. Für graduiert brauchst du das Gegenteil: eine Gewichtslinie aufbauen und tief bleiben."},
       abteilung:{
-        diagvor:"Diagonal-vorwärts macht die Linie nach vorne länger. Deine Zielform aus Modul 1 hat eine waagrechte Kontur.",
-        diagrueck:"Diagonal-rückwärts macht die Linie nach vorne kürzer. Deine Zielform aus Modul 1 hat eine waagrechte Kontur.",
-        senkrecht:"Senkrechte Abteilungen bauen keine waagrechte Gewichtskante auf. Die Abteilung folgt der Kontur aus Modul 1."},
+        diagvor:"Diagonal-vorwärts macht die Kontur nach vorne länger. In Modul 1 hast du eine waagrechte Kontur erkannt.",
+        diagrueck:"Diagonal-rückwärts macht die Kontur nach vorne kürzer. In Modul 1 hast du eine waagrechte Kontur erkannt.",
+        senkrecht:"Senkrechte Abteilungen bauen keine waagrechte Gewichtslinie auf. Die Abteilung folgt der Kontur aus Modul 1."},
       leit:{
-        fest:"Wenn die Leitsträhne stehen bleibt, wird oben alles länger. Damit die Graduierung gleichmäßig aufbaut, muss sie mitwandern."},
+        fest:"Wenn die Leitsträhne stehen bleibt, wird oben alles länger und die Gewichtslinie baut sich nicht gleichmäßig auf. Sie muss mitwandern."},
       zeichnung:{
-        "1":"In Zeichnung 1 stehen die Strähnen waagrecht vom Kopf weg. Das sind 90°. In Modul 3 hast du niedrig graduiert entschieden.",
+        "1":"In Zeichnung 1 stehen die Strähnen waagrecht vom Kopf weg. Das sind 90°. Dein Haupthebel aus Modul 3 ist niedrige Graduierung.",
         "3":"In Zeichnung 3 hat die rote Strähne ein Schloss, also eine feststehende Leitsträhne. In Modul 3 hast du mitwandernd entschieden."},
       glinie:{
-        oben:"Schau auf deine Antwort in Modul 2: Gewicht unten. Deine Zeichnung muss das genauso zeigen.",
-        mitte:"Die mittlere Zone ist der Hinterkopf. Dort säße die Fülle zu hoch. Schau auf deine Antwort in Modul 2."},
+        oben:"Schau auf deine Antwort in Modul 2: Gewichtslinie in der unteren Zone. Deine Zeichnung muss das genauso zeigen.",
+        mitte:"In der mittleren Zone liegt die Gewichtslinie zu hoch. Schau auf deine Antwort in Modul 2: untere Zone."},
       wirkung:{
-        kontur:"Eine geschlossene, schwere Kontur entsteht bei 0°. Du hast niedrig graduiert. Was baut das auf?",
-        aufgeloest:"Deine Technik passt, aber deine Begründung beschreibt einen anderen Schnitt. Was erzeugt eine niedrige Graduierung wirklich?"}
+        kompakt:"Gewicht an der Kontur und eine geschlossene Oberfläche entstehen bei 0°. Dein Haupthebel ist niedrige Graduierung. Was baut der auf?",
+        gestuft:"Dein Haupthebel passt, aber deine Begründung beschreibt die gestufte Zielform. Was erzeugt eine niedrige Graduierung wirklich?"}
     }
   };
 
   function sbNeu(){ return {modul:0, fertig:0, antw:{}, geprueft:false, fehler:{}}; }
-  function sbSpeichern(){ try { localStorage.setItem("sb-v1", JSON.stringify(st.sb)); } catch(e){} }
+  function sbSpeichern(){ try { localStorage.setItem("sb-v2", JSON.stringify(st.sb)); } catch(e){} }
   function sbLaden(){
-    try { var d = JSON.parse(localStorage.getItem("sb-v1") || "null"); if (d && d.antw && typeof d.modul === "number" && d.modul >= 0 && d.modul <= SB_MODULE.length){ d.fehler = d.fehler || {}; return d; } } catch(e){}
+    try { var d = JSON.parse(localStorage.getItem("sb-v2") || "null"); if (d && d.antw && typeof d.modul === "number" && d.modul >= 0 && d.modul <= SB_MODULE.length){ d.fehler = d.fehler || {}; return d; } } catch(e){}
     return sbNeu();
   }
   function sbOk(m){ return SB_MODULE[m].fragen.every(function(f){ return st.sb.antw[f.key] === SB_FALL.loesung[f.key]; }); }
@@ -2212,8 +2218,8 @@ wechsle aber nicht ohne Zustimmung.
   function sbSatz(){
     var A = st.sb.antw;
     function slot(t, leer){ return '<span class="sb-slot' + (leer ? ' leer' : '') + '">' + t + '</span>'; }
-    return '<p class="sb-satz">Ich schneide mit ' + slot(SB_SATZ.elevation[A.elevation] || "…") + ' und ' + slot(SB_SATZ.leit[A.leit] || "…") +
-      ', weil das Gewicht ' + slot(SB_SATZ.gewicht[A.gewicht] || "…") + ' bleiben soll und ' + (A.wirkung ? slot(sbLabel("wirkung", A.wirkung)) : slot("[Wirkung wählen]", true)) + ' entstehen soll.</p>';
+    return '<p class="sb-satz">Ich wähle als Haupthebel ' + slot(SB_SATZ.elevation[A.elevation] || "…") + ' mit ' + slot(SB_SATZ.leit[A.leit] || "…") +
+      ', weil das Gewicht ' + slot(SB_SATZ.gewicht[A.gewicht] || "…") + ' liegen soll. So entsteht als Zielform: ' + (A.wirkung ? slot(sbLabel("wirkung", A.wirkung)) : slot("[Zielform wählen]", true)) + '.</p>';
   }
 
   function sbUebersicht(){
@@ -2224,7 +2230,7 @@ wechsle aber nicht ohne Zustimmung.
         (done ? '<span>' + keys.map(function(k){ return sbLabel(k, A[k]); }).join(" · ") + '</span>' : '<span class="note">noch offen</span>') + '</li>';
     }
     return '<div class="sb-uebersicht"><p class="sb-ebene">Ebene 1 · Schnittentscheidung denken</p><ol>' +
-      zeile(0, ["silhouette","kontur"]) + zeile(1, ["gewicht","bewegung"]) + zeile(2, ["elevation","abteilung","leit"]) + '</ol>' +
+      zeile(0, ["silhouette","kontur"]) + zeile(1, ["gewicht","formverhalten"]) + zeile(2, ["elevation","abteilung","leit"]) + '</ol>' +
       '<p class="sb-ebene">Ebene 2 · Schnittzeichnung ableiten</p><ol>' +
       zeile(3, ["zeichnung","glinie"]) + zeile(4, ["wirkung"]) + '</ol></div>';
   }
@@ -3520,7 +3526,7 @@ wechsle aber nicht ohne Zustimmung.
       var sbm = sbModulVon(b.dataset.key);
       if (sbm >= 0){ st.sb.antw[b.dataset.key] = b.dataset.val; st.sb.modul = sbm; st.sb.geprueft = false; if (st.sb.fertig > sbm) st.sb.fertig = sbm; sbSpeichern(); }
     }
-    if (a==="sbpruef"){ st.sb.geprueft = true; sbSpeichern(); }
+    if (a==="sbpruef"){ st.sb.geprueft = true; if (!sbOk(st.sb.modul)) st.sb.fehler[st.sb.modul] = true; sbSpeichern(); }
     if (a==="sbweiter"){
       if (!sbOk(st.sb.modul)){ st.sb.fehler[st.sb.modul] = true; SB_MODULE[st.sb.modul].fragen.forEach(function(f){ st.sb.antw[f.key] = SB_FALL.loesung[f.key]; }); }
       st.sb.fertig = Math.max(st.sb.fertig, st.sb.modul + 1); st.sb.modul++; st.sb.geprueft = st.sb.fertig > st.sb.modul; sbSpeichern(); moved = true; }
