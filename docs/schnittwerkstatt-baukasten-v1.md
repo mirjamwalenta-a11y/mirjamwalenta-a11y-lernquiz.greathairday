@@ -8,17 +8,19 @@ Alle Modultexte, Antwortoptionen und Feedbacks verwenden nur diese Begriffe: **Z
 |---|---|---|---|---|
 | Kompakt | an der Kontur | keine über der Kontur | überall geschlossen | 0° |
 | Graduiert | über der Kontur | ja, Lage je nach Elevation | oberhalb geschlossen, unterhalb aufgelöst | 1–89° |
-| Gestuft | verteilt | keine | überall aufgelöst | 90° und mehr |
+| Gleichmäßig gestuft | verteilt, alle Längen gleich | keine | überall aufgelöst | 90° mit mitwandernder Leitsträhne |
+| Ansteigend gestuft | verteilt, Längen nach unten länger | keine | überall aufgelöst | über 90° mit feststehender Leitsträhne oben |
 
 ## Fälle in der App
 
 | Fall | Zielbild | Zielform | Kontur | Gewicht | Formverhalten | Haupthebel | Abteilung | Leitsträhne | Gewichtslinie „G“ |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 Graduierter Bob mit Fülle im Nacken | Nachher-Foto „Doppelkinn“ | graduiert | waagrecht | Gewichtslinie in der unteren Zone | oberhalb geschlossen, unterhalb aufgelöst | niedrige Graduierung (ca. 45°) | waagrecht | mitwandernd | untere Zone |
-| 2 Kompakter Bob, kinnlang | Vorher-Foto „Nase im Profil“ | kompakt | waagrecht | an der Kontur | überall geschlossen | 0° | waagrecht | feststehend | an der Kontur |
-| 3 Gestufte Form, kurz | Nachher-Foto „Nase im Profil“ | gestuft | nach vorne länger | verteilt | überall aufgelöst | 90° | senkrecht | mitwandernd | keine Gewichtslinie |
+| 1 Graduierter Bob mit Fülle im Nacken | Foto, Ansicht von hinten (`SB_BILD_GRADUIERT`) | graduiert | nach vorne länger | Gewichtslinie in der unteren Zone | oberhalb geschlossen, unterhalb aufgelöst | niedrige Graduierung (ca. 45°) | diagonal-vorwärts | mitwandernd | untere Zone |
+| 2 Kompakter Bob, kinnlang | Foto im Profil (`SB_BILD_KOMPAKT`) | kompakt | nach vorne länger | an der Kontur | überall geschlossen | 0° | diagonal-vorwärts | feststehend | an der Kontur |
+| 3 Gleichmäßig gestufte Form, kurz | Foto, Ansicht von vorne (`SB_BILD_GLEICH`) | gleichmäßig gestuft | waagrecht | verteilt | überall aufgelöst | 90° | senkrecht | mitwandernd | keine Gewichtslinie |
+| 4 Ansteigend gestufte Form, schulterlang | Profil aus der Bildvorlage (`SB_BILD_ANSTEIGEND`) | ansteigend gestuft | waagrecht | verteilt | überall aufgelöst | über 90° | senkrecht | feststehend (oben) | keine Gewichtslinie |
 
-Die drei Fälle decken die drei Grundformen ab: Dieselben Fragen führen über dieselben Begriffe zu kompakt, graduiert oder gestuft.
+Die vier Fälle decken alle Zielformen ab: Dieselben Fragen führen über dieselben Begriffe zu kompakt, graduiert, gleichmäßig gestuft oder ansteigend gestuft.
 
 Zwei Ebenen:
 
@@ -45,7 +47,8 @@ Ein rein technischer Baukasten fragt nach Winkeln und Abteilungen, bevor der Leh
 |---|---|
 | Kompakt: Das Gewicht liegt an der Kontur | Waagrecht |
 | Graduiert: Das Gewicht liegt als Gewichtslinie über der Kontur | Nach vorne länger |
-| Gestuft: Das Gewicht ist verteilt, es gibt keine Gewichtslinie | Nach vorne kürzer |
+| Gleichmäßig gestuft: Das Gewicht ist verteilt, alle Längen sind gleich lang | Nach vorne kürzer |
+| Ansteigend gestuft: Das Gewicht ist verteilt, die Längen werden nach unten zur Kontur länger | |
 
 **Didaktischer Nutzen:** Der Lehrling schaut zuerst und schneidet dann. Technikbegriffe sind in diesem Modul nicht auswählbar.
 
@@ -76,7 +79,7 @@ Ein rein technischer Baukasten fragt nach Winkeln und Abteilungen, bevor der Leh
 | Niedrig graduiert (ca. 1–45°) | Diagonal-vorwärts (Kontur nach vorne länger) | Mitwandernd |
 | Hoch graduiert (ca. 46–89°) | Diagonal-rückwärts (Kontur nach vorne kürzer) | |
 | 90° (gleichmäßig gestuft) | Senkrecht | |
-| Über 90° (zunehmend gestuft) | | |
+| Über 90° (ansteigend gestuft) | | |
 
 **Didaktischer Nutzen:** Die Elevation bestimmt Zielform und Lage der Gewichtslinie am stärksten. Abteilung und Leitsträhne braucht der Lehrling, damit sich die Entscheidung zeichnen lässt. Fingerhaltung, Pointen und Slicen gehören nicht in V1.
 
@@ -88,7 +91,7 @@ Ein rein technischer Baukasten fragt nach Winkeln und Abteilungen, bevor der Leh
 
 | Element | Symbol |
 |---|---|
-| Abteilung | dünne Linien am Kopf (waagrecht) oder eine Linie entlang des Hinterkopfs (senkrecht) |
+| Abteilung | dünne Linien am Kopf (waagrecht oder schräg nach vorne fallend für diagonal-vorwärts) oder eine Linie entlang des Hinterkopfs (senkrecht) |
 | Elevation | Strahl vom Kopf weg, mit Gradzahl (0° = senkrecht nach unten, 90° = waagrecht vom Kopf weg) |
 | Leitsträhne | rote Strähne; mitwandernd mit Pfeil nach oben, feststehend mit Schloss (alle Partien laufen zur Leitsträhne) |
 | Gewichtslinie | dicke grüne Linie „G“ |
@@ -110,7 +113,8 @@ Ein rein technischer Baukasten fragt nach Winkeln und Abteilungen, bevor der Leh
 Die ersten drei Felder füllt die App mit den eigenen Antworten. Der Lehrling wählt nur die Zielform:
 - Gewicht an der Kontur, Oberfläche geschlossen
 - eine Gewichtslinie über der Kontur, oberhalb geschlossen, unterhalb aufgelöst
-- Gewicht verteilt, Oberfläche aufgelöst
+- Gewicht verteilt, alle Längen gleich, Oberfläche aufgelöst
+- Gewicht verteilt, Längen nach unten länger, Oberfläche aufgelöst
 
 **Didaktischer Nutzen:** Der Lehrling schließt die Kette von Haupthebel über Gewicht bis zur Zielform selbst.
 
@@ -130,15 +134,16 @@ Die ersten drei Felder füllt die App mit den eigenen Antworten. Der Lehrling w�
 
 | Modul | Richtige Antwort | Begründung in der App |
 |---|---|---|
-| 1 | Zielform **graduiert**, Kontur **waagrecht** | Zielform graduiert: Das Gewicht liegt als Gewichtslinie über der Kontur. Die Kontur verläuft waagrecht. |
+| 1 | Zielform **graduiert**, Kontur **nach vorne länger** | Zielform graduiert: Das Gewicht liegt als Gewichtslinie über der Kontur. Die Kontur ist im Nacken kurz und wird nach vorne länger. |
 | 2 | Gewicht **als Gewichtslinie in der unteren Zone**, Form **oberhalb geschlossen, unterhalb aufgelöst** | „Fülle im Nacken“ heißt: Die Gewichtslinie liegt in der unteren Zone. Oberhalb der Gewichtslinie ist die Form geschlossen, unterhalb aufgelöst. |
-| 3 | **Niedrig graduiert (ca. 45°)**, **waagrecht**, **mitwandernd** | Haupthebel niedrige Graduierung: Sie baut eine Gewichtslinie auf und hält sie in der unteren Zone. Waagrechte Abteilungen ergeben eine waagrechte Kontur und Gewichtslinie. Die mitwandernde Leitsträhne baut die Graduierung gleichmäßig nach oben auf. |
-| 4 | **Zeichnung 2**, „G“ in der **unteren Zone** | Waagrechte Abteilungen, Strahl in 45°, mitwandernde rote Leitsträhne und die Gewichtslinie „G“ in der unteren Zone. |
+| 3 | **Niedrig graduiert (ca. 45°)**, **diagonal-vorwärts**, **mitwandernd** | Haupthebel niedrige Graduierung: Sie baut eine Gewichtslinie auf und hält sie in der unteren Zone. Diagonal-vorwärts abgeteilt wird die Kontur nach vorne länger. Die mitwandernde Leitsträhne baut die Graduierung gleichmäßig nach oben auf. |
+| 4 | **Zeichnung 2**, „G“ in der **unteren Zone** | Diagonal-vorwärts Abteilungen, Strahl in 45°, mitwandernde rote Leitsträhne und die Gewichtslinie „G“ in der unteren Zone. |
 | 5 | Zielform: **eine Gewichtslinie über der Kontur, oberhalb geschlossen, unterhalb aufgelöst** | „Ich wähle als Haupthebel niedrige Graduierung (ca. 45°) mit mitwandernder Leitsträhne, weil das Gewicht als Gewichtslinie in der unteren Zone liegen soll. So entsteht als Zielform: eine Gewichtslinie über der Kontur, oberhalb geschlossen, unterhalb aufgelöst.“ |
 
 Die falschen Zeichnungen in Fall 1: Zeichnung 1 = 90°, Zeichnung 3 = feststehende Leitsträhne.
 In Fall 2: Zeichnung 1 = 45°, Zeichnung 2 = 90°, richtig ist Zeichnung 3.
 In Fall 3: Zeichnung 2 = 45°, Zeichnung 3 = 90° mit waagrechter Abteilung, richtig ist Zeichnung 1.
+In Fall 4: Zeichnung 1 = 90° mit mitwandernder Leitsträhne, Zeichnung 3 = 45°, richtig ist Zeichnung 2 (über 90°, alle Partien zur feststehenden Leitsträhne oben).
 
 ---
 
@@ -154,7 +159,7 @@ In Fall 3: Zeichnung 2 = 45°, Zeichnung 3 = 90° mit waagrechter Abteilung, ric
 | 6 | Modul 4: **„G“ in der oberen Zone** | „Die Gewichtslinie ist dort, wo der Bob am breitesten ist.“ | „Schau auf deine Antwort in Modul 2: Gewichtslinie in der unteren Zone. Deine Zeichnung muss das genauso zeigen.“ |
 | 7 | Modul 5: **Gewicht verteilt, Oberfläche aufgelöst** | Der Satz wurde ohne Nachdenken ausgefüllt. | „Dein Haupthebel passt, aber deine Begründung beschreibt die gestufte Zielform. Was erzeugt eine niedrige Graduierung wirklich?“ |
 
-Die Feedbacktexte für Fall 2 und 3 stehen in der App unter `SB_FAELLE.kompakt.fb` und `SB_FAELLE.gestuft.fb`.
+Die Feedbacktexte für Fall 2 bis 4 stehen in der App unter `SB_FAELLE.kompakt.fb`, `SB_FAELLE.gestuft.fb` und `SB_FAELLE.ansteigend.fb`.
 
 ---
 
