@@ -2241,6 +2241,8 @@ wechsle aber nicht ohne Zustimmung.
     }
   };
   var SB_FALL_REIHE = ["graduiert", "kompakt", "gestuft"];
+  // Kurze Überschriften im Feedback, nur Begriffe aus dem Sprachraster
+  var SB_KURZ = {silhouette:"Zielform", kontur:"Kontur", gewicht:"Gewicht", formverhalten:"geschlossen oder aufgelöst", elevation:"Haupthebel", abteilung:"Abteilung", leit:"Leitsträhne", zeichnung:"Zeichnung", glinie:"Gewichtslinie", wirkung:"Zielform"};
   function sbF(){ return SB_FAELLE[(st.sbAlle && st.sbAlle.aktiv) || "graduiert"]; }
 
   function sbNeu(){ return {modul:0, fertig:0, antw:{}, geprueft:false, fehler:{}}; }
@@ -2414,7 +2416,7 @@ wechsle aber nicht ohne Zustimmung.
         (ok ? '<div class="callout good"><p><strong>Richtig.</strong> ' + sbF().warum[m] + '</p>' + (S.fehler[m] ? '<p class="note">Hier hattest du beim ersten Versuch einen Fehler. Jetzt steht die richtige Lösung da.</p>' : '') + '</div>' : '') +
         (fehler.length ? '<div class="callout bad">' + fehler.map(function(f){
             var t = A[f.key] != null && sbF().fb[f.key] ? sbF().fb[f.key][A[f.key]] : null;
-            return '<p><strong>' + f.frage + ':</strong> ' + (t || "Wähl hier noch eine Antwort.") + '</p>';
+            return '<p><strong>' + (SB_KURZ[f.key] || f.frage) + ':</strong> ' + (t || "Wähl hier noch eine Antwort.") + '</p>';
           }).join("") + '<p class="note">Du kannst deine Antwort ändern und noch einmal prüfen. Wenn du weitergehst, wird die richtige Lösung übernommen.</p></div>' : '') +
         '<div class="controls" style="justify-content:flex-start">' +
           (gp ? '<button class="btn primary" type="button" data-act="sbweiter">' + (m === SB_MODULE.length - 1 ? 'Fall abschließen' : 'Weiter zu Modul ' + (m + 2)) + ICON_WEITER + '</button>'
