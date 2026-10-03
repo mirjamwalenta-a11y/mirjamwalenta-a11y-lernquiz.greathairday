@@ -217,6 +217,7 @@ dl.steck dd{margin:0}
 #bk-marker{transition:left .9s var(--ease)}
 /* Schnitt-Baukasten V1 */
 .sb-fall{font-size:var(--t-m)}
+.sb-faelle{margin-bottom:-4px}
 .sb-steps li{display:flex;align-items:center}
 .sb-steps li button{all:unset;cursor:pointer;border-radius:999px}
 .sb-steps li button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
@@ -2060,20 +2061,25 @@ wechsle aber nicht ohne Zustimmung.
      info:"Die richtige Zeichnung zeigt genau deinen Haupthebel und deine Begleitentscheidungen aus Modul 3.",
      fragen:[
       {key:"zeichnung", frage:"Welche Zeichnung zeigt deine Entscheidung?", bild:true, opts:[["1","Zeichnung 1"],["2","Zeichnung 2"],["3","Zeichnung 3"]]},
-      {key:"glinie", frage:"Setz die Gewichtslinie „G“ auf den Kopf.", opts:[["oben","Obere Zone"],["mitte","Mittlere Zone"],["unten","Untere Zone"]]}]},
+      {key:"glinie", frage:"Setz die Gewichtslinie „G“ auf den Kopf.", opts:[["oben","Obere Zone"],["mitte","Mittlere Zone"],["unten","Untere Zone"],["kontur","An der Kontur"]]}]},
     {titel:"Kurz begründen", leit:"Warum ist diese Entscheidung passend?",
      info:"Die Begründung ist Pflicht. Der Fall ist erst mit einem stimmigen Satz abgeschlossen.",
      fragen:[
       {key:"wirkung", frage:"Welche Zielform entsteht?", opts:[["kompakt","Gewicht an der Kontur, Oberfläche geschlossen"],["graduiert","eine Gewichtslinie über der Kontur, oberhalb geschlossen, unterhalb aufgelöst"],["gestuft","Gewicht verteilt, Oberfläche aufgelöst"]]}]}
   ];
-  // Varianten der Schnittzeichnung in Modul 4: el = Elevation in Grad, leit = Leitsträhne
-  var SB_ZEICHNUNG = {"1":{el:90, leit:"mit"}, "2":{el:45, leit:"mit"}, "3":{el:45, leit:"fest"}};
   var SB_SATZ = {
     elevation:{"0":"0°", niedrig:"niedrige Graduierung (ca. 45°)", hoch:"hohe Graduierung", "90":"90°", ueber90:"über 90°"},
     leit:{mit:"mitwandernder Leitsträhne", fest:"feststehender Leitsträhne"},
     gewicht:{kontur:"an der Kontur", unten:"als Gewichtslinie in der unteren Zone", mitte:"als Gewichtslinie in der mittleren Zone", oben:"als Gewichtslinie in der oberen Zone", verteilt:"verteilt"}
   };
-  var SB_FALL = {
+  // Fälle: je Zielbild (Foto aus den Fällen, gespiegelt), Zonen im Foto, Lösung, Begründungen und Feedback.
+  // zeichnungen = Varianten in Modul 4 (el = Elevation in Grad, leit = Leitsträhne), loesungsZeichnung = fertige Zeichnung.
+  var SB_FAELLE = {};
+  SB_FAELLE.graduiert = {
+    kurz:"Graduierter Bob",
+    ziel:{bild:["dk","frau","B"], zonen:{oben:[95,205], mitte:[205,320], unten:[320,440], kontur:[440,505]}},
+    zeichnungen:{"1":{el:90, leit:"mit"}, "2":{el:45, leit:"mit"}, "3":{el:45, leit:"fest"}},
+    loesungsZeichnung:{el:45, leit:"mit", g:"unten"},
     titel:"Graduierter Bob mit Fülle im Nacken",
     auftrag:"Die Kundin wünscht einen graduierten Bob mit Fülle im Nacken. Übersetze ihren Wunsch in Zielform, Kontur und Gewicht. So soll der Bob am Ende aussehen:",
     loesung:{silhouette:"graduiert", kontur:"waagrecht", gewicht:"unten", formverhalten:"unten_aufgeloest", elevation:"niedrig", abteilung:"waagrecht", leit:"mit", zeichnung:"2", glinie:"unten", wirkung:"graduiert"},
@@ -2116,20 +2122,89 @@ wechsle aber nicht ohne Zustimmung.
         "3":"In Zeichnung 3 hat die rote Strähne ein Schloss, also eine feststehende Leitsträhne. In Modul 3 hast du mitwandernd entschieden."},
       glinie:{
         oben:"Schau auf deine Antwort in Modul 2: Gewichtslinie in der unteren Zone. Deine Zeichnung muss das genauso zeigen.",
-        mitte:"In der mittleren Zone liegt die Gewichtslinie zu hoch. Schau auf deine Antwort in Modul 2: untere Zone."},
+        mitte:"In der mittleren Zone liegt die Gewichtslinie zu hoch. Schau auf deine Antwort in Modul 2: untere Zone.",
+        kontur:"An der Kontur liegt das Gewicht bei kompakt. Schau auf deine Antwort in Modul 2: Gewichtslinie in der unteren Zone."},
       wirkung:{
         kompakt:"Gewicht an der Kontur und eine geschlossene Oberfläche entstehen bei 0°. Dein Haupthebel ist niedrige Graduierung. Was baut der auf?",
         gestuft:"Dein Haupthebel passt, aber deine Begründung beschreibt die gestufte Zielform. Was erzeugt eine niedrige Graduierung wirklich?"}
     }
   };
+  SB_FAELLE.kompakt = {
+    kurz:"Kompakter Bob",
+    ziel:{bild:["nase","frau","A"], zonen:{oben:[110,210], mitte:[210,320], unten:[320,425], kontur:[425,500]}},
+    zeichnungen:{"1":{el:45, leit:"mit"}, "2":{el:90, leit:"mit"}, "3":{el:0, leit:"fest"}},
+    loesungsZeichnung:{el:0, leit:"fest", g:"kontur"},
+    titel:"Kompakter Bob, kinnlang",
+    auftrag:"Die Kundin wünscht einen glatten, kinnlangen Bob, der unten satt und geschlossen wirkt. Übersetze ihren Wunsch in Zielform, Kontur und Gewicht. So soll der Bob am Ende aussehen:",
+    loesung:{silhouette:"kompakt", kontur:"waagrecht", gewicht:"kontur", formverhalten:"geschlossen", elevation:"0", abteilung:"waagrecht", leit:"fest", zeichnung:"3", glinie:"kontur", wirkung:"kompakt"},
+    warum:[
+      "Zielform kompakt: Das Gewicht liegt an der Kontur, darüber gibt es keine Gewichtslinie. Die Kontur verläuft waagrecht.",
+      "„Unten satt“ heißt: Das Gewicht liegt an der Kontur. Die Form ist überall geschlossen.",
+      "Haupthebel 0°: Alle Längen fallen ohne Anheben auf die Kontur, so bleibt das ganze Gewicht dort. Waagrechte Abteilungen ergeben eine waagrechte Kontur. Die feststehende Leitsträhne ist die Kontur: Jede Partie fällt auf diese eine Linie.",
+      "Strähnen senkrecht nach unten (0°), alle auf dieselbe Linie, rote Leitsträhne mit Schloss und die Gewichtslinie „G“ an der Kontur: Die Zeichnung zeigt genau deine Entscheidungen aus Modul 2 und 3.",
+      "Haupthebel, Gewicht und Zielform passen zusammen. Du kannst jetzt erklären, warum du so schneidest."
+    ],
+    fb:{
+      silhouette:{
+        graduiert:"Graduiert hieße: Das Gewicht liegt als Gewichtslinie über der Kontur, darunter ist die Form aufgelöst. Schau aufs Zielbild: Das Gewicht liegt ganz unten an der Kontur.",
+        gestuft:"Gestuft hieße: Das Gewicht ist verteilt und die Form aufgelöst. Hier liegt das Gewicht gesammelt an der Kontur."},
+      kontur:{
+        vorlang:"Schau auf die Kontur an der Seite: Sie verläuft waagrecht und wird nach vorne nicht länger.",
+        vorkurz:"Schau auf die Kontur an der Seite: Sie verläuft waagrecht und wird nach vorne nicht kürzer."},
+      gewicht:{
+        unten:"Eine Gewichtslinie in der unteren Zone gehört zur graduierten Zielform. In Modul 1 hast du kompakt erkannt: Das Gewicht liegt an der Kontur.",
+        mitte:"Eine Gewichtslinie in der mittleren Zone gehört zur graduierten Zielform. Hier liegt das Gewicht an der Kontur.",
+        oben:"Eine Gewichtslinie in der oberen Zone gehört zur graduierten Zielform. Hier liegt das Gewicht an der Kontur.",
+        verteilt:"Verteiltes Gewicht ohne Gewichtslinie gehört zur gestuften Zielform. Hier liegt das Gewicht an der Kontur."},
+      formverhalten:{
+        unten_aufgeloest:"Unterhalb der Gewichtslinie aufgelöst gehört zur graduierten Zielform. Bei kompakt gibt es keine Gewichtslinie über der Kontur, die Form ist überall geschlossen.",
+        oben_aufgeloest:"Bei kompakt ist nichts aufgelöst. Die Form ist überall geschlossen.",
+        aufgeloest:"Überall aufgelöst gehört zur gestuften Zielform. Kompakt ist überall geschlossen."},
+      elevation:{
+        niedrig:"Schon eine niedrige Graduierung baut eine Gewichtslinie über der Kontur auf. Für kompakt bleibt alles bei 0°.",
+        hoch:"Hohe Graduierung legt die Gewichtslinie noch höher. Für kompakt bleibt das Gewicht an der Kontur, also 0°.",
+        "90":"90° verteilt das Gewicht, die Form wird aufgelöst. Kompakt heißt: kein Anheben, 0°.",
+        ueber90:"Über 90° wird die Form aufgelöst und das Gewicht verteilt. Kompakt heißt: kein Anheben, 0°."},
+      abteilung:{
+        diagvor:"Diagonal-vorwärts macht die Kontur nach vorne länger. In Modul 1 hast du eine waagrechte Kontur erkannt.",
+        diagrueck:"Diagonal-rückwärts macht die Kontur nach vorne kürzer. In Modul 1 hast du eine waagrechte Kontur erkannt.",
+        senkrecht:"Senkrechte Abteilungen ergeben keine waagrechte Kontur. Die Abteilung folgt der Kontur aus Modul 1."},
+      leit:{
+        mit:"Mitwandernd baut eine Graduierung auf. Für kompakt fällt jede Partie auf die eine feststehende Leitsträhne an der Kontur."},
+      zeichnung:{
+        "1":"In Zeichnung 1 stehen die Strähnen in 45° vom Kopf weg. Das ist Graduierung. Dein Haupthebel aus Modul 3 ist 0°.",
+        "2":"In Zeichnung 2 stehen die Strähnen waagrecht vom Kopf weg. Das sind 90°. Dein Haupthebel aus Modul 3 ist 0°."},
+      glinie:{
+        oben:"Eine Gewichtslinie in der oberen Zone gibt es bei kompakt nicht. Schau auf deine Antwort in Modul 2: Das Gewicht liegt an der Kontur.",
+        mitte:"Eine Gewichtslinie in der mittleren Zone gibt es bei kompakt nicht. Schau auf deine Antwort in Modul 2: Das Gewicht liegt an der Kontur.",
+        unten:"Eine Gewichtslinie in der unteren Zone gehört zu graduiert. Schau auf deine Antwort in Modul 2: Das Gewicht liegt an der Kontur."},
+      wirkung:{
+        graduiert:"Eine Gewichtslinie über der Kontur entsteht erst mit Anheben. Dein Haupthebel ist 0°. Was macht der mit dem Gewicht?",
+        gestuft:"Gestuft entsteht ab 90°. Dein Haupthebel ist 0°: Das Gewicht bleibt an der Kontur, die Form geschlossen."}
+    }
+  };
+  var SB_FALL_REIHE = ["graduiert", "kompakt"];
+  function sbF(){ return SB_FAELLE[(st.sbAlle && st.sbAlle.aktiv) || "graduiert"]; }
 
   function sbNeu(){ return {modul:0, fertig:0, antw:{}, geprueft:false, fehler:{}}; }
-  function sbSpeichern(){ try { localStorage.setItem("sb-v2", JSON.stringify(st.sb)); } catch(e){} }
+  function sbSpeichern(){ try { localStorage.setItem("sb-v3", JSON.stringify(st.sbAlle)); } catch(e){} }
   function sbLaden(){
-    try { var d = JSON.parse(localStorage.getItem("sb-v2") || "null"); if (d && d.antw && typeof d.modul === "number" && d.modul >= 0 && d.modul <= SB_MODULE.length){ d.fehler = d.fehler || {}; return d; } } catch(e){}
-    return sbNeu();
+    var alle = {aktiv:"graduiert", faelle:{}};
+    try { var d = JSON.parse(localStorage.getItem("sb-v3") || "null"); if (d && d.faelle && SB_FAELLE[d.aktiv]) alle = d; } catch(e){}
+    SB_FALL_REIHE.forEach(function(k){
+      var f = alle.faelle[k];
+      if (!(f && f.antw && typeof f.modul === "number" && f.modul >= 0 && f.modul <= SB_MODULE.length)) alle.faelle[k] = sbNeu();
+      else f.fehler = f.fehler || {};
+    });
+    return alle;
   }
-  function sbOk(m){ return SB_MODULE[m].fragen.every(function(f){ return st.sb.antw[f.key] === SB_FALL.loesung[f.key]; }); }
+  function sbFallWahl(){
+    return '<div class="chips sb-faelle" role="group" aria-label="Fall wählen">' + SB_FALL_REIHE.map(function(k, i){
+      var on = k === st.sbAlle.aktiv, fertig = st.sbAlle.faelle[k].modul >= SB_MODULE.length;
+      return '<button class="chip' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="sbfall" data-val="' + k + '">Fall ' + (i + 1) + ': ' + SB_FAELLE[k].kurz + (fertig ? ' ✓' : '') + '</button>';
+    }).join("") + '</div>';
+  }
+  function sbOk(m){ return SB_MODULE[m].fragen.every(function(f){ return st.sb.antw[f.key] === sbF().loesung[f.key]; }); }
   function sbKomplett(m){ return SB_MODULE[m].fragen.every(function(f){ return st.sb.antw[f.key] != null; }); }
   function sbLabel(key, val){
     for (var m = 0; m < SB_MODULE.length; m++) for (var i = 0; i < SB_MODULE[m].fragen.length; i++){
@@ -2142,28 +2217,29 @@ wechsle aber nicht ohne Zustimmung.
   // ---------- Kopfschema im Profil (Gesicht links, Hinterkopf rechts) ----------
   var SB_KOPF = "M170,240 L172,182 C174,174 180,168 186,158 C194,146 198,132 200,112 C205,70 185,38 150,30 C110,22 64,40 60,82 " +
                 "C56,92 56,104 57,112 L44,132 L56,138 L54,150 L58,158 L56,166 C60,178 76,184 100,182 C108,194 112,214 112,240";
-  var SB_ZONEN = {oben:[18,92], mitte:[92,146], unten:[146,200]};
-  var SB_G_Y = {oben:70, mitte:122, unten:168};
+  var SB_ZONEN = {oben:[18,92], mitte:[92,146], unten:[146,200], kontur:[200,242]};
+  var SB_G_Y = {oben:70, mitte:122, unten:168, kontur:222};
   function sbHinten(y){ // Hinterkopf-Kontur: x-Wert zur Höhe y
     var P = [[90,203],[112,200],[132,197],[146,192],[158,186],[168,178],[176,174],[182,172],[196,171],[240,170]];
     if (y <= P[0][0]) return P[0][1];
     for (var i = 1; i < P.length; i++) if (y <= P[i][0]){ var a = P[i-1], b = P[i], t = (y - a[0]) / (b[0] - a[0]); return a[1] + t * (b[1] - a[1]); }
     return P[P.length-1][1];
   }
-  // Zielbild: Nachher-Foto aus dem Fall „Doppelkinn“ (Bob im Halbprofil), gespiegelt: Hinterkopf rechts wie in der Schnittzeichnung.
-  var SB_ZIEL_ZONEN = {oben:[95,205], mitte:[205,320], unten:[320,470]};
+  // Zielbild: Foto aus den Fällen, gespiegelt (Hinterkopf rechts wie in der Schnittzeichnung). Zonen je Foto im Fall.
   function sbZiel(o){
     o = o || {};
+    var Z = sbF().ziel, B = VL_BILDER[Z.bild[0]][Z.bild[1]][Z.bild[2]], zonen = Z.zonen;
     var s = '<svg viewBox="55 60 425 450" role="img" aria-label="' + (o.label || "Zielbild") + '" style="background:#fff;border-radius:12px">' +
-      '<image href="' + VL_BILDER.dk.frau.B.src + '" x="0" y="0" width="480" height="600" transform="translate(480,0) scale(-1,1)"/>';
+      '<image href="' + B.src + '" x="0" y="0" width="480" height="600" transform="translate(480,0) scale(-1,1)"/>';
     if (o.zonen){
-      ["oben","mitte","unten"].forEach(function(z){
-        var y = SB_ZIEL_ZONEN[z], on = o.zone === z;
+      var namen = {oben:"oben", mitte:"mitte", unten:"unten", kontur:"Kontur"};
+      ["oben","mitte","unten","kontur"].forEach(function(z){
+        var y = zonen[z], on = o.zone === z;
         s += '<rect x="250" y="' + y[0] + '" width="226" height="' + (y[1] - y[0]) + '" rx="12" fill="' + (on ? '#5B7B6F' : 'transparent') + '" fill-opacity="' + (on ? '.3' : '0') + '"' +
              (o.zonenKey ? ' data-act="sbwahl" data-key="' + o.zonenKey + '" data-val="' + z + '" style="cursor:pointer"' : '') + '/>';
+        if (z !== "oben") s += '<path d="M270,' + y[0] + ' L476,' + y[0] + '" stroke="#5B7B6F" stroke-width="2.5" stroke-dasharray="7 6"/>';
+        s += '<text x="472" y="' + (y[0] + 26) + '" font-size="20" font-weight="700" fill="#4A665B" stroke="#fff" stroke-width="5" paint-order="stroke" text-anchor="end" pointer-events="none">' + namen[z] + '</text>';
       });
-      s += '<path d="M270,205 L476,205 M270,320 L476,320" stroke="#5B7B6F" stroke-width="2.5" stroke-dasharray="7 6"/>';
-      s += '<g font-size="20" font-weight="700" fill="#4A665B" stroke="#fff" stroke-width="5" paint-order="stroke" text-anchor="end" pointer-events="none"><text x="472" y="124">oben</text><text x="472" y="234">mitte</text><text x="472" y="460">unten</text></g>';
     }
     return s + '</svg>';
   }
@@ -2173,18 +2249,20 @@ wechsle aber nicht ohne Zustimmung.
     s += '<path d="' + SB_KOPF + ' Z" fill="var(--g-kopf)"/><path d="' + SB_KOPF + '" fill="none" stroke="var(--g-kontur)" stroke-width="2" stroke-linejoin="round"/>';
     s += '<ellipse cx="128" cy="120" rx="9" ry="14" fill="none" stroke="var(--g-kontur)" stroke-width="1.5"/>';
     if (o.zonen){
-      ["oben","mitte","unten"].forEach(function(z){
+      ["oben","mitte","unten","kontur"].forEach(function(z){
         var y = SB_ZONEN[z], on = o.zone === z;
         s += '<rect x="132" y="' + y[0] + '" width="112" height="' + (y[1] - y[0]) + '" rx="8" fill="' + (on ? 'var(--accent)' : 'transparent') + '" fill-opacity="' + (on ? '.18' : '0') + '"' +
              (o.zonenKey ? ' data-act="sbwahl" data-key="' + o.zonenKey + '" data-val="' + z + '" style="cursor:pointer"' : '') + '/>';
       });
-      s += '<path d="M150,92 L244,92 M150,146 L244,146" stroke="var(--g-hilfe)" stroke-width="1.5" stroke-dasharray="4 4"/>';
-      s += '<g font-size="10" fill="var(--muted)" text-anchor="end" pointer-events="none"><text x="244" y="30">oben</text><text x="244" y="106">mitte</text><text x="244" y="196">unten</text></g>';
+      s += '<path d="M150,92 L244,92 M150,146 L244,146 M150,200 L244,200" stroke="var(--g-hilfe)" stroke-width="1.5" stroke-dasharray="4 4"/>';
+      s += '<g font-size="10" fill="var(--muted)" text-anchor="end" pointer-events="none"><text x="244" y="30">oben</text><text x="244" y="106">mitte</text><text x="244" y="160">unten</text><text x="244" y="238">Kontur</text></g>';
     }
     if (o.el != null){ // Schnittzeichnung: Abteilungen, Elevation, Leitsträhne
       var ys = [186, 174, 162, 150], L = 34, rad = o.el * Math.PI / 180, ends = [];
+      var gx0 = sbHinten(186) + L * Math.sin(rad), gy0 = 186 + L * Math.cos(rad);
       ys.forEach(function(y, i){
         var x = sbHinten(y), ex = x + L * Math.sin(rad), ey = y + L * Math.cos(rad), rot = i === 0;
+        if (o.leit === "fest"){ if (o.el === 0) ey = gy0; else { ex = gx0; ey = gy0; } }
         s += '<path d="M' + (x - 34).toFixed(1) + ',' + y + ' L' + x.toFixed(1) + ',' + y + '" stroke="var(--g-kontur)" stroke-width="1.2"/>';
         s += '<path d="M' + x.toFixed(1) + ',' + y + ' L' + ex.toFixed(1) + ',' + ey.toFixed(1) + '" stroke="' + (rot ? 'var(--bad)' : 'var(--ink)') + '" stroke-width="' + (rot ? 3 : 2) + '" stroke-linecap="round"/>';
         ends.push([ex, ey]);
@@ -2193,23 +2271,23 @@ wechsle aber nicht ohne Zustimmung.
       var x0 = sbHinten(150);
       s += '<path d="M' + x0.toFixed(1) + ',150 L' + x0.toFixed(1) + ',182" stroke="var(--g-hilfe)" stroke-width="1" stroke-dasharray="2 3"/>';
       s += '<text x="' + (x0 + 30) + '" y="142" font-size="12" font-weight="700" fill="var(--ink)">' + o.el + '°</text>';
-      var lx = Math.round(sbHinten(186)) + 8, ly = 228;
+      var lx = Math.round(sbHinten(186)) + (o.el === 0 ? 34 : 8), ly = o.el === 0 ? 212 : 228;
       if (o.leit === "mit") s += '<path d="M' + lx + ',' + (ly + 8) + ' L' + lx + ',' + (ly - 10) + ' M' + (lx - 5) + ',' + (ly - 4) + ' L' + lx + ',' + (ly - 10) + ' L' + (lx + 5) + ',' + (ly - 4) + '" fill="none" stroke="var(--bad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
       if (o.leit === "fest") s += '<rect x="' + (lx - 6) + '" y="' + (ly - 2) + '" width="12" height="10" rx="2" fill="var(--bad)"/><path d="M' + (lx - 4) + ',' + (ly - 2) + ' L' + (lx - 4) + ',' + (ly - 6) + ' A4,4 0 0 1 ' + (lx + 4) + ',' + (ly - 6) + ' L' + (lx + 4) + ',' + (ly - 2) + '" fill="none" stroke="var(--bad)" stroke-width="2"/>';
     }
     if (o.g){
       var gy = SB_G_Y[o.g], gx = sbHinten(gy);
-      s += '<path d="M' + (gx - 44).toFixed(1) + ',' + gy + ' L' + (gx + 6).toFixed(1) + ',' + gy + '" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>';
+      s += '<path d="M' + (gx - 44).toFixed(1) + ',' + gy + ' L' + (gx + (o.g === "kontur" ? 24 : 6)).toFixed(1) + ',' + gy + '" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>';
       s += '<text x="' + (gx - 58).toFixed(1) + '" y="' + (gy + 5) + '" font-size="15" font-weight="700" fill="var(--accent)">G</text>';
     }
     return s + '</svg>';
   }
 
   function sbFrage(m, f){
-    var a = st.sb.antw[f.key], gp = st.sb.geprueft && m === st.sb.modul, r = SB_FALL.loesung[f.key];
+    var a = st.sb.antw[f.key], gp = st.sb.geprueft && m === st.sb.modul, r = sbF().loesung[f.key];
     var chips = f.opts.map(function(o){
       var on = a === o[0], cls = on ? (gp ? (o[0] === r ? ' on right' : ' on wrong') : ' on') : '';
-      var inhalt = f.bild ? sbFig(Object.assign({label:o[1]}, SB_ZEICHNUNG[o[0]])) + '<span>' + o[1] + '</span>' : o[1];
+      var inhalt = f.bild ? sbFig(Object.assign({label:o[1]}, sbF().zeichnungen[o[0]])) + '<span>' + o[1] + '</span>' : o[1];
       return '<button class="' + (f.bild ? 'btn sb-bild' : 'chip') + cls + '" type="button" aria-pressed="' + on + '" data-act="sbwahl" data-key="' + f.key + '" data-val="' + o[0] + '">' + inhalt + '</button>';
     }).join("");
     return '<fieldset class="wahl"><legend>' + f.frage + '</legend><div class="' + (f.bild ? 'sb-bilder' : 'chips sb-chips') + '">' + chips + '</div></fieldset>';
@@ -2236,7 +2314,7 @@ wechsle aber nicht ohne Zustimmung.
   }
 
   function renderBaukasten(){
-    if (!st.sb) st.sb = sbLaden();
+    if (!st.sbAlle){ st.sbAlle = sbLaden(); st.sb = st.sbAlle.faelle[st.sbAlle.aktiv]; }
     var S = st.sb, m = S.modul, A = S.antw, ende = m >= SB_MODULE.length, M = SB_MODULE[Math.min(m, SB_MODULE.length - 1)];
     var schritte = '<ol class="steps sb-steps" aria-label="Module">' + SB_MODULE.map(function(x, i){
       var c = i === m ? "now" : (i < S.fertig ? "done" : ""), offen = i <= S.fertig && i !== m;
@@ -2246,12 +2324,12 @@ wechsle aber nicht ohne Zustimmung.
 
     // Bild links: Zielbild (Module 1–3), eigene Zeichnung (Modul 4), fertige Zeichnung (Modul 5 und Abschluss)
     var bild, bildTitel;
-    if (ende || m === 4){ bildTitel = "Deine Schnittzeichnung"; bild = sbFig({el:45, leit:"mit", g:"unten", label:"Schnittzeichnung graduierter Bob"}); }
+    if (ende || m === 4){ bildTitel = "Deine Schnittzeichnung"; bild = sbFig(Object.assign({label:"Schnittzeichnung " + sbF().kurz}, sbF().loesungsZeichnung)); }
     else if (m === 3){
-      var z = SB_ZEICHNUNG[A.zeichnung];
+      var z = sbF().zeichnungen[A.zeichnung];
       bildTitel = "Deine Zeichnung";
       bild = sbFig(Object.assign({zonen:true, zonenKey:"glinie", zone:A.glinie, g:A.glinie, label:"Deine Schnittzeichnung"}, z || {}));
-    } else { bildTitel = "Zielbild"; bild = sbZiel({zonen:m === 1, zonenKey:m === 1 ? "gewicht" : null, zone:m === 1 ? A.gewicht : null, label:"Zielbild graduierter Bob mit Fülle im Nacken, Profil"}); }
+    } else { bildTitel = "Zielbild"; bild = sbZiel({zonen:m === 1, zonenKey:m === 1 ? "gewicht" : null, zone:m === 1 ? A.gewicht : null, label:"Zielbild " + sbF().titel}); }
 
     var aufgabe;
     if (ende){
@@ -2261,9 +2339,12 @@ wechsle aber nicht ohne Zustimmung.
           (Object.keys(S.fehler).length ? ' Schau dir die korrigierten Module noch einmal an. Du kannst sie oben antippen.' : '') + '</p>' +
         sbUebersicht() +
         '<p class="note">Erst Wirkung, dann Technik, dann Zeichnung: So gehst du bei jedem Schnitt vor.</p>' +
-        '<div class="controls" style="justify-content:flex-start"><button class="btn primary" type="button" data-act="sbneu">Nochmal von vorne</button></div>';
+        '<div class="controls" style="justify-content:flex-start">' +
+          SB_FALL_REIHE.filter(function(k){ return k !== st.sbAlle.aktiv && st.sbAlle.faelle[k].modul < SB_MODULE.length; }).slice(0, 1).map(function(k){
+            return '<button class="btn primary" type="button" data-act="sbfall" data-val="' + k + '">Weiter mit Fall ' + (SB_FALL_REIHE.indexOf(k) + 1) + ': ' + SB_FAELLE[k].kurz + ICON_WEITER + '</button>'; }).join("") +
+          '<button class="btn" type="button" data-act="sbneu">Diesen Fall nochmal</button></div>';
     } else {
-      var gp = S.geprueft, ok = gp && sbOk(m), fehler = gp && !ok ? M.fragen.filter(function(f){ return A[f.key] !== SB_FALL.loesung[f.key]; }) : [];
+      var gp = S.geprueft, ok = gp && sbOk(m), fehler = gp && !ok ? M.fragen.filter(function(f){ return A[f.key] !== sbF().loesung[f.key]; }) : [];
       aufgabe = '<p class="sb-ebene">' + (m < 3 ? 'Ebene 1 · Schnittentscheidung denken' : 'Ebene 2 · Schnittzeichnung ableiten') + '</p>' +
         '<h2>Modul ' + (m + 1) + ': ' + M.titel + '</h2>' +
         '<p class="sb-leit">' + M.leit + '</p>' +
@@ -2271,9 +2352,9 @@ wechsle aber nicht ohne Zustimmung.
         (m === 3 ? '<div class="callout"><p><strong>Symbole:</strong> dünne Linie = Abteilung · Strahl mit Gradzahl = Elevation · rote Strähne = Leitsträhne (Pfeil nach oben = mitwandernd, Schloss = feststehend) · dicke grüne Linie „G“ = Gewichtslinie · gestrichelt = Schnittlinie</p></div>' : '') +
         (m === 4 ? sbSatz() : '') +
         M.fragen.map(function(f){ return sbFrage(m, f); }).join("") +
-        (ok ? '<div class="callout good"><p><strong>Richtig.</strong> ' + SB_FALL.warum[m] + '</p>' + (S.fehler[m] ? '<p class="note">Hier hattest du beim ersten Versuch einen Fehler. Jetzt steht die richtige Lösung da.</p>' : '') + '</div>' : '') +
+        (ok ? '<div class="callout good"><p><strong>Richtig.</strong> ' + sbF().warum[m] + '</p>' + (S.fehler[m] ? '<p class="note">Hier hattest du beim ersten Versuch einen Fehler. Jetzt steht die richtige Lösung da.</p>' : '') + '</div>' : '') +
         (fehler.length ? '<div class="callout bad">' + fehler.map(function(f){
-            var t = A[f.key] != null && SB_FALL.fb[f.key] ? SB_FALL.fb[f.key][A[f.key]] : null;
+            var t = A[f.key] != null && sbF().fb[f.key] ? sbF().fb[f.key][A[f.key]] : null;
             return '<p><strong>' + f.frage + ':</strong> ' + (t || "Wähl hier noch eine Antwort.") + '</p>';
           }).join("") + '<p class="note">Du kannst deine Antwort ändern und noch einmal prüfen. Wenn du weitergehst, wird die richtige Lösung übernommen.</p></div>' : '') +
         '<div class="controls" style="justify-content:flex-start">' +
@@ -2285,11 +2366,12 @@ wechsle aber nicht ohne Zustimmung.
     return '<div class="screen">' +
       '<div class="pagehead"><h1>Schnitt-Baukasten <span class="tag">V1</span></h1>' +
         '<p class="meta">Erst die Schnittentscheidung denken, dann die Schnittzeichnung ableiten. Die Zeichnung ist die Übersetzung deiner Entscheidung.</p></div>' +
-      '<p class="sb-fall"><strong>Fall:</strong> ' + SB_FALL.titel + '</p>' +
+      sbFallWahl() +
+      '<p class="sb-fall"><strong>Fall:</strong> ' + sbF().titel + '</p>' +
       schritte +
       '<div class="bk-grid sb-grid">' +
         '<section class="card fig sb-fig"><h2 class="sb-bildtitel">' + bildTitel + '</h2>' +
-          (m === 0 && !ende ? '<p class="note">' + SB_FALL.auftrag + '</p>' : '') + bild + '</section>' +
+          (m === 0 && !ende ? '<p class="note">' + sbF().auftrag + '</p>' : '') + bild + '</section>' +
         '<section class="card text sb-aufgabe">' + aufgabe + '</section>' +
         (!ende && m > 0 ? '<section class="card text sb-bisher"><h2>Deine Entscheidungen</h2>' + sbUebersicht() + '</section>' : '') +
       '</div>' +
@@ -3528,10 +3610,11 @@ wechsle aber nicht ohne Zustimmung.
     }
     if (a==="sbpruef"){ st.sb.geprueft = true; if (!sbOk(st.sb.modul)) st.sb.fehler[st.sb.modul] = true; sbSpeichern(); }
     if (a==="sbweiter"){
-      if (!sbOk(st.sb.modul)){ st.sb.fehler[st.sb.modul] = true; SB_MODULE[st.sb.modul].fragen.forEach(function(f){ st.sb.antw[f.key] = SB_FALL.loesung[f.key]; }); }
+      if (!sbOk(st.sb.modul)){ st.sb.fehler[st.sb.modul] = true; SB_MODULE[st.sb.modul].fragen.forEach(function(f){ st.sb.antw[f.key] = sbF().loesung[f.key]; }); }
       st.sb.fertig = Math.max(st.sb.fertig, st.sb.modul + 1); st.sb.modul++; st.sb.geprueft = st.sb.fertig > st.sb.modul; sbSpeichern(); moved = true; }
     if (a==="sbmodul"){ st.sb.modul = +b.dataset.val; st.sb.geprueft = st.sb.fertig > st.sb.modul; sbSpeichern(); moved = true; }
-    if (a==="sbneu"){ st.sb = sbNeu(); sbSpeichern(); moved = true; }
+    if (a==="sbneu"){ st.sb = st.sbAlle.faelle[st.sbAlle.aktiv] = sbNeu(); sbSpeichern(); moved = true; }
+    if (a==="sbfall"){ st.sbAlle.aktiv = b.dataset.val; st.sb = st.sbAlle.faelle[b.dataset.val]; sbSpeichern(); moved = true; }
     if (a!=="bksim" && a!=="bk") st.bkAnim = false;
     if (a==="pick"){ st.picked = +b.dataset.i; if (st.picked === fall().fragen[st.q].r) st.score++; }
     if (a==="nextQ"){ st.q++; st.picked = null; }
