@@ -2257,6 +2257,18 @@ wechsle aber nicht ohne Zustimmung.
     });
     return alle;
   }
+  // Nach allen drei Fällen: die drei Grundformen im Sprachraster nebeneinander
+  function sbVergleich(){
+    if (!SB_FALL_REIHE.every(function(k){ return st.sbAlle.faelle[k].modul >= SB_MODULE.length; })) return '';
+    var zeilen = [["silhouette","Zielform"],["kontur","Kontur"],["gewicht","Gewicht"],["formverhalten","geschlossen / aufgelöst"],["elevation","Haupthebel"],["abteilung","Abteilung"],["leit","Leitsträhne"],["glinie","Gewichtslinie „G“"]];
+    return '<div class="callout accent"><p><strong>Alle drei Grundformen geschafft.</strong> Dieselben Fragen führen über dieselben Begriffe zu kompakt, graduiert oder gestuft:</p></div>' +
+      '<div class="tabelle"><table><thead><tr><th></th>' + SB_FALL_REIHE.map(function(k){ return '<th>' + SB_FAELLE[k].kurz + '</th>'; }).join("") + '</tr></thead><tbody>' +
+      zeilen.map(function(z){ return '<tr><th scope="row">' + z[1] + '</th>' + SB_FALL_REIHE.map(function(k){ var t = sbLabel(z[0], SB_FAELLE[k].loesung[z[0]]);
+        if (z[0] === "silhouette") t = t.split(":")[0];
+        t = t.replace(/ \(Nacken.*?\)/, "").replace(/ \((kompakt|gleichmäßig gestuft)\)/, "");
+        return '<td>' + t + '</td>'; }).join("") + '</tr>'; }).join("") +
+      '</tbody></table></div>';
+  }
   function sbFallWahl(){
     return '<div class="chips sb-faelle" role="group" aria-label="Fall wählen">' + SB_FALL_REIHE.map(function(k, i){
       var on = k === st.sbAlle.aktiv, fertig = st.sbAlle.faelle[k].modul >= SB_MODULE.length;
@@ -2398,7 +2410,7 @@ wechsle aber nicht ohne Zustimmung.
         '<div class="callout good"><p><strong>Deine Begründung:</strong></p>' + sbSatz() + '</div>' +
         '<p><strong>Beim ersten Versuch richtig: ' + (SB_MODULE.length - Object.keys(S.fehler).length) + ' von ' + SB_MODULE.length + ' Modulen.</strong>' +
           (Object.keys(S.fehler).length ? ' Schau dir die korrigierten Module noch einmal an. Du kannst sie oben antippen.' : '') + '</p>' +
-        sbUebersicht() +
+        sbUebersicht() + sbVergleich() +
         '<p class="note">Erst Wirkung, dann Technik, dann Zeichnung: So gehst du bei jedem Schnitt vor.</p>' +
         '<div class="controls" style="justify-content:flex-start">' +
           SB_FALL_REIHE.filter(function(k){ return k !== st.sbAlle.aktiv && st.sbAlle.faelle[k].modul < SB_MODULE.length; }).slice(0, 1).map(function(k){
