@@ -172,33 +172,8 @@ dl.steck dd{margin:0}
 @media (max-width:520px){dl.steck{grid-template-columns:1fr;gap:2px}dl.steck dd{margin-bottom:8px}}
 .wrap.breit{max-width:1120px}
 .bk-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
-.bk-info{position:relative;z-index:3}
-.bk-fig .nur-klein{display:none}
-.bk-fig{position:sticky;top:calc(var(--bar-h,64px) + 8px);z-index:2}
-.bk-fig svg{max-width:420px}
-.bk-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:-4px -18px 0;padding:4px 18px}
-.bk-tabs::-webkit-scrollbar{display:none}
-.bk-tabs .chip{flex:none}
-.bk-wahl .wahl.aus{display:none}
 @media (min-width:760px){
   .bk-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
-  .bk-fig{grid-row:span 2}
-  .bk-tabs{display:none}
-  .bk-fig svg{max-height:calc(100vh - var(--bar-h,64px) - 320px);min-height:300px;width:auto;max-width:100%}
-  .bk-wahl .wahl.aus{display:block}
-}
-@media (max-width:759px){
-  .bk-fig{padding:10px 12px;gap:8px}
-  .bk-fig svg{max-height:32vh;width:auto;max-width:100%}
-  .bk-fig .controls,.bk-fig .ansichten{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
-  .bk-fig .controls::-webkit-scrollbar,.bk-fig .ansichten::-webkit-scrollbar{display:none}
-  .bk-fig .chip{flex:none;min-height:34px;padding:4px 11px}
-  .bk-fig .nur-gross{display:none}
-  .bk-fig .nur-klein{display:inline-flex}
-  .bk-fig.frei{position:static}
-  .bk-wahl{gap:12px;padding-top:14px}
-  .bk-wahl h2,.bk-kopf .meta{display:none}
-  .bk-wahl .wahl legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 }
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 13px;font:inherit;font-size:var(--t-s);font-weight:700;min-height:38px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background-color .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease)}
@@ -208,13 +183,10 @@ dl.steck dd{margin:0}
 .punkt{width:12px;height:12px;border-radius:50%;display:inline-block;border:1px solid var(--line)}
 .wahl{border:0;margin:0;padding:0;min-width:0}
 .wahl legend{font-weight:700;padding:0;margin-bottom:8px}
-.bk-wahl{gap:18px}
 .ansichten{justify-content:center}
 .hd-bild{margin:0 auto;background:#fff;border-radius:12px;padding:8px;max-width:340px}
 .hd-bild img{display:block;width:100%;height:auto}
 .ansichten .trenn{width:1px;align-self:stretch;background:var(--line,currentColor);opacity:.35;margin:0 4px}
-.werkzeuge{padding-top:10px;border-top:1px solid var(--line)}
-#bk-marker{transition:left .9s var(--ease)}
 /* Schnitt-Baukasten V1 */
 .sb-fall{font-size:var(--t-m)}
 .sb-faelle{margin-bottom:-4px}
@@ -1259,8 +1231,7 @@ wechsle aber nicht ohne Zustimmung.
   ];
 
   // ---------- Zustand ----------
-  var BK_START = {ansicht:"vorne", form:"rund", augen:"mandel", brauen:"gebogen", mund:"voll", frisur:"seitlich", pony:"kein", bart:"kein", nase:"gerade", auge1:"kein", mundwinkel:"gleich", mess:true, oval:true, zeichnen:false, farbe:"ink", dicke:4, radieren:false, striche:[], vorher:null, vergleich:null};
-  var st = {kopfArt:"frau", richtung1:"hinterkopf", richtung2:"B", dk:"A", dkHilfe:true, fehlerDk:"breit", rund:"A", rundHilfe:true, richtung4:"lang", fehlerRund:"seitlich", ohren:"A", ohrHilfe:true, richtung6:"B", fehlerOhr:"undercut", hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", hdForm:"rund", ans1:"profil", ans2:"vorne", bk:null, bkAnim:false, bkVon:null, view:"pilot", fall:"nase", kap:-1, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
+  var st = {kopfArt:"frau", richtung1:"hinterkopf", richtung2:"B", dk:"A", dkHilfe:true, fehlerDk:"breit", rund:"A", rundHilfe:true, richtung4:"lang", fehlerRund:"seitlich", ohren:"A", ohrHilfe:true, richtung6:"B", fehlerOhr:"undercut", hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", hdForm:"rund", ans1:"profil", ans2:"vorne", view:"pilot", fall:"nase", kap:-1, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0};
 
   var SCREENS = [
     {step:-1, render:function(){
@@ -1823,20 +1794,6 @@ wechsle aber nicht ohne Zustimmung.
 
 
   // ==================== Baukasten: Gesicht zusammenstellen, Balance simulieren, zeichnen ====================
-  var BK_OPT = {
-    form:   [["oval","Oval"],["rund","Rund"],["viereck","Viereck"],["rechteck","Rechteck (lang)"],["aufsteigend","Dreieck aufsteigend"],["abfallend","Dreieck abfallend"],["raute","Raute"]],
-    augen:  [["mandel","Mandel"],["rund","Rund"],["schmal","Schmal"],["haengend","Hängend"]],
-    auge1:  [["kein","Beide gleich"],["haengend_l","Links hängend"],["haengend_r","Rechts hängend"],["klein_l","Links kleiner"],["klein_r","Rechts kleiner"]],
-    brauen: [["gerade","Gerade"],["gebogen","Gebogen"],["kantig","Kantig"]],
-    nase:   [["gerade","Gerade"],["klein","Klein"],["lang","Lang"],["markant","Markant"]],
-    mund:   [["schmal","Schmal"],["voll","Voll"],["breit","Breit"]],
-    mundwinkel: [["gleich","Beide gleich"],["links","Links abfallend"],["rechts","Rechts abfallend"]],
-    frisur: [["kurz","Kurz anliegend"],["oben","Volumen oben"],["seitlich","Volumen seitlich"],["hinterkopf","Volumen Hinterkopf"],["bob","Bob kinnlang"],["lang","Lang"]],
-    pony:   [["kein","Kein Pony"],["gerade","Gerade"],["schraeg","Schräg, tief links"],["schraeg_r","Schräg, tief rechts"]],
-    bart:   [["kein","Kein Bart"],["stoppeln","Stoppeln"],["schnurr","Schnurrbart"],["kinn","Kinnbart"],["voll","Vollbart"]]
-  };
-  var BK_GRUPPEN = ["form","augen","auge1","brauen","nase","mund","mundwinkel","frisur","pony","bart"];
-  var BK_TITEL = {form:"Gesichtsform", augen:"Augen", auge1:"Ein Auge anders", brauen:"Augenbrauen", nase:"Nase", mund:"Mund", mundwinkel:"Mundwinkel", frisur:"Frisur", pony:"Pony", bart:"Bart"};
   // Gesichtsformen: Breite von Stirn (f), Wangen (c), Kiefer (j), Kinnbreite (ch), Oberkante (top), Kinn (cy)
   var BK_FORM = {
     oval:        {top:112, f:150, c:172, j:128, ch:44,  cy:402},
@@ -1848,15 +1805,6 @@ wechsle aber nicht ohne Zustimmung.
     raute:       {top:112, f:126, c:192, j:118, ch:34,  cy:404}
   };
   var BK_Y = {F:160, C:250, J:330};
-  var BK_TIPP = {
-    oval: "Ein harmonisches (ovales) Gesicht kann nahezu jede Frisur tragen. (Seite 6)",
-    rund: "Ein weiches (rundes) Gesicht: lange, wellige oder gestufte Haare, ein seitlicher Pony oder ein asymmetrischer Bob lassen es schmaler erscheinen. (Seite 6)",
-    abfallend: "Ein abfallendes Gesicht mit schmaler Stirn und breiterem Kiefer wird durch viel Volumen am Oberkopf ausgeglichen. (Seite 6)",
-    aufsteigend: "Ein aufsteigendes Gesicht mit breiterer Stirn und schmalerem Kiefer: seitlicher Pony oder seitlicher Scheitel, lange Haare, die das Gesicht umrahmen. (Seite 6)",
-    viereck: "Ziel ist die harmonische Form: eckige Linien harmonieren mit weichen Linien. (Seite 4)",
-    rechteck: "Ziel ist die harmonische Form: ein langes Gesicht braucht eher Breite als Höhe.",
-    raute: "Ziel ist die harmonische Form: Stirn und Kinn ergänzen, die breiten Wangen nicht zusätzlich betonen."
-  };
 
   function bkGeo(form){
     var F = BK_FORM[form], yE = F.top + (F.cy - F.top) * 0.42, yN = F.top + (F.cy - F.top) * 0.64;
@@ -1879,14 +1827,6 @@ wechsle aber nicht ohne Zustimmung.
       lang:     [[200,t-16],[200+F.f*0.44,t],[200+F.f/2+14,BK_Y.F],[200+F.c/2+18,BK_Y.C],[200+F.j/2+28,F.cy],[200+F.c/2+30,478],[200+F.c*0.26,478],[200+F.c/2-12,BK_Y.C],[200,e]]
     }[frisur];
     return sp(P);
-  }
-  function bkBreite(pts, y){
-    var xs = [];
-    for (var i = 0; i < pts.length; i++){
-      var a = pts[i], b = pts[(i+1) % pts.length];
-      if ((a[1] - y) * (b[1] - y) <= 0 && a[1] !== b[1]) xs.push(a[0] + (b[0]-a[0]) * (y - a[1]) / (b[1] - a[1]));
-    }
-    return xs.length ? Math.max.apply(null, xs) - Math.min.apply(null, xs) : 0;
   }
   var BK_BART_LAENGE = {kein:0, stoppeln:0, schnurr:0, kinn:22, voll:16};
   // Wirkung auf die wahrgenommene Form: Breite Stirn (dF), Wangen (dC), Kiefer (dJ), Länge (dL, Faktor k)
@@ -1933,39 +1873,8 @@ wechsle aber nicht ohne Zustimmung.
     }
     return {auge:auge, mund:mund};
   }
-  function bkBeste(k){
-    var best = null, beste = -1, barte = k.bart === "kein" ? ["kein"] : ["stoppeln","schnurr","kinn","voll"];
-    BK_OPT.frisur.forEach(function(fr){ BK_OPT.pony.forEach(function(po){ barte.forEach(function(ba){
-      var c = Object.assign({}, k, {frisur:fr[0], pony:po[0], bart:ba}), s = bkScore(c);
-      if (s > beste + 0.001){ beste = s; best = c; }
-    }); }); });
-    return best;
-  }
-  function bkWasAendert(v, n){
-    var a = bkMass(v), b = bkMass(n), I = BK_IDEAL, out = [];
-    var naeher = function(x, y, i){ return Math.abs(Math.log(y / i)) < Math.abs(Math.log(x / i)) - 0.01; };
-    if (naeher(a.rL, b.rL, I.rL)) out.push(b.rL > a.rL ? "Das Gesicht wirkt länger und schmaler." : "Das Gesicht wirkt kürzer und breiter, also weniger lang.");
-    if (naeher(a.rF, b.rF, I.rF)) out.push("Stirn und Wangen wirken im Verhältnis ausgeglichener.");
-    if (naeher(a.rJ, b.rJ, I.rJ)) out.push(b.rJ > a.rJ ? "Der Kinn- und Kieferbereich bekommt Gewicht und gleicht die Stirn aus." : "Der Kieferbereich wirkt schmaler und leichter.");
-    var av = bkAsymAbzug(v), an = bkAsymAbzug(n);
-    if (an.auge < av.auge - 0.01) out.push("Der schräge Pony liegt über dem " + (n.auge1.indexOf("haengend") === 0 ? "hängenden" : "kleineren") + " Auge hoch und fällt zur anderen Seite. Dort entsteht Luft, die Augenpartie wirkt ausgeglichener. Die Augen bleiben gleich.");
-    if (an.mund < av.mund - 0.01) out.push("Der Blick wird vom abfallenden Mundwinkel weggelenkt. Der Mundwinkel selbst bleibt gleich.");
-    if (bkProfilAbzug(n) < bkProfilAbzug(v) - 0.01) out.push("Im Profil bekommt die Nase ein Gegengewicht am Hinterkopf. Die Nase bleibt gleich, das Verhältnis ändert sich.");
-    return out.length ? out : ["Die Form war schon ausgeglichen. Es ändert sich nur wenig."];
-  }
-  function bkNamen(key, val){ for (var i = 0; i < BK_OPT[key].length; i++) if (BK_OPT[key][i][0] === val) return BK_OPT[key][i][1]; return val; }
 
   // --- Einzelteile zeichnen ---
-  function bkAuge(art, ex, ey, s, id){
-    var o = ex + 18 * s, i = ex - 18 * s, d;
-    if (art === "mandel") d = "M" + i + "," + ey + " Q" + ex + "," + (ey-13) + " " + o + "," + ey + " Q" + ex + "," + (ey+11) + " " + i + "," + ey + " Z";
-    if (art === "rund") d = "M" + i + "," + ey + " Q" + i + "," + (ey-13) + " " + ex + "," + (ey-13) + " Q" + o + "," + (ey-13) + " " + o + "," + ey + " Q" + o + "," + (ey+12) + " " + ex + "," + (ey+12) + " Q" + i + "," + (ey+12) + " " + i + "," + ey + " Z";
-    if (art === "schmal") d = "M" + i + "," + ey + " Q" + ex + "," + (ey-8) + " " + o + "," + ey + " Q" + ex + "," + (ey+7) + " " + i + "," + ey + " Z";
-    if (art === "haengend") d = "M" + i + "," + (ey-2) + " Q" + (ex + 2*s) + "," + (ey-12) + " " + o + "," + (ey+6) + " Q" + ex + "," + (ey+11) + " " + i + "," + (ey-2) + " Z";
-    return '<clipPath id="bka' + id + s + '"><path d="' + d + '"/></clipPath>' +
-      '<g clip-path="url(#bka' + id + s + ')"><circle cx="' + ex + '" cy="' + ey + '" r="7.5" fill="none" stroke="var(--ink)" stroke-width="1.8"/><circle cx="' + ex + '" cy="' + ey + '" r="3.4" fill="var(--ink)"/></g>' +
-      '<path d="' + d + '" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round"/>';
-  }
   function bkBart(art, g, id){
     if (art === "kein") return "";
     var F = g.F, yN = g.yN, yM = g.yM, cy = F.cy, ext = BK_BART_LAENGE[art], d = "";
@@ -1992,46 +1901,9 @@ wechsle aber nicht ohne Zustimmung.
       '<g clip-path="url(#bkg' + id + ')"><path d="' + flaeche + '" fill="var(--g-flaeche)"/><path d="' + kante + '" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="8 5"/></g>';
   }
 
-  function bkFig(k, o){
-    o = o || {};
-    if (st.bk.ansicht === "dreiviertel") st.bk.ansicht = "vorne";
-    var ans = st.bk.ansicht || "vorne", innen = "";
-    if (ans === "vorne" && k.oval){
-      var m = bkMass(k), I = BK_IDEAL || (bkScore(k), BK_IDEAL), rx = m.wC / 2, ry = rx * I.rL, cyO = (m.oben + m.unten) / 2;
-      innen += '<ellipse cx="200" cy="' + cyO.toFixed(1) + '" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-dasharray="3 6" stroke-linecap="round"/>';
-    }
-    if (ans === "vorne" && k.mess){
-      var M = bkMass(k), linie = function(y, w, t){
-        return '<line x1="' + (200 - w/2).toFixed(1) + '" y1="' + y + '" x2="' + (200 + w/2).toFixed(1) + '" y2="' + y + '" stroke="var(--accent)" stroke-width="2" opacity=".8"/>' +
-          '<line x1="' + (200 - w/2).toFixed(1) + '" y1="' + (y-6) + '" x2="' + (200 - w/2).toFixed(1) + '" y2="' + (y+6) + '" stroke="var(--accent)" stroke-width="2"/>' +
-          '<line x1="' + (200 + w/2).toFixed(1) + '" y1="' + (y-6) + '" x2="' + (200 + w/2).toFixed(1) + '" y2="' + (y+6) + '" stroke="var(--accent)" stroke-width="2"/>' +
-          txt(46, y + 5, t, {size:13, fill:"var(--accent)"});
-      };
-      innen += linie(BK_Y.F, M.wF, "Stirn") + linie(BK_Y.C, M.wC, "Wangen") + linie(BK_Y.J, M.wJ, "Kiefer");
-    }
-    innen += '<g id="bk-striche">' + (st.bk.striche || []).filter(function(z){ return (z.v || "vorne") === ans; }).map(bkStrich).join("") + '</g>';
-    if (o.zeichnen) innen += '<rect id="bk-flaeche" x="40" y="20" width="320" height="470" fill="transparent" style="cursor:crosshair"/>';
-    return kopfAnsicht(k, ans, {laecheln:bkScore(k) >= 0.75, innen:innen, label:"Gesicht " + bkNamen("form", k.form) + ", Ansicht " + ans, attr:' class="bk-svg"' + (o.zeichnen ? ' style="touch-action:none"' : '')});
-  }
 
   // --- Zeichnen ---
-  var BK_FARBEN = {ink:"var(--ink)", accent:"var(--accent)", grau:"var(--g-kontur)"};
-  function bkStrich(z, i){
-    var d = z.p.map(function(p, j){ return (j ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ");
-    return '<path data-strich="' + i + '" d="' + d + '" fill="none" stroke="' + BK_FARBEN[z.f] + '" stroke-width="' + z.w + '" stroke-linecap="round" stroke-linejoin="round"/>';
-  }
-  function bkSpeichern(){ try { localStorage.setItem("bk-v1", JSON.stringify(st.bk)); } catch(e){} }
-  function bkLaden(){
-    try { var d = JSON.parse(localStorage.getItem("bk-v1") || "null"); if (d && d.form) return d; } catch(e){}
-    return null;
-  }
 
-  function bkWahl(key){
-    return '<fieldset class="wahl' + ((st.bkGruppe || "form") === key ? '' : ' aus') + '"><legend>' + BK_TITEL[key] + '</legend><div class="chips">' + BK_OPT[key].map(function(o){
-      var on = st.bk[key] === o[0];
-      return '<button class="chip' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="bk" data-key="' + key + '" data-val="' + o[0] + '">' + o[1] + '</button>';
-    }).join("") + '</div></fieldset>';
-  }
 
   // ==================== Schnitt-Baukasten V1: erst Schnittentscheidung denken, dann Schnittzeichnung ableiten ====================
   // Ebene 1 = Module 1–3, Ebene 2 = Module 4–5. Ein Modul öffnet sich erst, wenn das vorherige richtig geprüft ist.
@@ -2457,7 +2329,6 @@ wechsle aber nicht ohne Zustimmung.
 
 
   // Nase von vorne: w = halbe Breite der Nasenflügel, dy = Länge (Nasenspitze tiefer)
-  var BK_NASE_VORNE = {gerade:{w:14, dy:0}, klein:{w:10, dy:-5}, lang:{w:14, dy:8}, markant:{w:17, dy:4}};
   // ==================== Lehrkopf von vorne (Frau/Mann) ====================
   // Brauen, Augen, Nase, Mund und Ohren nach der Frontvorlage nachgezeichnet (konzept/vorlage-vorne).
   // Jedes Teil liegt um seinen Ankerpunkt (Augenmitte, Nasenunterkante, Mundmitte), die Gesichtskontur bleibt
@@ -2743,7 +2614,6 @@ wechsle aber nicht ohne Zustimmung.
 
   // ==================== Ansichten im Baukasten: vorne, Profil rechts/links, hinten ====================
   // Jede Ansicht ist von Hand im Linienstil gezeichnet. Frisur, Pony und Bart werden je Ansicht eingesetzt.
-  var ANSICHTEN = [["vorne","Vorne"],["profilr","Profil rechts"],["profill","Profil links"],["hinten","Hinten"]];
   var BK_MUSTER = function(id, art){
     return art === "stoppeln"
       ? '<pattern id="bm' + id + '" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r=".9" fill="var(--ink)"/></pattern>'
@@ -3600,7 +3470,7 @@ wechsle aber nicht ohne Zustimmung.
 
 
   // ---------- App-Rahmen ----------
-  function neuStart(){ return {kopfArt:st.kopfArt, richtung1:"hinterkopf", richtung2:"B", dk:"A", dkHilfe:true, fehlerDk:"breit", rund:"A", rundHilfe:true, richtung4:"lang", fehlerRund:"seitlich", ohren:"A", ohrHilfe:true, richtung6:"B", fehlerOhr:"undercut", hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", hdForm:"rund", ans1:"profil", ans2:"vorne", bk:st.bk, bkAnim:false, bkVon:null, view:st.view, fall:st.fall, kap:st.kap, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
+  function neuStart(){ return {kopfArt:st.kopfArt, richtung1:"hinterkopf", richtung2:"B", dk:"A", dkHilfe:true, fehlerDk:"breit", rund:"A", rundHilfe:true, richtung4:"lang", fehlerRund:"seitlich", ohren:"A", ohrHilfe:true, richtung6:"B", fehlerOhr:"undercut", hd:"A", hdHilfe:true, fehlerHd:"umgekehrt", hdForm:"rund", ans1:"profil", ans2:"vorne", view:st.view, fall:st.fall, kap:st.kap, hilfe:true, pony:"A", fehlerAuge:"schwer", screen:0, ohr:true, hair:"A", zonen:true, schaedel:false, winkel:0, fehler:"tief", q:0, picked:null, score:0}; }
 
   function renderPilot(){
     var SC = fall().screens, S = SC[st.screen];
@@ -3640,8 +3510,6 @@ wechsle aber nicht ohne Zustimmung.
     if (st.view === "trainer"){ app.innerHTML = ""; return; }
     app.classList.toggle("breit", st.view === "baukasten");
     app.innerHTML = st.view === "wissen" ? renderWissen() : st.view === "baukasten" ? renderBaukasten() : renderPilot();
-    var tab = app.querySelector(".bk-tabs .on");
-    if (tab) tab.parentNode.scrollLeft = tab.offsetLeft - tab.parentNode.offsetLeft - 18;
   }
 
   window.addEventListener("resize", function(){ var b = document.querySelector(".appbar"); if (b) document.documentElement.style.setProperty("--bar-h", b.offsetHeight + "px"); });
@@ -3657,26 +3525,7 @@ wechsle aber nicht ohne Zustimmung.
     if (a==="prev"){ st.screen = Math.max(st.screen-1, 0); moved = true; }
     if (a==="restart"){ st = neuStart(); moved = true; }
     if (a==="toggle"){ st[b.dataset.key] = !st[b.dataset.key]; }
-    if (a==="set"){ if (b.dataset.key === "bkvgl") st.bk.vergleich = b.dataset.val; else st[b.dataset.key] = b.dataset.key === "winkel" ? +b.dataset.val : b.dataset.val; }
-    if (a==="bk"){ st.bk[b.dataset.key] = b.dataset.val; st.bk.vorher = null; st.bk.vergleich = null; st.bkAnim = false; bkSpeichern(); }
-    if (a==="bktoggle"){ st.bk[b.dataset.key] = !st.bk[b.dataset.key]; if (!st.bk.zeichnen) st.bk.radieren = false; st.bkAnim = false; bkSpeichern(); }
-    if (a==="bkset"){ st.bk[b.dataset.key] = b.dataset.key === "dicke" ? +b.dataset.val : b.dataset.val; if (b.dataset.key !== "ansicht") st.bk.radieren = false; st.bkAnim = false; bkSpeichern(); }
-    if (a==="bkgruppe"){ st.bkGruppe = b.dataset.val; }
-    if (a==="bkradier"){ st.bk.radieren = !st.bk.radieren; st.bkAnim = false; }
-    if (a==="bkundo"){ st.bk.striche.pop(); st.bkAnim = false; bkSpeichern(); }
-    if (a==="bkleer"){ st.bk.striche = []; st.bkAnim = false; bkSpeichern(); }
-    if (a==="bkzurueck"){ Object.assign(st.bk, st.bk.vorher); st.bk.vorher = null; st.bk.vergleich = null; st.bkAnim = false; bkSpeichern(); }
-    if (a==="bksim"){
-      var basis = st.bk.vorher ? Object.assign({}, st.bk, st.bk.vorher) : st.bk, beste = bkBeste(basis);
-      st.bkVon = bkScore(basis);
-      st.bk.vorher = {frisur:basis.frisur, pony:basis.pony, bart:basis.bart};
-      st.bk.frisur = beste.frisur; st.bk.pony = beste.pony; st.bk.bart = beste.bart; st.bk.vergleich = "nachher";
-      st.bkAnim = true; bkSpeichern();
-      render();
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ var m = document.getElementById("bk-marker"); if (m) m.style.left = (bkScore(st.bk) * 100).toFixed(0) + "%"; }); });
-      setTimeout(function(){ st.bkAnim = false; }, 1000);
-      return;
-    }
+    if (a==="set"){ st[b.dataset.key] = b.dataset.key === "winkel" ? +b.dataset.val : b.dataset.val; }
     if (a==="sbwahl"){
       var sbm = sbModulVon(b.dataset.key);
       if (sbm >= 0){ st.sb.antw[b.dataset.key] = b.dataset.val; st.sb.modul = sbm; st.sb.geprueft = false; if (st.sb.fertig > sbm) st.sb.fertig = sbm; sbSpeichern(); }
@@ -3688,7 +3537,6 @@ wechsle aber nicht ohne Zustimmung.
     if (a==="sbmodul"){ st.sb.modul = +b.dataset.val; st.sb.geprueft = st.sb.fertig > st.sb.modul; sbSpeichern(); moved = true; }
     if (a==="sbneu"){ st.sb = st.sbAlle.faelle[st.sbAlle.aktiv] = sbNeu(); sbSpeichern(); moved = true; }
     if (a==="sbfall"){ st.sbAlle.aktiv = b.dataset.val; st.sb = st.sbAlle.faelle[b.dataset.val]; sbSpeichern(); moved = true; }
-    if (a!=="bksim" && a!=="bk") st.bkAnim = false;
     if (a==="pick"){ st.picked = +b.dataset.i; if (st.picked === fall().fragen[st.q].r) st.score++; }
     if (a==="nextQ"){ st.q++; st.picked = null; }
     if (a==="checkReset"){ st.q = 0; st.picked = null; st.score = 0; }
@@ -3707,48 +3555,7 @@ wechsle aber nicht ohne Zustimmung.
     });
   });
 
-  // Zeichnen im Baukasten
-  var NS = "http://www.w3.org/2000/svg", bkZug = null;
-  function bkPunkt(e){
-    var svg = document.querySelector("#bk-bild svg"), pt = svg.createSVGPoint();
-    pt.x = e.clientX; pt.y = e.clientY;
-    var q = pt.matrixTransform(svg.getScreenCTM().inverse());
-    return [q.x, q.y];
-  }
-  function bkRadiere(p){
-    var vorher = st.bk.striche.length;
-    var ans = st.bk.ansicht || "vorne"; st.bk.striche = st.bk.striche.filter(function(z){ return (z.v || "vorne") !== ans || !z.p.some(function(q){ return Math.hypot(q[0]-p[0], q[1]-p[1]) < 10; }); });
-    if (st.bk.striche.length !== vorher){ document.getElementById("bk-striche").innerHTML = st.bk.striche.filter(function(z){ return (z.v || "vorne") === ans; }).map(bkStrich).join(""); bkSpeichern(); }
-  }
-  document.addEventListener("pointerdown", function(e){
-    if (e.target.id !== "bk-flaeche") return;
-    e.preventDefault(); e.target.setPointerCapture(e.pointerId);
-    var p = bkPunkt(e);
-    if (st.bk.radieren){ bkZug = {radier:true}; bkRadiere(p); return; }
-    bkZug = {f:st.bk.farbe, w:st.bk.dicke, p:[p]};
-    var el = document.createElementNS(NS, "path");
-    el.setAttribute("fill", "none"); el.setAttribute("stroke", BK_FARBEN[bkZug.f]); el.setAttribute("stroke-width", bkZug.w);
-    el.setAttribute("stroke-linecap", "round"); el.setAttribute("stroke-linejoin", "round");
-    document.getElementById("bk-striche").appendChild(el); bkZug.el = el;
-  });
-  document.addEventListener("pointermove", function(e){
-    if (!bkZug) return;
-    var p = bkPunkt(e);
-    if (bkZug.radier){ bkRadiere(p); return; }
-    bkZug.p.push(p);
-    bkZug.el.setAttribute("d", bkZug.p.map(function(q, j){ return (j ? "L" : "M") + q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "));
-  });
-  function bkEnde(){
-    if (!bkZug) return;
-    if (!bkZug.radier && bkZug.p.length > 1){ st.bk.striche.push({f:bkZug.f, w:bkZug.w, p:bkZug.p, v:st.bk.ansicht || "vorne"}); bkSpeichern(); render(); }
-    else if (!bkZug.radier && bkZug.el) bkZug.el.remove();
-    else if (bkZug.radier) render();
-    bkZug = null;
-  }
-  document.addEventListener("pointerup", bkEnde);
-  document.addEventListener("pointercancel", bkEnde);
 
-  st.bk = Object.assign({}, BK_START, bkLaden() || {});
   window.FW_BILDQUELLEN = {VL:VL_BILDER, HB:HD_BILDER, HV:HD_VAR};
   render();
 })();
