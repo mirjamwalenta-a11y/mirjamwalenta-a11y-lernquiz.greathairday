@@ -14,7 +14,7 @@ Alle Modultexte, Antwortoptionen und Feedbacks verwenden nur diese Begriffe: **Z
 
 | Fall | Zielbild | Zielform | Kontur | Gewicht | Formverhalten | Haupthebel | Abteilung | Leitsträhne | Gewichtslinie „G“ |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 Graduierter Bob mit Fülle im Nacken | Nachher-Foto „Doppelkinn“ | graduiert | waagrecht | Gewichtslinie in der unteren Zone | oberhalb geschlossen, unterhalb aufgelöst | niedrige Graduierung (ca. 45°) | waagrecht | mitwandernd | untere Zone |
+| 1 Graduierter Bob mit Fülle im Nacken | Bob im Profil aus der Bildvorlage (eigene Datei `SB_BILD_GRADUIERT`) | graduiert | waagrecht | Gewichtslinie in der unteren Zone | oberhalb geschlossen, unterhalb aufgelöst | niedrige Graduierung (ca. 45°) | waagrecht | mitwandernd | untere Zone |
 | 2 Kompakter Bob, kinnlang | Vorher-Foto „Nase im Profil“ | kompakt | waagrecht | an der Kontur | überall geschlossen | 0° | waagrecht | feststehend | an der Kontur |
 | 3 Gestufte Form, kurz | Nachher-Foto „Nase im Profil“ | gestuft | nach vorne länger | verteilt | überall aufgelöst | 90° | senkrecht | mitwandernd | keine Gewichtslinie |
 
