@@ -215,6 +215,30 @@ dl.steck dd{margin:0}
 .ansichten .trenn{width:1px;align-self:stretch;background:var(--line,currentColor);opacity:.35;margin:0 4px}
 .werkzeuge{padding-top:10px;border-top:1px solid var(--line)}
 #bk-marker{transition:left .9s var(--ease)}
+/* Schnitt-Baukasten V1 */
+.sb-fall{font-size:var(--t-m)}
+.sb-steps li{display:flex;align-items:center}
+.sb-steps li button{all:unset;cursor:pointer;border-radius:999px}
+.sb-steps li button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.sb-ebene{font-size:var(--t-xs);font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);margin:0}
+.sb-leit{font-family:var(--f-display);font-size:var(--t-l);font-weight:700;line-height:1.3;margin:0}
+.sb-bildtitel{font-size:var(--t-m);margin:0}
+.sb-fig svg{max-width:380px}
+.sb-chips .chip{text-align:left;line-height:1.3;min-height:40px;height:auto;padding:8px 14px}
+.chip.right,.btn.right{background:var(--good-soft);border-color:var(--good);color:var(--ink)}
+.chip.wrong,.btn.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--ink)}
+.sb-bilder{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sb-bild{flex-direction:column;padding:6px;gap:4px}
+.sb-bild svg{width:100%;height:auto;display:block}
+.sb-satz{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-s);padding:12px 14px;line-height:1.9;margin:0}
+.callout .sb-satz{background:transparent;border:0;padding:0}
+.sb-slot{display:inline;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.sb-slot.leer{color:var(--muted);background:transparent;border:1px dashed var(--line)}
+.sb-uebersicht ol{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-direction:column;gap:6px}
+.sb-uebersicht li{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-s);font-size:var(--t-s)}
+.sb-uebersicht li.done{border-color:color-mix(in srgb,var(--accent) 35%,transparent);background:var(--accent-soft)}
+.sb-uebersicht .sb-ebene{margin-bottom:6px}
+@media (min-width:760px){.sb-grid .sb-fig{grid-row:span 2;position:sticky;top:calc(var(--bar-h,64px) + 8px)}}
 @media (prefers-reduced-motion: no-preference){.sim-in{animation:simIn .9s var(--ease)}@keyframes simIn{from{opacity:0}to{opacity:1}}}
 .tabelle{overflow-x:auto}
 .tabelle table{border-collapse:collapse;width:100%;min-width:480px;font-size:var(--t-s)}
@@ -2007,57 +2031,251 @@ wechsle aber nicht ohne Zustimmung.
     }).join("") + '</div></fieldset>';
   }
 
+  // ==================== Schnitt-Baukasten V1: erst Schnittentscheidung denken, dann Schnittzeichnung ableiten ====================
+  // Ebene 1 = Module 1–3, Ebene 2 = Module 4–5. Ein Modul öffnet sich erst, wenn das vorherige richtig geprüft ist.
+  var SB_MODULE = [
+    {titel:"Zielform erkennen", leit:"Was soll am Ende sichtbar entstehen?",
+     info:"Schau nur auf das Zielbild. Technik kommt erst in Modul 3.",
+     fragen:[
+      {key:"silhouette", frage:"Welche Silhouette siehst du?", opts:[["kompakt","Kompakt: geschlossene Form, Gewicht ganz unten an der Kontur"],["graduiert","Graduiert: Gewicht sitzt als sichtbare Kante, darunter schmaler"],["gestuft","Gestuft: aufgelöste Form, Gewicht verteilt"]]},
+      {key:"kontur", frage:"Wie verläuft die Kontur?", opts:[["waagrecht","Waagrecht"],["vorlang","Nach vorne länger"],["vorkurz","Nach vorne kürzer"]]}]},
+    {titel:"Gewicht und Bewegung entscheiden", leit:"Wo soll Gewicht bleiben und wo soll Bewegung entstehen?",
+     info:"Du kannst die Zone auch direkt am Kopf antippen.",
+     fragen:[
+      {key:"gewicht", frage:"Wo sitzt das Gewicht?", opts:[["unten","Untere Zone (Nacken / unterer Hinterkopf)"],["mitte","Mittlere Zone (Hinterkopf)"],["oben","Obere Zone (Oberkopf)"],["kontur","Gleichmäßig an der Kontur"]]},
+      {key:"bewegung", frage:"Wo entsteht Bewegung?", opts:[["nirgends","Nirgends, die Oberfläche bleibt geschlossen"],["unter","Unterhalb der Gewichtslinie"],["ueber","Oberhalb der Gewichtslinie"],["ganz","In der ganzen Form"]]}]},
+    {titel:"Haupthebel wählen", leit:"Welche technische Grundentscheidung erzeugt diese Form am stärksten?",
+     info:"Jetzt kommt die Technik als Ursache für die Form aus Modul 1 und 2. Fingerhaltung, Pointen und Slicen sind noch nicht dabei.",
+     fragen:[
+      {key:"elevation", frage:"Haupthebel: Elevation", opts:[["0","0° (kein Anheben)"],["niedrig","Niedrig graduiert (ca. 1–45°)"],["hoch","Hoch graduiert (ca. 46–89°)"],["90","90° (gleichmäßig gestuft)"],["ueber90","Über 90° (zunehmend gestuft)"]]},
+      {key:"abteilung", frage:"Begleitentscheidung: Abteilungsrichtung", opts:[["waagrecht","Waagrecht"],["diagvor","Diagonal-vorwärts (nach vorne länger)"],["diagrueck","Diagonal-rückwärts (nach vorne kürzer)"],["senkrecht","Senkrecht"]]},
+      {key:"leit", frage:"Begleitentscheidung: Leitsträhne", opts:[["fest","Feststehend"],["mit","Mitwandernd"]]}]},
+    {titel:"In Schnittzeichnung übersetzen", leit:"Wie sieht diese Entscheidung in der Zeichnung aus?",
+     info:"Die richtige Zeichnung zeigt genau deine Entscheidungen aus Modul 3.",
+     fragen:[
+      {key:"zeichnung", frage:"Welche Zeichnung zeigt deine Entscheidung?", bild:true, opts:[["1","Zeichnung 1"],["2","Zeichnung 2"],["3","Zeichnung 3"]]},
+      {key:"glinie", frage:"Setz die Gewichtslinie „G“ auf den Kopf.", opts:[["oben","Obere Zone"],["mitte","Mittlere Zone"],["unten","Untere Zone"]]}]},
+    {titel:"Kurz begründen", leit:"Warum ist diese Entscheidung passend?",
+     info:"Die Begründung ist Pflicht. Der Fall ist erst mit einem stimmigen Satz abgeschlossen.",
+     fragen:[
+      {key:"wirkung", frage:"Welche Wirkung entsteht?", opts:[["kontur","eine geschlossene, schwere Kontur"],["kante","eine sichtbare Gewichtskante mit schmalem Ansatz darunter"],["aufgeloest","eine aufgelöste, bewegte Form"]]}]}
+  ];
+  // Varianten der Schnittzeichnung in Modul 4: el = Elevation in Grad, leit = Leitsträhne
+  var SB_ZEICHNUNG = {"1":{el:90, leit:"mit"}, "2":{el:45, leit:"mit"}, "3":{el:45, leit:"fest"}};
+  var SB_SATZ = {
+    elevation:{"0":"0°", niedrig:"niedriger Graduierung (ca. 45°)", hoch:"hoher Graduierung", "90":"90°", ueber90:"über 90°"},
+    leit:{mit:"mitwandernder Leitsträhne", fest:"feststehender Leitsträhne"},
+    gewicht:{unten:"im Nacken", mitte:"am Hinterkopf", oben:"am Oberkopf", kontur:"gleichmäßig an der Kontur"}
+  };
+  var SB_FALL = {
+    titel:"Graduierter Bob mit Fülle im Nacken",
+    auftrag:"Die Kundin wünscht einen graduierten Bob mit Fülle im Nacken. So soll er am Ende aussehen:",
+    loesung:{silhouette:"graduiert", kontur:"waagrecht", gewicht:"unten", bewegung:"unter", elevation:"niedrig", abteilung:"waagrecht", leit:"mit", zeichnung:"2", glinie:"unten", wirkung:"kante"},
+    warum:[
+      "Die Form hat eine sichtbare Gewichtskante und läuft darunter schmal aus. Die Kontur bleibt ruhig und waagrecht.",
+      "Die Fülle soll tief sitzen. Unter der Kante liegen kurze, aktive Enden eng am Nacken, darüber bleibt die Oberfläche geschlossen.",
+      "Eine niedrige Elevation baut Gewicht auf und hält die Gewichtslinie tief. Waagrechte Abteilungen ergeben eine waagrechte Kante. Die mitwandernde Leitsträhne sorgt dafür, dass die Graduierung gleichmäßig nach oben aufgebaut wird.",
+      "Waagrechte Abteilungen, 45°-Strahl, mitwandernde rote Leitsträhne und „G“ knapp über dem Nacken: Die Zeichnung zeigt genau deine Entscheidungen aus Modul 3.",
+      "Technik, Zone und Wirkung passen zusammen. Du kannst jetzt erklären, warum du so schneidest."
+    ],
+    fb:{
+      silhouette:{
+        kompakt:"Kompakt hieße: Das Gewicht liegt ganz unten an der Kontur, die Form bleibt bis zu den Spitzen geschlossen. Schau aufs Zielbild: Unter der Fülle wird der Nacken schmal. Das ist eine Kante.",
+        gestuft:"Gestuft wäre aufgelöst, das Gewicht wäre verteilt. Im Zielbild bleibt aber sichtbar Masse an einer Stelle stehen."},
+      kontur:{
+        vorlang:"Schau auf die Unterkante an der Seite: Sie läuft waagrecht und wird nach vorne nicht länger.",
+        vorkurz:"Schau auf die Unterkante an der Seite: Sie läuft waagrecht und wird nach vorne nicht kürzer."},
+      gewicht:{
+        mitte:"Am Hinterkopf säße die Fülle zu hoch. Gefragt ist Fülle im Nacken, also tiefer.",
+        oben:"Volumen am Oberkopf ist eine andere Form. Hier soll die Fülle unten bleiben.",
+        kontur:"Gleichmäßig an der Kontur heißt kompakt, ohne Kante. Hier baut sich das Gewicht als Kante auf, und darunter wird es schmal."},
+      bewegung:{
+        nirgends:"Ganz geschlossen wäre kompakt. Unter der Kante liegen kurze, aktive Enden am Nacken. Dort entsteht Bewegung.",
+        ueber:"Oberhalb der Kante bleibt die Form ruhig und geschlossen. Die kurzen, aktiven Enden sitzen darunter.",
+        ganz:"Fülle heißt hier: Da bleibt Masse stehen. Bewegung gibt es nur unter der Kante, darüber bleibt die Form ruhig."},
+      elevation:{
+        "0":"0° ergibt einen kompakten Bob. Du willst aber eine Kante, unter der der Nacken schmal wird. Dafür musst du leicht anheben.",
+        hoch:"Je höher du anhebst, desto höher rutscht die Fülle. Soll sie im Nacken bleiben, musst du tief bleiben, also ungefähr 45°.",
+        "90":"90° verteilt das Gewicht gleichmäßig, und dann gibt es keine Kante. Für Fülle im Nacken musst du Gewicht aufbauen. Das schafft eine niedrige Elevation.",
+        ueber90:"Über 90° werden die oberen Längen kürzer als die unteren, und die Form löst sich auf. Für Fülle im Nacken brauchst du das Gegenteil: Gewicht aufbauen und tief bleiben."},
+      abteilung:{
+        diagvor:"Diagonal-vorwärts macht die Linie nach vorne länger. Deine Zielform aus Modul 1 hat eine waagrechte Kontur.",
+        diagrueck:"Diagonal-rückwärts macht die Linie nach vorne kürzer. Deine Zielform aus Modul 1 hat eine waagrechte Kontur.",
+        senkrecht:"Senkrechte Abteilungen bauen keine waagrechte Gewichtskante auf. Die Abteilung folgt der Kontur aus Modul 1."},
+      leit:{
+        fest:"Wenn die Leitsträhne stehen bleibt, wird oben alles länger. Damit die Graduierung gleichmäßig aufbaut, muss sie mitwandern."},
+      zeichnung:{
+        "1":"In Zeichnung 1 stehen die Strähnen waagrecht vom Kopf weg. Das sind 90°. In Modul 3 hast du niedrig graduiert entschieden.",
+        "3":"In Zeichnung 3 hat die rote Strähne ein Schloss, also eine feststehende Leitsträhne. In Modul 3 hast du mitwandernd entschieden."},
+      glinie:{
+        oben:"Schau auf deine Antwort in Modul 2: Gewicht unten. Deine Zeichnung muss das genauso zeigen.",
+        mitte:"Die mittlere Zone ist der Hinterkopf. Dort säße die Fülle zu hoch. Schau auf deine Antwort in Modul 2."},
+      wirkung:{
+        kontur:"Eine geschlossene, schwere Kontur entsteht bei 0°. Du hast niedrig graduiert. Was baut das auf?",
+        aufgeloest:"Deine Technik passt, aber deine Begründung beschreibt einen anderen Schnitt. Was erzeugt eine niedrige Graduierung wirklich?"}
+    }
+  };
+
+  function sbNeu(){ return {modul:0, fertig:0, antw:{}, geprueft:false}; }
+  function sbSpeichern(){ try { localStorage.setItem("sb-v1", JSON.stringify(st.sb)); } catch(e){} }
+  function sbLaden(){
+    try { var d = JSON.parse(localStorage.getItem("sb-v1") || "null"); if (d && d.antw && typeof d.modul === "number" && d.modul >= 0 && d.modul <= SB_MODULE.length) return d; } catch(e){}
+    return sbNeu();
+  }
+  function sbOk(m){ return SB_MODULE[m].fragen.every(function(f){ return st.sb.antw[f.key] === SB_FALL.loesung[f.key]; }); }
+  function sbKomplett(m){ return SB_MODULE[m].fragen.every(function(f){ return st.sb.antw[f.key] != null; }); }
+  function sbLabel(key, val){
+    for (var m = 0; m < SB_MODULE.length; m++) for (var i = 0; i < SB_MODULE[m].fragen.length; i++){
+      var f = SB_MODULE[m].fragen[i]; if (f.key !== key) continue;
+      for (var j = 0; j < f.opts.length; j++) if (f.opts[j][0] === val) return f.opts[j][1];
+    }
+    return val;
+  }
+
+  // ---------- Kopfschema im Profil (Gesicht links, Hinterkopf rechts) ----------
+  var SB_KOPF = "M170,240 L172,182 C174,174 180,168 186,158 C194,146 198,132 200,112 C205,70 185,38 150,30 C110,22 64,40 60,82 " +
+                "C56,92 56,104 57,112 L44,132 L56,138 L54,150 L58,158 L56,166 C60,178 76,184 100,182 C108,194 112,214 112,240";
+  var SB_ZONEN = {oben:[18,92], mitte:[92,146], unten:[146,200]};
+  var SB_G_Y = {oben:70, mitte:122, unten:168};
+  function sbHinten(y){ // Hinterkopf-Kontur: x-Wert zur Höhe y
+    var P = [[90,203],[112,200],[132,197],[146,192],[158,186],[168,178],[176,174],[182,172],[196,171],[240,170]];
+    if (y <= P[0][0]) return P[0][1];
+    for (var i = 1; i < P.length; i++) if (y <= P[i][0]){ var a = P[i-1], b = P[i], t = (y - a[0]) / (b[0] - a[0]); return a[1] + t * (b[1] - a[1]); }
+    return P[P.length-1][1];
+  }
+  function sbFig(o){
+    o = o || {};
+    var s = '<svg viewBox="0 0 250 250" role="img" aria-label="' + (o.label || "Kopf im Profil") + '">';
+    s += '<path d="' + SB_KOPF + ' Z" fill="var(--g-kopf)"/><path d="' + SB_KOPF + '" fill="none" stroke="var(--g-kontur)" stroke-width="2" stroke-linejoin="round"/>';
+    s += '<ellipse cx="128" cy="120" rx="9" ry="14" fill="none" stroke="var(--g-kontur)" stroke-width="1.5"/>';
+    if (o.ziel){ // Zielbild: graduierter Bob mit Fülle im Nacken, waagrechte Kontur
+      s += '<path d="M62,78 C60,36 110,14 154,22 C198,30 220,72 214,120 C211,146 218,160 207,172 C197,179 184,184 177,200 C171,192 168,184 166,176 L104,176 C104,150 96,116 70,98 Z" fill="var(--g-haar)" fill-opacity=".55" stroke="var(--g-haar-kontur)" stroke-width="2" stroke-linejoin="round"/>';
+      s += '<path d="M112,40 C150,34 190,60 200,110 M104,58 C140,60 176,90 186,140 M110,100 C140,110 166,138 172,172" fill="none" stroke="var(--g-haar-kontur)" stroke-width="1" opacity=".55"/>';
+    }
+    if (o.zonen){
+      ["oben","mitte","unten"].forEach(function(z){
+        var y = SB_ZONEN[z], on = o.zone === z;
+        s += '<rect x="132" y="' + y[0] + '" width="112" height="' + (y[1] - y[0]) + '" rx="8" fill="' + (on ? 'var(--accent)' : 'transparent') + '" fill-opacity="' + (on ? '.18' : '0') + '"' +
+             (o.zonenKey ? ' data-act="sbwahl" data-key="' + o.zonenKey + '" data-val="' + z + '" style="cursor:pointer"' : '') + '/>';
+      });
+      s += '<path d="M150,92 L244,92 M150,146 L244,146" stroke="var(--g-hilfe)" stroke-width="1.5" stroke-dasharray="4 4"/>';
+      s += '<g font-size="10" fill="var(--muted)" text-anchor="end" pointer-events="none"><text x="244" y="30">oben</text><text x="244" y="106">mitte</text><text x="244" y="196">unten</text></g>';
+    }
+    if (o.el != null){ // Schnittzeichnung: Abteilungen, Elevation, Leitsträhne
+      var ys = [186, 174, 162, 150], L = 34, rad = o.el * Math.PI / 180, ends = [];
+      ys.forEach(function(y, i){
+        var x = sbHinten(y), ex = x + L * Math.sin(rad), ey = y + L * Math.cos(rad), rot = i === 0;
+        s += '<path d="M' + (x - 34).toFixed(1) + ',' + y + ' L' + x.toFixed(1) + ',' + y + '" stroke="var(--g-kontur)" stroke-width="1.2"/>';
+        s += '<path d="M' + x.toFixed(1) + ',' + y + ' L' + ex.toFixed(1) + ',' + ey.toFixed(1) + '" stroke="' + (rot ? 'var(--bad)' : 'var(--ink)') + '" stroke-width="' + (rot ? 3 : 2) + '" stroke-linecap="round"/>';
+        ends.push([ex, ey]);
+      });
+      s += '<path d="M' + ends.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(" L") + '" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/>';
+      var x0 = sbHinten(150);
+      s += '<path d="M' + x0.toFixed(1) + ',150 L' + x0.toFixed(1) + ',182" stroke="var(--g-hilfe)" stroke-width="1" stroke-dasharray="2 3"/>';
+      s += '<text x="' + (x0 + 30) + '" y="142" font-size="12" font-weight="700" fill="var(--ink)">' + o.el + '°</text>';
+      var lx = Math.round(sbHinten(186)) + 8, ly = 228;
+      if (o.leit === "mit") s += '<path d="M' + lx + ',' + (ly + 8) + ' L' + lx + ',' + (ly - 10) + ' M' + (lx - 5) + ',' + (ly - 4) + ' L' + lx + ',' + (ly - 10) + ' L' + (lx + 5) + ',' + (ly - 4) + '" fill="none" stroke="var(--bad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+      if (o.leit === "fest") s += '<rect x="' + (lx - 6) + '" y="' + (ly - 2) + '" width="12" height="10" rx="2" fill="var(--bad)"/><path d="M' + (lx - 4) + ',' + (ly - 2) + ' L' + (lx - 4) + ',' + (ly - 6) + ' A4,4 0 0 1 ' + (lx + 4) + ',' + (ly - 6) + ' L' + (lx + 4) + ',' + (ly - 2) + '" fill="none" stroke="var(--bad)" stroke-width="2"/>';
+    }
+    if (o.g){
+      var gy = SB_G_Y[o.g], gx = sbHinten(gy);
+      s += '<path d="M' + (gx - 44).toFixed(1) + ',' + gy + ' L' + (gx + 6).toFixed(1) + ',' + gy + '" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>';
+      s += '<text x="' + (gx - 58).toFixed(1) + '" y="' + (gy + 5) + '" font-size="15" font-weight="700" fill="var(--accent)">G</text>';
+    }
+    return s + '</svg>';
+  }
+
+  function sbFrage(m, f){
+    var a = st.sb.antw[f.key], gp = st.sb.geprueft && m === st.sb.modul, r = SB_FALL.loesung[f.key];
+    var chips = f.opts.map(function(o){
+      var on = a === o[0], cls = on ? (gp ? (o[0] === r ? ' on right' : ' on wrong') : ' on') : '';
+      var inhalt = f.bild ? sbFig(Object.assign({label:o[1]}, SB_ZEICHNUNG[o[0]])) + '<span>' + o[1] + '</span>' : o[1];
+      return '<button class="' + (f.bild ? 'btn sb-bild' : 'chip') + cls + '" type="button" aria-pressed="' + on + '" data-act="sbwahl" data-key="' + f.key + '" data-val="' + o[0] + '">' + inhalt + '</button>';
+    }).join("");
+    return '<fieldset class="wahl"><legend>' + f.frage + '</legend><div class="' + (f.bild ? 'sb-bilder' : 'chips sb-chips') + '">' + chips + '</div></fieldset>';
+  }
+
+  function sbSatz(){
+    var A = st.sb.antw;
+    function slot(t, leer){ return '<span class="sb-slot' + (leer ? ' leer' : '') + '">' + t + '</span>'; }
+    return '<p class="sb-satz">Ich schneide mit ' + slot(SB_SATZ.elevation[A.elevation] || "…") + ' und ' + slot(SB_SATZ.leit[A.leit] || "…") +
+      ', weil das Gewicht ' + slot(SB_SATZ.gewicht[A.gewicht] || "…") + ' bleiben soll und ' + (A.wirkung ? slot(sbLabel("wirkung", A.wirkung)) : slot("[Wirkung wählen]", true)) + ' entstehen soll.</p>';
+  }
+
+  function sbUebersicht(){
+    var A = st.sb.antw;
+    function zeile(m, keys){
+      var done = st.sb.fertig > m;
+      return '<li class="' + (done ? 'done' : '') + '"><strong>' + (m + 1) + ' · ' + SB_MODULE[m].titel + '</strong>' +
+        (done ? '<span>' + keys.map(function(k){ return sbLabel(k, A[k]); }).join(" · ") + '</span>' : '<span class="note">noch offen</span>') + '</li>';
+    }
+    return '<div class="sb-uebersicht"><p class="sb-ebene">Ebene 1 · Schnittentscheidung denken</p><ol>' +
+      zeile(0, ["silhouette","kontur"]) + zeile(1, ["gewicht","bewegung"]) + zeile(2, ["elevation","abteilung","leit"]) + '</ol>' +
+      '<p class="sb-ebene">Ebene 2 · Schnittzeichnung ableiten</p><ol>' +
+      zeile(3, ["zeichnung","glinie"]) + zeile(4, ["wirkung"]) + '</ol></div>';
+  }
+
   function renderBaukasten(){
-    var k = st.bk, score = bkScore(k), vgl = k.vorher ? k.vergleich : null, zeig = vgl === "vorher" ? Object.assign({}, k, k.vorher) : k;
-    var sc = bkScore(zeig), wort = sc < 0.45 ? "unausgeglichen" : sc < 0.75 ? "fast ausgeglichen" : "ausgeglichen";
-    var werkzeuge = k.zeichnen
-      ? '<div class="controls werkzeuge">' +
-          ['ink','accent','grau'].map(function(f){ return '<button class="chip' + (k.farbe === f ? ' on' : '') + '" type="button" data-act="bkset" data-key="farbe" data-val="' + f + '"><span class="punkt" style="background:' + BK_FARBEN[f] + '"></span>' + {ink:"Schwarz", accent:"Grün", grau:"Grau"}[f] + '</button>'; }).join("") +
-          [[2,"Dünn"],[4,"Mittel"],[7,"Dick"]].map(function(w){ return '<button class="chip' + (k.dicke === w[0] ? ' on' : '') + '" type="button" data-act="bkset" data-key="dicke" data-val="' + w[0] + '">' + w[1] + '</button>'; }).join("") +
-          '<button class="chip' + (k.radieren ? ' on' : '') + '" type="button" data-act="bkradier">Radierer</button>' +
-          '<button class="chip" type="button" data-act="bkundo"' + (k.striche.length ? '' : ' disabled') + '>Rückgängig</button>' +
-          '<button class="chip" type="button" data-act="bkleer"' + (k.striche.length ? '' : ' disabled') + '>Zeichnung löschen</button>' +
-        '</div>'
-      : '';
+    if (!st.sb) st.sb = sbLaden();
+    var S = st.sb, m = S.modul, A = S.antw, ende = m >= SB_MODULE.length, M = SB_MODULE[Math.min(m, SB_MODULE.length - 1)];
+    var schritte = '<ol class="steps sb-steps" aria-label="Module">' + SB_MODULE.map(function(x, i){
+      var c = i === m ? "now" : (i < S.fertig ? "done" : ""), offen = i <= S.fertig && i !== m;
+      return '<li class="' + c + '"' + (i === m ? ' aria-current="step"' : '') + '>' +
+        (offen ? '<button type="button" data-act="sbmodul" data-val="' + i + '">' + (i + 1) + ' · ' + x.titel + '</button>' : (i + 1) + ' · ' + x.titel) + '</li>';
+    }).join("") + '</ol>';
+
+    // Bild links: Zielbild (Module 1–3), eigene Zeichnung (Modul 4), fertige Zeichnung (Modul 5 und Abschluss)
+    var bild, bildTitel;
+    if (ende || m === 4){ bildTitel = "Deine Schnittzeichnung"; bild = sbFig({el:45, leit:"mit", g:"unten", label:"Schnittzeichnung graduierter Bob"}); }
+    else if (m === 3){
+      var z = SB_ZEICHNUNG[A.zeichnung];
+      bildTitel = "Deine Zeichnung";
+      bild = sbFig(Object.assign({zonen:true, zonenKey:"glinie", zone:A.glinie, g:A.glinie, label:"Deine Schnittzeichnung"}, z || {}));
+    } else { bildTitel = "Zielbild"; bild = sbFig({ziel:true, zonen:m === 1, zonenKey:m === 1 ? "gewicht" : null, zone:m === 1 ? A.gewicht : null, label:"Zielbild graduierter Bob mit Fülle im Nacken, Profil"}); }
+
+    var aufgabe;
+    if (ende){
+      aufgabe = '<h2>Fall abgeschlossen</h2>' +
+        '<div class="callout good"><p><strong>Deine Begründung:</strong></p>' + sbSatz() + '</div>' +
+        sbUebersicht() +
+        '<p class="note">Erst Wirkung, dann Technik, dann Zeichnung: So gehst du bei jedem Schnitt vor.</p>' +
+        '<div class="controls" style="justify-content:flex-start"><button class="btn primary" type="button" data-act="sbneu">Nochmal von vorne</button></div>';
+    } else {
+      var gp = S.geprueft, ok = gp && sbOk(m), fehler = gp && !ok ? M.fragen.filter(function(f){ return A[f.key] !== SB_FALL.loesung[f.key]; }) : [];
+      aufgabe = '<p class="sb-ebene">' + (m < 3 ? 'Ebene 1 · Schnittentscheidung denken' : 'Ebene 2 · Schnittzeichnung ableiten') + '</p>' +
+        '<h2>Modul ' + (m + 1) + ': ' + M.titel + '</h2>' +
+        '<p class="sb-leit">' + M.leit + '</p>' +
+        '<p class="note">' + M.info + '</p>' +
+        (m === 3 ? '<div class="callout"><p><strong>Symbole:</strong> dünne Linie = Abteilung · Strahl mit Gradzahl = Elevation · rote Strähne = Leitsträhne (Pfeil nach oben = mitwandernd, Schloss = feststehend) · dicke grüne Linie „G“ = Gewichtslinie · gestrichelt = Schnittlinie</p></div>' : '') +
+        (m === 4 ? sbSatz() : '') +
+        M.fragen.map(function(f){ return sbFrage(m, f); }).join("") +
+        (ok ? '<div class="callout good"><p><strong>Richtig.</strong> ' + SB_FALL.warum[m] + '</p></div>' : '') +
+        (fehler.length ? '<div class="callout bad">' + fehler.map(function(f){
+            var t = A[f.key] != null && SB_FALL.fb[f.key] ? SB_FALL.fb[f.key][A[f.key]] : null;
+            return '<p><strong>' + f.frage + ':</strong> ' + (t || "Wähl hier noch eine Antwort.") + '</p>';
+          }).join("") + '<p class="note">Ändere deine Antwort und prüf noch einmal.</p></div>' : '') +
+        '<div class="controls" style="justify-content:flex-start">' +
+          (ok ? '<button class="btn primary" type="button" data-act="sbweiter">' + (m === SB_MODULE.length - 1 ? 'Fall abschließen' : 'Weiter zu Modul ' + (m + 2)) + ICON_WEITER + '</button>'
+              : '<button class="btn primary" type="button" data-act="sbpruef"' + (sbKomplett(m) ? '' : ' disabled') + '>Prüfen</button>') +
+        '</div>';
+    }
+
     return '<div class="screen">' +
-      '<div class="pagehead bk-kopf"><h1>Gesichts-Baukasten</h1><p class="meta">Stell ein Gesicht zusammen, prüfe die Balance und simuliere einen ausgleichenden Haarschnitt. Du kannst auch selbst darauf zeichnen.</p></div>' +
-      '<div class="bk-grid">' +
-        '<section class="card fig bk-fig' + (k.zeichnen ? ' frei' : '') + '">' +
-          (vgl ? '<div class="controls">' + seg("bkvgl", [["vorher","Vorher"],["nachher","Nachher"]], vgl) + '</div>' : '') +
-          '<div class="chips ansichten" role="group" aria-label="Kopf und Ansicht">' + seg("kopfArt", [["frau","Frau"],["mann","Mann"]], lkArt()).replace(/class="btn/g, 'class="chip') + '<span class="trenn" aria-hidden="true"></span>' + ANSICHTEN.map(function(a){ var on = (k.ansicht || "vorne") === a[0]; return '<button class="chip' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="bkset" data-key="ansicht" data-val="' + a[0] + '">' + a[1] + '</button>'; }).join("") + '</div>' +
-          '<div id="bk-bild" class="' + (st.bkAnim ? 'sim-in' : '') + '">' + bkFig(zeig, {zeichnen:k.zeichnen}) + '</div>' +
-          ((k.ansicht || "vorne") !== "vorne" ? '<p class="note nur-gross" style="text-align:center">Die Gesichtsform wirkt vor allem von vorne. Hier siehst du Kopf- und Haarform. Messlinien und Oval-Schablone gibt es in der Ansicht von vorne.</p>' : '') +
-          '<div class="meter" role="img" aria-label="Balance ' + Math.round(sc * 100) + ' Prozent">' +
-            '<div class="meter-bar"><span id="bk-marker" style="left:' + ((st.bkAnim && st.bkVon != null ? st.bkVon : sc) * 100).toFixed(0) + '%"></span></div>' +
-            '<div class="meter-lbl"><span>unausgeglichen</span><span>Balance ' + Math.round(sc * 100) + ' %</span><span>harmonisch</span></div></div>' +
-          '<div class="controls">' +
-            '<button class="chip' + (k.mess ? ' on' : '') + '" type="button" data-act="bktoggle" data-key="mess">Messlinien</button>' +
-            '<button class="chip' + (k.oval ? ' on' : '') + '" type="button" data-act="bktoggle" data-key="oval">Oval-Schablone</button>' +
-            '<button class="chip' + (k.zeichnen ? ' on' : '') + '" type="button" data-act="bktoggle" data-key="zeichnen">Zeichnen</button>' +
-            '<button class="chip nur-klein" type="button" data-act="bksim">Ausgleich simulieren</button>' +
-          '</div>' + werkzeuge +
-        '</section>' +
-        '<section class="card text bk-wahl">' +
-          '<h2>Zusammenstellen</h2>' +
-          '<div class="bk-tabs" role="group" aria-label="Bereich wählen">' + BK_GRUPPEN.map(function(g){ var on = (st.bkGruppe || "form") === g; return '<button class="chip' + (on ? ' on' : '') + '" type="button" aria-pressed="' + on + '" data-act="bkgruppe" data-val="' + g + '">' + BK_TITEL[g] + '</button>'; }).join("") + '</div>' +
-          BK_GRUPPEN.map(bkWahl).join("") +
-          '<p class="note">Links und rechts sind immer vom Betrachter aus gesehen.</p>' +
-        '</section>' +
-        '<section class="card text bk-info">' +
-          '<h2>Balance: ' + wort + '</h2>' +
-          '<p class="note">Die grünen Messlinien zeigen, wie breit Stirn, Wangen und Kiefer mit Frisur und Bart wirken. Die grüne Oval-Schablone zeigt die harmonische Form. Je näher die Gesamtform aus Gesicht, Frisur und Bart daran liegt, desto ausgeglichener wirkt das Gesicht.</p>' +
-          '<div class="callout accent"><p><strong>Aus dem Unterricht:</strong> ' + BK_TIPP[k.form] + '</p></div>' +
-          ((k.auge1 || "kein") !== "kein" ? '<div class="callout"><p><strong>Ein Auge anders:</strong> Das ' + ((k.auge1.slice(-1) === "l") ? 'linke' : 'rechte') + ' Auge wirkt ' + (k.auge1.indexOf("haengend") === 0 ? 'schwerer' : 'kleiner') + '. Ein schräger Pony, der über diesem Auge hoch liegt und zur anderen Seite fällt, lässt Luft. Fällt der Pony auf dieses Auge, wirkt es noch schwerer. Links und rechts sind vom Betrachter aus gesehen. <button class="linkbtn" type="button" data-act="goFall" data-val="auge">Zum Fall „Auge öffnen“</button></p></div>' : '') +
-          ((k.mundwinkel || "gleich") !== "gleich" ? '<div class="callout"><p><strong>Mundwinkel:</strong> Den Mundwinkel verändert der Haarschnitt nicht. Er kann aber den Blick lenken: Höhe am Oberkopf führt ihn nach oben, ein Schnurr- oder Vollbart kann den Mundwinkel teilweise überdecken. Eine Kontur, die genau auf Mundhöhe endet, wie ein kinnlanger Bob, lenkt den Blick eher hin.</p></div>' : '') +
-          (k.nase === "lang" || k.nase === "markant" ? '<div class="callout"><p><strong>Nase im Profil:</strong> Eine ' + (k.nase === "lang" ? 'lange' : 'markante') + ' Nase wirkt vor allem von der Seite. Schau dir die Ansicht Profil an. Volumen am Hinterkopf, auf der Verlängerung der Linie Nasenspitze – Ohrspitze, schafft ein Gegengewicht. Anliegend kurz fehlt es. Die Nase selbst bleibt gleich. <button class="linkbtn" type="button" data-act="goFall" data-val="nase">Zum Fall „Nase im Profil“</button></p></div>' : '') +
-          '<div class="controls" style="justify-content:flex-start"><button class="btn primary" type="button" data-act="bksim">Ausgleichenden Haarschnitt simulieren</button>' +
-          (k.vorher ? '<button class="btn" type="button" data-act="bkzurueck">Zurück zum Vorher</button>' : '') + '</div>' +
-          (k.vorher ? '<div class="callout good"><p><strong>Was sich verändert:</strong></p><ul>' + bkWasAendert(Object.assign({}, k, k.vorher), k).map(function(t){ return '<li>' + t + '</li>'; }).join("") + '</ul>' +
-            '<p class="note">Vorher: ' + bkNamen("frisur", k.vorher.frisur) + ', ' + bkNamen("pony", k.vorher.pony) + (k.vorher.bart !== "kein" ? ', ' + bkNamen("bart", k.vorher.bart) : '') + ' · Nachher: ' + bkNamen("frisur", k.frisur) + ', ' + bkNamen("pony", k.pony) + (k.bart !== "kein" ? ', ' + bkNamen("bart", k.bart) : '') + '</p></div>' : '') +
-          '<p class="note">Die Simulation ist eine Annäherung an die Formwirkung. Sie ersetzt nicht den Blick auf Haarstruktur, Haarmenge und Wunsch der Kundin oder des Kunden.</p>' +
-        '</section>' +
+      '<div class="pagehead"><h1>Schnitt-Baukasten <span class="tag">V1</span></h1>' +
+        '<p class="meta">Erst die Schnittentscheidung denken, dann die Schnittzeichnung ableiten. Die Zeichnung ist die Übersetzung deiner Entscheidung.</p></div>' +
+      '<p class="sb-fall"><strong>Fall:</strong> ' + SB_FALL.titel + '</p>' +
+      schritte +
+      '<div class="bk-grid sb-grid">' +
+        '<section class="card fig sb-fig"><h2 class="sb-bildtitel">' + bildTitel + '</h2>' +
+          (m === 0 && !ende ? '<p class="note">' + SB_FALL.auftrag + '</p>' : '') + bild + '</section>' +
+        '<section class="card text sb-aufgabe">' + aufgabe + '</section>' +
+        (!ende && m > 0 ? '<section class="card text sb-bisher"><h2>Deine Entscheidungen</h2>' + sbUebersicht() + '</section>' : '') +
       '</div>' +
     '</div>';
+  }
+  function sbModulVon(key){
+    for (var m = 0; m < SB_MODULE.length; m++) if (SB_MODULE[m].fragen.some(function(f){ return f.key === key; })) return m;
+    return -1;
   }
 
 
@@ -3282,6 +3500,14 @@ wechsle aber nicht ohne Zustimmung.
       setTimeout(function(){ st.bkAnim = false; }, 1000);
       return;
     }
+    if (a==="sbwahl"){
+      var sbm = sbModulVon(b.dataset.key);
+      if (sbm >= 0){ st.sb.antw[b.dataset.key] = b.dataset.val; st.sb.modul = sbm; st.sb.geprueft = false; if (st.sb.fertig > sbm) st.sb.fertig = sbm; sbSpeichern(); }
+    }
+    if (a==="sbpruef"){ st.sb.geprueft = true; sbSpeichern(); }
+    if (a==="sbweiter"){ st.sb.fertig = Math.max(st.sb.fertig, st.sb.modul + 1); st.sb.modul++; st.sb.geprueft = st.sb.fertig > st.sb.modul; sbSpeichern(); moved = true; }
+    if (a==="sbmodul"){ st.sb.modul = +b.dataset.val; st.sb.geprueft = st.sb.fertig > st.sb.modul; sbSpeichern(); moved = true; }
+    if (a==="sbneu"){ st.sb = sbNeu(); sbSpeichern(); moved = true; }
     if (a!=="bksim" && a!=="bk") st.bkAnim = false;
     if (a==="pick"){ st.picked = +b.dataset.i; if (st.picked === fall().fragen[st.q].r) st.score++; }
     if (a==="nextQ"){ st.q++; st.picked = null; }
