@@ -15,9 +15,9 @@ Alle Modultexte, Antwortoptionen und Feedbacks verwenden nur diese Begriffe: **Z
 
 | Fall | Zielbild | Zielform | Kontur | Gewicht | Formverhalten | Haupthebel | Abteilung | Leitsträhne | Gewichtslinie „G“ |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 Graduierter Bob mit Fülle im Nacken | Bob im Profil aus der Bildvorlage (eigene Datei `SB_BILD_GRADUIERT`) | graduiert | waagrecht | Gewichtslinie in der unteren Zone | oberhalb geschlossen, unterhalb aufgelöst | niedrige Graduierung (ca. 45°) | waagrecht | mitwandernd | untere Zone |
-| 2 Kompakter Bob, kinnlang | Bob im Profil aus der Bildvorlage (`SB_BILD_KOMPAKT`) | kompakt | waagrecht | an der Kontur | überall geschlossen | 0° | waagrecht | feststehend | an der Kontur |
-| 3 Gleichmäßig gestufte Form, kurz | Nachher-Foto „Nase im Profil“ | gleichmäßig gestuft | nach vorne länger | verteilt | überall aufgelöst | 90° | senkrecht | mitwandernd | keine Gewichtslinie |
+| 1 Graduierter Bob mit Fülle im Nacken | Foto, Ansicht von hinten (`SB_BILD_GRADUIERT`) | graduiert | nach vorne länger | Gewichtslinie in der unteren Zone | oberhalb geschlossen, unterhalb aufgelöst | niedrige Graduierung (ca. 45°) | diagonal-vorwärts | mitwandernd | untere Zone |
+| 2 Kompakter Bob, kinnlang | Foto im Profil (`SB_BILD_KOMPAKT`) | kompakt | nach vorne länger | an der Kontur | überall geschlossen | 0° | diagonal-vorwärts | feststehend | an der Kontur |
+| 3 Gleichmäßig gestufte Form, kurz | Foto, Ansicht von vorne (`SB_BILD_GLEICH`) | gleichmäßig gestuft | waagrecht | verteilt | überall aufgelöst | 90° | senkrecht | mitwandernd | keine Gewichtslinie |
 | 4 Ansteigend gestufte Form, schulterlang | Profil aus der Bildvorlage (`SB_BILD_ANSTEIGEND`) | ansteigend gestuft | waagrecht | verteilt | überall aufgelöst | über 90° | senkrecht | feststehend (oben) | keine Gewichtslinie |
 
 Die vier Fälle decken alle Zielformen ab: Dieselben Fragen führen über dieselben Begriffe zu kompakt, graduiert, gleichmäßig gestuft oder ansteigend gestuft.
@@ -91,7 +91,7 @@ Ein rein technischer Baukasten fragt nach Winkeln und Abteilungen, bevor der Leh
 
 | Element | Symbol |
 |---|---|
-| Abteilung | dünne Linien am Kopf (waagrecht) oder eine Linie entlang des Hinterkopfs (senkrecht) |
+| Abteilung | dünne Linien am Kopf (waagrecht oder schräg nach vorne fallend für diagonal-vorwärts) oder eine Linie entlang des Hinterkopfs (senkrecht) |
 | Elevation | Strahl vom Kopf weg, mit Gradzahl (0° = senkrecht nach unten, 90° = waagrecht vom Kopf weg) |
 | Leitsträhne | rote Strähne; mitwandernd mit Pfeil nach oben, feststehend mit Schloss (alle Partien laufen zur Leitsträhne) |
 | Gewichtslinie | dicke grüne Linie „G“ |
@@ -134,10 +134,10 @@ Die ersten drei Felder füllt die App mit den eigenen Antworten. Der Lehrling w�
 
 | Modul | Richtige Antwort | Begründung in der App |
 |---|---|---|
-| 1 | Zielform **graduiert**, Kontur **waagrecht** | Zielform graduiert: Das Gewicht liegt als Gewichtslinie über der Kontur. Die Kontur verläuft waagrecht. |
+| 1 | Zielform **graduiert**, Kontur **nach vorne länger** | Zielform graduiert: Das Gewicht liegt als Gewichtslinie über der Kontur. Die Kontur ist im Nacken kurz und wird nach vorne länger. |
 | 2 | Gewicht **als Gewichtslinie in der unteren Zone**, Form **oberhalb geschlossen, unterhalb aufgelöst** | „Fülle im Nacken“ heißt: Die Gewichtslinie liegt in der unteren Zone. Oberhalb der Gewichtslinie ist die Form geschlossen, unterhalb aufgelöst. |
-| 3 | **Niedrig graduiert (ca. 45°)**, **waagrecht**, **mitwandernd** | Haupthebel niedrige Graduierung: Sie baut eine Gewichtslinie auf und hält sie in der unteren Zone. Waagrechte Abteilungen ergeben eine waagrechte Kontur und Gewichtslinie. Die mitwandernde Leitsträhne baut die Graduierung gleichmäßig nach oben auf. |
-| 4 | **Zeichnung 2**, „G“ in der **unteren Zone** | Waagrechte Abteilungen, Strahl in 45°, mitwandernde rote Leitsträhne und die Gewichtslinie „G“ in der unteren Zone. |
+| 3 | **Niedrig graduiert (ca. 45°)**, **diagonal-vorwärts**, **mitwandernd** | Haupthebel niedrige Graduierung: Sie baut eine Gewichtslinie auf und hält sie in der unteren Zone. Diagonal-vorwärts abgeteilt wird die Kontur nach vorne länger. Die mitwandernde Leitsträhne baut die Graduierung gleichmäßig nach oben auf. |
+| 4 | **Zeichnung 2**, „G“ in der **unteren Zone** | Diagonal-vorwärts Abteilungen, Strahl in 45°, mitwandernde rote Leitsträhne und die Gewichtslinie „G“ in der unteren Zone. |
 | 5 | Zielform: **eine Gewichtslinie über der Kontur, oberhalb geschlossen, unterhalb aufgelöst** | „Ich wähle als Haupthebel niedrige Graduierung (ca. 45°) mit mitwandernder Leitsträhne, weil das Gewicht als Gewichtslinie in der unteren Zone liegen soll. So entsteht als Zielform: eine Gewichtslinie über der Kontur, oberhalb geschlossen, unterhalb aufgelöst.“ |
 
 Die falschen Zeichnungen in Fall 1: Zeichnung 1 = 90°, Zeichnung 3 = feststehende Leitsträhne.
