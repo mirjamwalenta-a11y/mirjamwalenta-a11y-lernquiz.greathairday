@@ -16,6 +16,8 @@ Alle Modultexte, Antwortoptionen und Feedbacks verwenden nur diese Begriffe:
 
 Merksatz für die App: **Unten entscheidet der Hebel, oben entscheidet der Kamm.**
 
+Dieses Dokument entspricht dem Stand der App (`beratung-formwirkung.html`, Reiter „Maschine“, Daten in `MOK_UEBUNGEN`, Screens in `MOK_SCREENS`). Umsetzungsdetail: In S1 heißen die Bänder neutral „Band 1 · Konturansatz“, „Band 2“, „Band 3“, damit die Hebelstellung nicht schon vor S2 verraten wird.
+
 Fachlicher Kern, der in jedem Feedback mitschwingt: Die Hebelstufen liegen nur wenige Millimeter auseinander. Der Hebel kann deshalb nur das untere Band des Verlaufs erzeugen. Sobald mehr Länge gebraucht wird, übernimmt der Kamm.
 
 ---
