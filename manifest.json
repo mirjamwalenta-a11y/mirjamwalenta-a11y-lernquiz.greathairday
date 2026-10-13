@@ -1,0 +1,18 @@
+{
+  "name": "Beratung & Formwirkung",
+  "short_name": "Beratung",
+  "icons": [
+    {
+      "src": "https://mirjamwalenta-a11y.github.io/abwesenheiten-ghd/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1c1917",
+  "start_url": "./beratung-formwirkung.html",
+  "scope": "./",
+  "id": "./beratung-formwirkung.html"
+}
